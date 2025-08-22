@@ -1,0 +1,282 @@
+/* Variables y estilos base */
+:root {
+  --bg: #07090b;
+  --panel: #0f1417;
+  --text: #e6eef3;
+  --muted: #9aa8b0;
+  --accent-cyan: #00e5ff;
+  --accent-cyan-dark: #009bb3;
+  --accent-red: #ff3b6b;
+}
+
+.recommend-page {
+  max-width: 1100px;
+  margin: 1.5rem auto;
+  color: var(--text);
+  padding: 1rem;
+  font-family: 'Roboto', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+}
+
+/* Estilos para el menú de navegación */
+.nav-buttons {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.btn-nav {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 0.8rem 1.5rem;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;
+}
+
+.btn-nav:hover {
+  background: var(--accent-cyan);
+  color: #001119;
+}
+
+/* Contenedor principal compacto */
+.recommend-page {
+  max-width: 700px;
+  margin: 1rem auto;
+  color: var(--text);
+  padding: 0.5rem;
+}
+
+.recommend-title {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--accent-cyan);
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Tarjeta de película compacta */
+.movie-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(0,229,255,0.2);
+  border-radius: 12px;
+  padding: 1.5rem;
+  max-width: 525px;
+  margin: 0 auto;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  transition: all 0.3s ease;
+}
+
+.movie-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  border-color: rgba(0,229,255,0.4);
+}
+
+/* Header compacto con poster y título */
+.movie-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.movie-poster {
+  width: 160px;
+  height: 240px;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.movie-poster:hover {
+  transform: scale(1.03);
+}
+
+.movie-title-section {
+  text-align: center;
+}
+
+.movie-title {
+  font-size: 1.6rem;
+  margin: 0;
+  line-height: 1.2;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.movie-year {
+  font-size: 1rem;
+  color: var(--accent-cyan);
+  opacity: 0.8;
+  display: block;
+  margin-top: 0.3rem;
+}
+
+/* Contenido de la película */
+.movie-content {
+  background: transparent;
+  border-radius: 8px;
+  padding: 1rem;
+  border: none;
+}
+
+.movie-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.meta-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(0,229,255,0.1);
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.meta-info:last-child {
+  border-bottom: none;
+}
+
+.meta-info strong {
+  color: var(--accent-cyan);
+  font-weight: 600;
+  min-width: 60px;
+  flex-shrink: 0;
+}
+
+.synopsis {
+  background: rgba(0,229,255,0.03);
+  border-left: 2px solid var(--accent-cyan);
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  font-style: italic;
+  opacity: 0.9;
+}
+
+/* Botones de acción compactos */
+.action-buttons {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+}
+
+.btn-primary,
+.btn-secondary {
+  flex: 1;
+  max-width: 140px;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--accent-cyan);
+  color: #001119;
+}
+
+.btn-primary:hover {
+  background: var(--accent-cyan-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,229,255,0.3);
+}
+
+.btn-secondary {
+  background: rgba(255,255,255,0.1);
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.btn-secondary:hover {
+  background: rgba(255,255,255,0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255,255,255,0.1);
+}
+
+/* Estados de carga y error */
+.loading,
+.no-movies {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.2rem;
+  color: var(--muted);
+}
+
+.no-movies h2 {
+  color: var(--text);
+  margin-bottom: 1rem;
+}
+
+.no-movies p {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* Responsive Design compacto */
+@media (max-width: 768px) {
+  .recommend-page {
+    margin: 0.5rem auto;
+    padding: 0.5rem;
+  }
+  
+  .movie-card {
+    padding: 1rem;
+    margin: 0 0.5rem;
+  }
+  
+  .movie-poster {
+    width: 140px;
+    height: 210px;
+  }
+  
+  .movie-title {
+    font-size: 1.4rem;
+  }
+  
+  .movie-header {
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .btn-primary,
+  .btn-secondary {
+    max-width: none;
+    width: 100%;
+  }
+  
+  .meta-info {
+    font-size: 0.85rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+  }
+  
+  .meta-info strong {
+    min-width: auto;
+  }
+}
