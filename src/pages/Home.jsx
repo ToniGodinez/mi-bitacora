@@ -62,7 +62,7 @@ const Home = () => {
       {/* Menú lateral */}
       <nav className={`sidebar-menu ${isMenuOpen ? 'open' : ''}`}>
         <div className="menu-header">
-          <h3>🎬 Mi Bitácora</h3>
+          <h3>Mi Bitácora</h3>
           <button 
             className="close-btn"
             onClick={closeMenu}
@@ -77,7 +77,6 @@ const Home = () => {
             className="menu-item"
             onClick={() => handleNavigation('/')}
           >
-            <span className="menu-icon">🏠</span>
             <span className="menu-text">Inicio</span>
           </button>
           
@@ -85,7 +84,6 @@ const Home = () => {
             className="menu-item"
             onClick={() => handleNavigation('/recomendacion')}
           >
-            <span className="menu-icon">🎯</span>
             <span className="menu-text">Recomendación</span>
           </button>
           
@@ -93,7 +91,6 @@ const Home = () => {
             className="menu-item"
             onClick={() => handleNavigation('/actualizacion')}
           >
-            <span className="menu-icon">🔄</span>
             <span className="menu-text">Actualización</span>
           </button>
         </div>
@@ -108,21 +105,18 @@ const Home = () => {
                 className="btn-nav" 
                 onClick={() => navigate('/')}
               >
-                <span className="nav-icon">🏠</span>
                 <span className="nav-text">Inicio</span>
               </button>
               <button 
                 className="btn-nav" 
                 onClick={() => navigate('/recomendacion')}
               >
-                <span className="nav-icon">🎯</span>
                 <span className="nav-text">Recomendación</span>
               </button>
               <button 
                 className="btn-nav" 
                 onClick={() => navigate('/actualizacion')}
               >
-                <span className="nav-icon">🔄</span>
                 <span className="nav-text">Actualización</span>
               </button>
             </div>

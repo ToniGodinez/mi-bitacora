@@ -37,7 +37,7 @@
   text-decoration: none;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
   user-select: none;
 }
 
@@ -599,7 +599,7 @@
   cursor: pointer;
   transition: all 0.2s ease;
   text-align: left;
-  gap: 1rem;
+  justify-content: flex-start;
 }
 
 .menu-item:hover {
@@ -610,12 +610,6 @@
 
 .menu-item:active {
   transform: scale(0.98);
-}
-
-.menu-icon {
-  font-size: 1.2rem;
-  width: 24px;
-  text-align: center;
 }
 
 .menu-text {
