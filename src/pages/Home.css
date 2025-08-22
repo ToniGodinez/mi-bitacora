@@ -134,7 +134,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.8);
   z-index: 999;
   opacity: 0;
   animation: fadeIn 0.3s ease forwards;
@@ -147,15 +147,16 @@
 .mobile-sidebar {
   position: fixed;
   top: 0;
-  left: -300px;
-  width: 300px;
+  left: -320px;
+  width: 320px;
   height: 100vh;
-  background: var(--panel);
+  background: linear-gradient(180deg, var(--bg) 0%, var(--panel) 100%);
   z-index: 1000;
-  transition: left 0.3s ease;
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   flex-direction: column;
-  box-shadow: 2px 0 20px rgba(0, 0, 0, 0.5);
+  box-shadow: 2px 0 30px rgba(0, 0, 0, 0.7);
+  border-right: 1px solid rgba(0, 229, 255, 0.2);
 }
 
 .mobile-sidebar.open {
@@ -166,37 +167,60 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  background: var(--bg);
+  padding: 2rem 1.5rem 1.5rem;
+  border-bottom: 2px solid rgba(0, 229, 255, 0.2);
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.05) 0%, rgba(0, 150, 200, 0.02) 100%);
+  position: relative;
+}
+
+.sidebar-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent-cyan), rgba(0, 229, 255, 0.3));
 }
 
 .sidebar-brand {
   color: var(--accent-cyan);
-  font-size: 1.2rem;
-  font-weight: 700;
+  font-size: 1.4rem;
+  font-weight: 800;
   margin: 0;
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.3);
 }
 
 .sidebar-close {
-  background: none;
-  border: none;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(0, 229, 255, 0.2);
   color: var(--text);
-  font-size: 1.5rem;
+  font-size: 1.8rem;
   cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 4px;
-  transition: all 0.2s ease;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .sidebar-close:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(0, 229, 255, 0.1);
   color: var(--accent-cyan);
+  border-color: var(--accent-cyan);
+  transform: rotate(90deg);
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
 }
 
 .sidebar-menu {
   flex: 1;
-  padding: 1rem 0;
+  padding: 2rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .sidebar-link {
@@ -206,17 +230,66 @@
   border: none;
   color: var(--text);
   text-align: left;
-  font-size: 1rem;
-  font-weight: 500;
-  padding: 1rem 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 1.2rem 1.5rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  margin: 0 1rem;
+  border-radius: 12px;
+  border-left: 3px solid transparent;
+}
+
+.sidebar-link::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  background: var(--accent-cyan);
+  border-radius: 0 4px 4px 0;
+  transition: all 0.3s ease;
 }
 
 .sidebar-link:hover {
-  background: rgba(0, 229, 255, 0.1);
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.1) 0%, rgba(0, 150, 200, 0.05) 100%);
   color: var(--accent-cyan);
   padding-left: 2rem;
+  border-left-color: var(--accent-cyan);
+  box-shadow: 0 4px 15px rgba(0, 229, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.sidebar-link:hover::before {
+  width: 4px;
+  height: 60%;
+}
+
+.sidebar-link:active {
+  transform: translateY(0);
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.15) 0%, rgba(0, 150, 200, 0.08) 100%);
+}
+
+/* Agregar iconos a los enlaces */
+.sidebar-link:nth-child(1)::after {
+  content: '🏠';
+  margin-left: auto;
+  font-size: 1.2rem;
+}
+
+.sidebar-link:nth-child(2)::after {
+  content: '⭐';
+  margin-left: auto;
+  font-size: 1.2rem;
+}
+
+.sidebar-link:nth-child(3)::after {
+  content: '📝';
+  margin-left: auto;
+  font-size: 1.2rem;
 }
 
 /* Banner solo con imagen de fondo */
