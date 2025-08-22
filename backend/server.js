@@ -7,9 +7,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 🔗 Tu connection string de Neon
+// 🔗 Tu connection string de Neon - usar variable de entorno en production
 const pool = new Pool({
-  connectionString: 'postgresql://neondb_owner:npg_9TcH0ExpkdWX@ep-red-cherry-aerqtahe-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
+  connectionString: process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_9TcH0ExpkdWX@ep-red-cherry-aerqtahe-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
 });
 
 // 🧠 Ruta para guardar película
@@ -267,6 +267,9 @@ app.delete('/api/movies/:id', async (req, res) => {
   }
 });
 
-app.listen(3000, () => {
-  console.log('🚀 Backend corriendo en http://localhost:3000');
+// 🚀 Server startup
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor iniciado en puerto ${PORT}`);
+  console.log(`🎬 Bitácora de Películas lista para usar!`);
 });
