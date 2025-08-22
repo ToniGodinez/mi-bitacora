@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import './Home.css';
 
 const FALLBACK = 'https://placehold.co/154x231/222/fff?text=Sin+Imagen';
-const TMDB_API_KEY = '5f9a774c4ea58c1d35759ac3a48088d4';
+const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || '5f9a774c4ea58c1d35759ac3a48088d4';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 const Stars = ({ value = 0 }) => {
   const full = Math.round(Number(value) || 0);
@@ -39,7 +40,7 @@ const Home = () => {
 
   const loadDb = async () => {
     try {
-      const res = await fetch('http://localhost:3000/api/movies');
+      const res = await fetch(`${API_URL}/api/movies`);
       const data = await res.json();
   console.log('DEBUG: /api/movies response', data);
   // Support a few possible shapes: array, { value: [...] }, { rows: [...] }
@@ -102,7 +103,7 @@ const Home = () => {
         setDbMovies(prev => prev.map(x => x.id === m.id ? { ...x, ...updated } : x));
         // Persistir en la BD (PUT parcial)
         try {
-          await fetch(`http://localhost:3000/api/movies/${m.id}`, {
+          await fetch(`${API_URL}/api/movies/${m.id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ overview: info.overview || m.overview_es, genres: info.genres, media_type: info.media_type })
@@ -232,7 +233,7 @@ const Home = () => {
                       const ok = window.confirm(`¿Eliminar "${m.title}" (${m.year}) de la bitácora? Esta acción no se puede deshacer.`);
                       if (!ok) return;
                       try {
-                        const resp = await fetch(`http://localhost:3000/api/movies/${m.id}`, { method: 'DELETE' });
+                        const resp = await fetch(`${API_URL}/api/movies/${m.id}`, { method: 'DELETE' });
                         if (resp.ok) {
                           // optimistically remove from UI
                           setDbMovies(prev => prev.filter(x => x.id !== m.id));

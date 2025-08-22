@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './UpdateMovie.css';
 
+const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || '5f9a774c4ea58c1d35759ac3a48088d4';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
 const UpdateMovie = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -68,7 +71,7 @@ const UpdateMovie = () => {
         console.log(`📡 Guardando película ${i + 1}/${movies.length}: "${movieData.title}"`);
 
         try {
-          const response = await fetch('http://localhost:3000/api/movies', {
+          const response = await fetch(`${API_URL}/api/movies`, {
             method: 'POST',
             headers: { 
               'Content-Type': 'application/json',

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './RecommendMovie.css';
 
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w300';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 const RecommendMovie = () => {
   const [recommendedMovie, setRecommendedMovie] = useState(null);
@@ -13,7 +14,7 @@ const RecommendMovie = () => {
     const fetchRandomPendingMovie = async () => {
       try {
         // Obtener todas las películas
-        const res = await fetch('http://localhost:3000/api/movies');
+        const res = await fetch(`${API_URL}/api/movies`);
         const data = await res.json();
         
         // Filtrar solo las películas pendientes

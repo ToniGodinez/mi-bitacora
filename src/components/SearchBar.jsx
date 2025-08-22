@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const TMDB_API_KEY = '5f9a774c4ea58c1d35759ac3a48088d4';
+const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || '5f9a774c4ea58c1d35759ac3a48088d4';
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w154';
 const FALLBACK_IMAGE = 'https://placehold.co/154x231/222/fff?text=Sin+Imagen';
 

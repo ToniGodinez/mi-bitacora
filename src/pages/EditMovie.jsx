@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import './EditMovie.css';
 
-const TMDB_API_KEY = '5f9a774c4ea58c1d35759ac3a48088d4';
+const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || '5f9a774c4ea58c1d35759ac3a48088d4';
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w300';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 const EditMovie = () => {
   const { state } = useLocation();
@@ -147,7 +148,7 @@ const EditMovie = () => {
       // If editing DB record, PUT only editable fields
       if (isDbRecord && movieFromState?.id) {
         const id = movieFromState.id;
-        const updateResp = await fetch(`http://localhost:3000/api/movies/${id}`, {
+        const updateResp = await fetch(`${API_URL}/api/movies/${id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -181,7 +182,7 @@ const EditMovie = () => {
       }
 
       // Otherwise, create new record (POST)
-      const response = await fetch('http://localhost:3000/api/movies', {
+      const response = await fetch(`${API_URL}/api/movies`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -207,7 +208,7 @@ const EditMovie = () => {
             if (!existingId) {
               alert('No se encontró id del registro existente. No se puede actualizar.');
             } else {
-              const updateResp2 = await fetch(`http://localhost:3000/api/movies/${existingId}`, {
+              const updateResp2 = await fetch(`${API_URL}/api/movies/${existingId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(fullMovieData)
