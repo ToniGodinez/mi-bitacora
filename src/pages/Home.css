@@ -763,6 +763,7 @@
   .menu-overlay {
     display: none !important;
   }
+}
   
 /* =========================
    RESPONSIVE MEDIA QUERIES
@@ -852,4 +853,3 @@
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(0, 229, 255, 0.1);
 }
-
