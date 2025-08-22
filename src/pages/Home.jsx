@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import SearchBar from '../components/SearchBar.jsx';
+import ImageModal from '../components/ImageModal.jsx';
 import { useNavigate } from 'react-router-dom';
 import './Home.css';
 
@@ -16,6 +17,8 @@ const Home = () => {
   const [dbMovies, setDbMovies] = useState([]);
   const [searchResults, setSearchResults] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [loading, setLoading] = useState(true);
+  const [modalImage, setModalImage] = useState(null);
   const navigate = useNavigate();
 
   // Navigation menu component
@@ -40,6 +43,7 @@ const Home = () => {
 
   const loadDb = async () => {
     try {
+      setLoading(true);
       const res = await fetch(`${API_URL}/api/movies`);
       const data = await res.json();
   console.log('DEBUG: /api/movies response', data);
@@ -54,6 +58,8 @@ const Home = () => {
   }
     } catch (err) {
       console.error('Error cargando DB:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -146,26 +152,29 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Menú principal con buscador y navegación */}
+      {/* Menú principal con buscador y navegación - RESPONSIVE */}
       <div className="nav-row">
         <div className="nav-buttons">
           <button className="btn-nav" onClick={() => { setSearchResults(null); loadDb(); }}>
-            Inicio
+            <span className="nav-icon">🏠</span>
+            <span className="nav-text">Inicio</span>
           </button>
           <button 
             className="btn-nav" 
             onClick={() => navigate('/recomendacion')}
           >
-            Recomendación
+            <span className="nav-icon">🎯</span>
+            <span className="nav-text">Recomendación</span>
           </button>
           <button 
             className="btn-nav" 
             onClick={() => navigate('/actualizacion')}
           >
-            Actualización
+            <span className="nav-icon">🔄</span>
+            <span className="nav-text">Actualización</span>
           </button>
         </div>
-        <div style={{ marginLeft: 'auto' }}>
+        <div className="search-container">
           <SearchBar onResults={results => setSearchResults(results && results.length ? results : null)} />
         </div>
       </div>
@@ -186,49 +195,98 @@ const Home = () => {
       {searchResults ? (
         <div className="search-results">
           {searchResults.map(m => (
-            <div key={m.id} className="search-card">
-              <img className="poster" src={m.poster_path ? `https://image.tmdb.org/t/p/w154${m.poster_path}` : FALLBACK} alt={m.title} />
+            <div key={m.id} className="search-card card-enhanced">
+              <div className="poster-container">
+                <img 
+                  className="poster clickable-poster" 
+                  src={m.poster_path ? `https://image.tmdb.org/t/p/w300${m.poster_path}` : FALLBACK} 
+                  alt={m.title}
+                  onClick={() => setModalImage({
+                    url: m.poster_path ? `https://image.tmdb.org/t/p/w500${m.poster_path}` : FALLBACK,
+                    title: m.title
+                  })}
+                />
+                <div className="poster-overlay">🔍</div>
+              </div>
               <div className="info">
                 <div className="title">{m.title}</div>
-                <div className="meta">{m.release_date?.split('-')[0] || 'Sin año'}</div>
+                <div className="meta">📅 {m.release_date?.split('-')[0] || 'Sin año'}</div>
+                <div className="meta">⭐ {m.vote_average ? `${m.vote_average.toFixed(1)}/10` : 'Sin rating'}</div>
+                {m.overview && (
+                  <p className="overview-preview">{m.overview.slice(0, 100)}...</p>
+                )}
               </div>
             </div>
           ))}
         </div>
+      ) : loading ? (
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
+          <p>Cargando tu bitácora...</p>
+        </div>
       ) : (
         <div className="db-table">
     {applyFilter(dbMovies).map(m => (
-              <article className="row-card" key={m.id} role="article" aria-label={`Ficha de película ${m.title}`}>
-              <img className="poster" src={m.poster_url || FALLBACK} alt={m.title} />
+              <article className="row-card card-enhanced" key={m.id} role="article" aria-label={`Ficha de película ${m.title}`}>
+              <div className="poster-container">
+                <img 
+                  className="poster clickable-poster" 
+                  src={m.poster_url || FALLBACK} 
+                  alt={m.title}
+                  onClick={() => setModalImage({
+                    url: m.poster_url || FALLBACK,
+                    title: m.title
+                  })}
+                />
+                <div className="poster-overlay">🔍</div>
+              </div>
               <div className="info">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div>
-                      <div style={{ fontWeight: 800 }}>{m.title} <span className="meta">({m.year})</span></div>
-          <div className="meta"><strong>Tipo:</strong> {m.media_type || (m.is_tv ? 'Serie' : 'Película')}</div>
-          <div className="meta"><strong>Director:</strong> {m.director || 'Desconocido'}</div>
-          <div className="meta"><strong>Actores:</strong> {m.actors || '—'}</div>
-          <div className="meta"><strong>Género:</strong> {(m.genres && m.genres.length) ? m.genres.join(', ') : '—'}</div>
-                      <p className={`overview ${m._expanded ? 'expanded' : ''}`}>{m.overview_es || m.overview || m.sinopsis || 'Sin sinopsis disponible.'}</p>
-                      { (m.overview_es || m.overview || m.sinopsis) && (
-                        <button className="link-more" onClick={() => setDbMovies(prev => prev.map(x => x.id === m.id ? { ...x, _expanded: !x._expanded } : x))}>
-                          {m._expanded ? 'Mostrar menos' : 'Mostrar más'}
-                        </button>
-                      )}
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <Stars value={m.rating} />
-                    <div className="meta">Estado: {titleCase(m.status)}</div>
-                    {m._isDb && <div className="badge">Ficha local</div>}
+                <div className="movie-header">
+                  <div className="title-section">
+                      <div className="movie-title">{m.title} <span className="year-badge">({m.year})</span></div>
+                      <div className="movie-details">
+                        <span className="detail-item">🎬 {m.media_type || (m.is_tv ? 'Serie' : 'Película')}</span>
+                        <span className="detail-item">🎭 {m.director || 'Director desconocido'}</span>
+                        <span className="detail-item">⭐ <Stars value={m.rating} /></span>
+                        <span className="detail-item status-badge status-${String(m.status || '').toLowerCase().replace(' ', '-')}">
+                          {m.status === 'vista' ? '✅' : m.status === 'en proceso' ? '⏳' : '📋'} {titleCase(m.status)}
+                        </span>
+                      </div>
                   </div>
                 </div>
 
-                <div className="opinion">"{m.comment ? String(m.comment) : 'Sin opinión'}"</div>
+                <div className="movie-info-grid">
+                  <div className="info-item">
+                    <span className="info-label">👥 Actores:</span>
+                    <span className="info-value">{m.actors || 'No especificado'}</span>
+                  </div>
+                  <div className="info-item">
+                    <span className="info-label">🏷️ Género:</span>
+                    <span className="info-value">{(m.genres && m.genres.length) ? m.genres.join(', ') : 'No especificado'}</span>
+                  </div>
+                </div>
 
-                <div style={{ marginTop: '0.6rem', display: 'flex', gap: '0.5rem' }}>
-                  <button className="btn" onClick={() => navigate('/edit', { state: { movie: { ...m, _isDb: true } } })}>Editar</button>
+                <div className="synopsis-section">
+                  <p className={`overview ${m._expanded ? 'expanded' : ''}`}>{m.overview_es || m.overview || m.sinopsis || 'Sin sinopsis disponible.'}</p>
+                  { (m.overview_es || m.overview || m.sinopsis) && (
+                    <button className="link-more" onClick={() => setDbMovies(prev => prev.map(x => x.id === m.id ? { ...x, _expanded: !x._expanded } : x))}>
+                      {m._expanded ? '📖 Mostrar menos' : '📑 Mostrar más'}
+                    </button>
+                  )}
+                </div>
+
+                <div className="opinion-section">
+                  <div className="opinion-label">💭 Mi opinión:</div>
+                  <div className="opinion">"{m.comment ? String(m.comment) : 'Sin opinión registrada'}"</div>
+                </div>
+
+                <div className="action-buttons">
+                  <button className="btn btn-enhanced" onClick={() => navigate('/edit', { state: { movie: { ...m, _isDb: true } } })}>
+                    ✏️ Editar
+                  </button>
                   <button
                     className="btn-delete"
-                    title="Eliminar"
+                    title="Eliminar película"
                     onClick={async () => {
                       const ok = window.confirm(`¿Eliminar "${m.title}" (${m.year}) de la bitácora? Esta acción no se puede deshacer.`);
                       if (!ok) return;
@@ -237,24 +295,32 @@ const Home = () => {
                         if (resp.ok) {
                           // optimistically remove from UI
                           setDbMovies(prev => prev.filter(x => x.id !== m.id));
-                          alert('Registro eliminado');
+                          alert('✅ Registro eliminado exitosamente');
                         } else {
                           const body = await resp.json().catch(() => ({}));
                           console.error('Error al eliminar:', body);
-                          alert('No se pudo eliminar el registro');
+                          alert('❌ No se pudo eliminar el registro');
                         }
                       } catch (err) {
                         console.error('Error de red al eliminar:', err);
-                        alert('Error de red al eliminar');
+                        alert('❌ Error de red al eliminar');
                       }
                     }}
-                  >−</button>
+                  >🗑️</button>
                 </div>
               </div>
             </article>
           ))}
         </div>
       )}
+
+      {/* Modal para ver imágenes en grande */}
+      <ImageModal 
+        isOpen={!!modalImage}
+        onClose={() => setModalImage(null)}
+        imageUrl={modalImage?.url}
+        title={modalImage?.title}
+      />
     </div>
   );
 };
