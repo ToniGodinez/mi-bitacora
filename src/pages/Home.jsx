@@ -98,31 +98,29 @@ const Home = () => {
 
       {/* Navegación desktop */}
       <div className="desktop-nav">
-        <div className="nav-container">
-          <div className="nav-row">
-            <div className="nav-buttons">
-              <button 
-                className="btn-nav" 
-                onClick={() => navigate('/')}
-              >
-                <span className="nav-text">Inicio</span>
-              </button>
-              <button 
-                className="btn-nav" 
-                onClick={() => navigate('/recomendacion')}
-              >
-                <span className="nav-text">Recomendación</span>
-              </button>
-              <button 
-                className="btn-nav" 
-                onClick={() => navigate('/actualizacion')}
-              >
-                <span className="nav-text">Actualización</span>
-              </button>
-            </div>
-            <div className="search-container">
-              <SearchBar onSearch={setSearchResults} />
-            </div>
+        <div className="nav-row">
+          <div className="nav-buttons">
+            <button 
+              className="btn-nav" 
+              onClick={() => navigate('/')}
+            >
+              <span className="nav-text">Inicio</span>
+            </button>
+            <button 
+              className="btn-nav" 
+              onClick={() => navigate('/recomendacion')}
+            >
+              <span className="nav-text">Recomendación</span>
+            </button>
+            <button 
+              className="btn-nav" 
+              onClick={() => navigate('/actualizacion')}
+            >
+              <span className="nav-text">Actualización</span>
+            </button>
+          </div>
+          <div className="search-container">
+            <SearchBar onSearch={setSearchResults} />
           </div>
         </div>
       </div>
