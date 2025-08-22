@@ -43,13 +43,31 @@
 
 /* Banner solo con imagen de fondo */
 .site-banner {
-  background: rgba(0,0,0,0.3), url('https://iili.io/FyNGFHB.jpg');
+  background: url('https://iili.io/FyNGFHB.jpg');
   background-size: cover;
   background-position: center center;
   border-radius: 12px;
   height: clamp(140px, 22vw, 320px);
   position: relative;
   overflow: hidden;
+  /* Overlay oscuro encima de la imagen */
+  background-color: #000;
+}
+
+.site-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1;
+}
+
+.site-banner > * {
+  position: relative;
+  z-index: 2;
 }
 
 /* Contenedor del título y fecha */
