@@ -38,33 +38,65 @@ const Home = () => {
   // Navigation menu component
   const NavigationMenu = () => (
     <>
-      {/* Botón Hamburguesa - Solo visible en móvil */}
-      <button 
-        className="hamburger-btn"
-        onClick={toggleMenu}
-        aria-label="Toggle menu"
-      >
-        <div className={`hamburger-icon ${isMenuOpen ? 'open' : ''}`}>
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
-      </button>
+      {/* Header responsivo tipo navbar moderno */}
+      <header className="main-header">
+        <div className="header-container">
+          {/* Logo/Brand */}
+          <div className="brand">
+            <h1 className="brand-title">🎬 Mi Bitácora</h1>
+          </div>
 
-      {/* Overlay de fondo */}
+          {/* Desktop Navigation */}
+          <nav className="desktop-navigation">
+            <button 
+              className="nav-link"
+              onClick={() => navigate('/')}
+            >
+              Inicio
+            </button>
+            <button 
+              className="nav-link"
+              onClick={() => navigate('/recomendacion')}
+            >
+              Recomendación
+            </button>
+            <button 
+              className="nav-link"
+              onClick={() => navigate('/actualizacion')}
+            >
+              Actualización
+            </button>
+          </nav>
+
+          {/* Mobile Hamburger Button */}
+          <button 
+            className="mobile-menu-btn"
+            onClick={toggleMenu}
+            aria-label="Toggle menu"
+          >
+            <div className={`hamburger ${isMenuOpen ? 'open' : ''}`}>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </button>
+        </div>
+      </header>
+
+      {/* Mobile Sidebar Overlay */}
       {isMenuOpen && (
         <div 
-          className="menu-overlay"
+          className="sidebar-overlay"
           onClick={closeMenu}
         />
       )}
 
-      {/* Menú lateral */}
-      <nav className={`sidebar-menu ${isMenuOpen ? 'open' : ''}`}>
-        <div className="menu-header">
-          <h3>Mi Bitácora</h3>
+      {/* Mobile Sidebar */}
+      <nav className={`mobile-sidebar ${isMenuOpen ? 'open' : ''}`}>
+        <div className="sidebar-header">
+          <h2 className="sidebar-brand">Mi Bitácora</h2>
           <button 
-            className="close-btn"
+            className="sidebar-close"
             onClick={closeMenu}
             aria-label="Close menu"
           >
@@ -72,58 +104,29 @@ const Home = () => {
           </button>
         </div>
         
-        <div className="menu-items">
+        <div className="sidebar-menu">
           <button 
-            className="menu-item"
+            className="sidebar-link"
             onClick={() => handleNavigation('/')}
           >
-            <span className="menu-text">Inicio</span>
+            Inicio
           </button>
           
           <button 
-            className="menu-item"
+            className="sidebar-link"
             onClick={() => handleNavigation('/recomendacion')}
           >
-            <span className="menu-text">Recomendación</span>
+            Recomendación
           </button>
           
           <button 
-            className="menu-item"
+            className="sidebar-link"
             onClick={() => handleNavigation('/actualizacion')}
           >
-            <span className="menu-text">Actualización</span>
+            Actualización
           </button>
         </div>
       </nav>
-
-      {/* Navegación desktop */}
-      <div className="desktop-nav">
-        <div className="nav-row">
-          <div className="nav-buttons">
-            <button 
-              className="btn-nav" 
-              onClick={() => navigate('/')}
-            >
-              <span className="nav-text">Inicio</span>
-            </button>
-            <button 
-              className="btn-nav" 
-              onClick={() => navigate('/recomendacion')}
-            >
-              <span className="nav-text">Recomendación</span>
-            </button>
-            <button 
-              className="btn-nav" 
-              onClick={() => navigate('/actualizacion')}
-            >
-              <span className="nav-text">Actualización</span>
-            </button>
-          </div>
-          <div className="search-container">
-            <SearchBar onSearch={setSearchResults} />
-          </div>
-        </div>
-      </div>
     </>
   );
 
@@ -221,7 +224,7 @@ const Home = () => {
 
   return (
     <div className="home-page">
-      {/* Menú Hamburguesa - Solo visible en móvil */}
+      {/* Header Navigation */}
       <NavigationMenu />
 
       {/* Banner solo con imagen de fondo */}
@@ -238,14 +241,13 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Barra de búsqueda móvil */}
-      <div className="mobile-search">
-        <SearchBar onResults={results => setSearchResults(results && results.length ? results : null)} />
-      </div>
-
-      {/* Sección de filtros con divisor */}
-      <div className="filters-section">
-        <div className="filters-row">
+      {/* Sección de búsqueda y filtros */}
+      <div className="search-and-filters">
+        <div className="search-section">
+          <SearchBar onResults={results => setSearchResults(results && results.length ? results : null)} />
+        </div>
+        
+        <div className="filters-section">
           <div className="filter-bar">
             <button className={`filter-btn ${statusFilter === 'all' ? 'active' : ''}`} onClick={() => setStatusFilter('all')}>Todas</button>
             <button className={`filter-btn ${statusFilter === 'vista' ? 'active' : ''}`} onClick={() => setStatusFilter('vista')}>Vistas</button>
