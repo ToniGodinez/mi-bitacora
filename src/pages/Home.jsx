@@ -16,26 +16,123 @@ const Home = () => {
   const [dbMovies, setDbMovies] = useState([]);
   const [searchResults, setSearchResults] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+    // Prevenir scroll del body cuando el menú esté abierto
+    document.body.style.overflow = !isMenuOpen ? 'hidden' : 'auto';
+  };
+
+  const closeMenu = () => {
+    setIsMenuOpen(false);
+    document.body.style.overflow = 'auto';
+  };
+
+  const handleNavigation = (path) => {
+    navigate(path);
+    closeMenu();
+  };
 
   // Navigation menu component
   const NavigationMenu = () => (
-    <div className="nav-container">
-      <div className="nav-row">
-        <button 
-          className="btn-nav" 
-          onClick={() => navigate('/')}
-        >
-          Inicio
-        </button>
-        <button 
-          className="btn-nav" 
-          onClick={() => navigate('/actualizacion')}
-        >
-          Actualización
-        </button>
+    <>
+      {/* Botón Hamburguesa - Solo visible en móvil */}
+      <button 
+        className="hamburger-btn"
+        onClick={toggleMenu}
+        aria-label="Toggle menu"
+      >
+        <div className={`hamburger-icon ${isMenuOpen ? 'open' : ''}`}>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </button>
+
+      {/* Overlay de fondo */}
+      {isMenuOpen && (
+        <div 
+          className="menu-overlay"
+          onClick={closeMenu}
+        />
+      )}
+
+      {/* Menú lateral */}
+      <nav className={`sidebar-menu ${isMenuOpen ? 'open' : ''}`}>
+        <div className="menu-header">
+          <h3>🎬 Mi Bitácora</h3>
+          <button 
+            className="close-btn"
+            onClick={closeMenu}
+            aria-label="Close menu"
+          >
+            ×
+          </button>
+        </div>
+        
+        <div className="menu-items">
+          <button 
+            className="menu-item"
+            onClick={() => handleNavigation('/')}
+          >
+            <span className="menu-icon">🏠</span>
+            <span className="menu-text">Inicio</span>
+          </button>
+          
+          <button 
+            className="menu-item"
+            onClick={() => handleNavigation('/recomendacion')}
+          >
+            <span className="menu-icon">🎯</span>
+            <span className="menu-text">Recomendación</span>
+          </button>
+          
+          <button 
+            className="menu-item"
+            onClick={() => handleNavigation('/actualizacion')}
+          >
+            <span className="menu-icon">🔄</span>
+            <span className="menu-text">Actualización</span>
+          </button>
+        </div>
+      </nav>
+
+      {/* Navegación desktop */}
+      <div className="desktop-nav">
+        <div className="nav-container">
+          <div className="nav-row">
+            <div className="nav-buttons">
+              <button 
+                className="btn-nav" 
+                onClick={() => navigate('/')}
+              >
+                <span className="nav-icon">🏠</span>
+                <span className="nav-text">Inicio</span>
+              </button>
+              <button 
+                className="btn-nav" 
+                onClick={() => navigate('/recomendacion')}
+              >
+                <span className="nav-icon">🎯</span>
+                <span className="nav-text">Recomendación</span>
+              </button>
+              <button 
+                className="btn-nav" 
+                onClick={() => navigate('/actualizacion')}
+              >
+                <span className="nav-icon">🔄</span>
+                <span className="nav-text">Actualización</span>
+              </button>
+            </div>
+            <div className="search-container">
+              <SearchBar onSearch={setSearchResults} />
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 
   const loadDb = async () => {
@@ -132,6 +229,9 @@ const Home = () => {
 
   return (
     <div className="home-page">
+      {/* Menú Hamburguesa - Solo visible en móvil */}
+      <NavigationMenu />
+
       {/* Banner solo con imagen de fondo */}
       <div className="site-banner"></div>
       
@@ -146,28 +246,9 @@ const Home = () => {
         </div>
       </div>
 
-      {/* Menú principal con buscador y navegación */}
-      <div className="nav-row">
-        <div className="nav-buttons">
-          <button className="btn-nav" onClick={() => { setSearchResults(null); loadDb(); }}>
-            Inicio
-          </button>
-          <button 
-            className="btn-nav" 
-            onClick={() => navigate('/recomendacion')}
-          >
-            Recomendación
-          </button>
-          <button 
-            className="btn-nav" 
-            onClick={() => navigate('/actualizacion')}
-          >
-            Actualización
-          </button>
-        </div>
-        <div style={{ marginLeft: 'auto' }}>
-          <SearchBar onResults={results => setSearchResults(results && results.length ? results : null)} />
-        </div>
+      {/* Barra de búsqueda móvil */}
+      <div className="mobile-search">
+        <SearchBar onResults={results => setSearchResults(results && results.length ? results : null)} />
       </div>
 
       {/* Sección de filtros con divisor */}
