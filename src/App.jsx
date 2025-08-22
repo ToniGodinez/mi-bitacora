@@ -7,24 +7,20 @@ import RecommendMovie from './pages/RecommendMovie.jsx';
 import UpdateMovie from './pages/UpdateMovie.jsx';
 
 const App = () => {
-  // 🚀 Keep-alive para mantener el backend activo
+  // 🚀 Keep-alive para mantener el backend activo (evita cold starts)
   useEffect(() => {
-    const keepBackendAlive = () => {
-      fetch(`${import.meta.env.VITE_API_URL}/api/movies`)
+    const keepAlive = () => {
+      fetch(`${import.meta.env.VITE_API_URL || 'https://tonyonly-backend.onrender.com'}/api/movies`)
         .catch(() => {}); // Ignoramos errores silenciosamente
     };
 
-    // Ping inicial después de 1 minuto
-    const initialTimeout = setTimeout(keepBackendAlive, 60000);
+    // Ping inmediato al cargar la app
+    keepAlive();
     
-    // Ping cada 10 minutos después del inicial
-    const interval = setInterval(keepBackendAlive, 10 * 60 * 1000);
-
-    // Cleanup al desmontar el componente
-    return () => {
-      clearTimeout(initialTimeout);
-      clearInterval(interval);
-    };
+    // Ping cada 10 minutos para mantener activo el backend
+    const interval = setInterval(keepAlive, 10 * 60 * 1000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   return (
