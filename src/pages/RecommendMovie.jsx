@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './RecommendMovie.css';
+import './recomendacionMovie.css';
 
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w300';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -78,13 +78,13 @@ const RecommendMovie = () => {
               </button>
               <button 
                 className="nav-link active" 
-                onClick={() => navigate('/recommend')}
+                onClick={() => navigate('/recomendacion')}
               >
                 Recomendación
               </button>
               <button 
                 className="nav-link" 
-                onClick={() => navigate('/update')}
+                onClick={() => navigate('/actualizacion')}
               >
                 Actualización
               </button>
@@ -114,10 +114,10 @@ const RecommendMovie = () => {
                 <button className="sidebar-link" onClick={() => navigateToPage('/')}>
                   Inicio
                 </button>
-                <button className="sidebar-link" onClick={() => navigateToPage('/recommend')}>
+                <button className="sidebar-link" onClick={() => navigateToPage('/recomendacion')}>
                   Recomendación
                 </button>
-                <button className="sidebar-link" onClick={() => navigateToPage('/update')}>
+                <button className="sidebar-link" onClick={() => navigateToPage('/actualizacion')}>
                   Actualización
                 </button>
               </nav>
@@ -150,13 +150,13 @@ const RecommendMovie = () => {
               </button>
               <button 
                 className="nav-link active" 
-                onClick={() => navigate('/recommend')}
+                onClick={() => navigate('/recomendacion')}
               >
                 Recomendación
               </button>
               <button 
                 className="nav-link" 
-                onClick={() => navigate('/update')}
+                onClick={() => navigate('/actualizacion')}
               >
                 Actualización
               </button>
@@ -186,10 +186,10 @@ const RecommendMovie = () => {
                 <button className="sidebar-link" onClick={() => navigateToPage('/')}>
                   Inicio
                 </button>
-                <button className="sidebar-link" onClick={() => navigateToPage('/recommend')}>
+                <button className="sidebar-link" onClick={() => navigateToPage('/recomendacion')}>
                   Recomendación
                 </button>
-                <button className="sidebar-link" onClick={() => navigateToPage('/update')}>
+                <button className="sidebar-link" onClick={() => navigateToPage('/actualizacion')}>
                   Actualización
                 </button>
               </nav>
@@ -244,13 +244,13 @@ const RecommendMovie = () => {
             </button>
             <button 
               className="nav-link active" 
-              onClick={() => navigate('/recommend')}
+              onClick={() => navigate('/recomendacion')}
             >
               Recomendación
             </button>
             <button 
               className="nav-link" 
-              onClick={() => navigate('/update')}
+              onClick={() => navigate('/actualizacion')}
             >
               Actualización
             </button>
@@ -280,10 +280,10 @@ const RecommendMovie = () => {
               <button className="sidebar-link" onClick={() => navigateToPage('/')}>
                 Inicio
               </button>
-              <button className="sidebar-link" onClick={() => navigateToPage('/recommend')}>
+              <button className="sidebar-link" onClick={() => navigateToPage('/recomendacion')}>
                 Recomendación
               </button>
-              <button className="sidebar-link" onClick={() => navigateToPage('/update')}>
+              <button className="sidebar-link" onClick={() => navigateToPage('/actualizacion')}>
                 Actualización
               </button>
             </nav>
