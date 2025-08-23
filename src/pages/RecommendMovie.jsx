@@ -8,7 +8,23 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 const RecommendMovie = () => {
   const [recommendedMovie, setRecommendedMovie] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+    document.body.classList.toggle('menu-open');
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+    document.body.classList.remove('menu-open');
+  };
+
+  const navigateToPage = (path) => {
+    closeMobileMenu();
+    navigate(path);
+  };
 
   useEffect(() => {
     const fetchRandomPendingMovie = async () => {
@@ -45,6 +61,70 @@ const RecommendMovie = () => {
   if (loading) {
     return (
       <div className="recommend-page">
+        {/* Header de navegación fijo */}
+        <header className="main-header">
+          <div className="header-container">
+            <div className="brand">
+              <h1 className="brand-title">Mi Bitácora</h1>
+            </div>
+            
+            {/* Navegación desktop */}
+            <nav className="desktop-navigation">
+              <button 
+                className="nav-link" 
+                onClick={() => navigate('/')}
+              >
+                Inicio
+              </button>
+              <button 
+                className="nav-link active" 
+                onClick={() => navigate('/recommend')}
+              >
+                Recomendación
+              </button>
+              <button 
+                className="nav-link" 
+                onClick={() => navigate('/update')}
+              >
+                Actualización
+              </button>
+            </nav>
+            
+            {/* Botón hamburguesa móvil */}
+            <button className="mobile-menu-btn" onClick={toggleMobileMenu}>
+              <div className={`hamburger ${isMobileMenuOpen ? 'open' : ''}`}>
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </button>
+          </div>
+        </header>
+
+        {/* Sidebar móvil */}
+        {isMobileMenuOpen && (
+          <>
+            <div className="sidebar-overlay" onClick={closeMobileMenu}></div>
+            <div className={`mobile-sidebar ${isMobileMenuOpen ? 'open' : ''}`}>
+              <div className="sidebar-header">
+                <h2 className="sidebar-brand">Mi Bitácora</h2>
+                <button className="sidebar-close" onClick={closeMobileMenu}>×</button>
+              </div>
+              <nav className="sidebar-menu">
+                <button className="sidebar-link" onClick={() => navigateToPage('/')}>
+                  Inicio
+                </button>
+                <button className="sidebar-link" onClick={() => navigateToPage('/recommend')}>
+                  Recomendación
+                </button>
+                <button className="sidebar-link" onClick={() => navigateToPage('/update')}>
+                  Actualización
+                </button>
+              </nav>
+            </div>
+          </>
+        )}
+        
         <div className="loading">Buscando una película para recomendarte...</div>
       </div>
     );
@@ -53,14 +133,90 @@ const RecommendMovie = () => {
   if (!recommendedMovie) {
     return (
       <div className="recommend-page">
-        <div className="nav-buttons">
-          <button 
-            className="btn-nav" 
-            onClick={() => navigate('/')}
-          >
-            Inicio
-          </button>
+        {/* Header de navegación fijo */}
+        <header className="main-header">
+          <div className="header-container">
+            <div className="brand">
+              <h1 className="brand-title">Mi Bitácora</h1>
+            </div>
+            
+            {/* Navegación desktop */}
+            <nav className="desktop-navigation">
+              <button 
+                className="nav-link" 
+                onClick={() => navigate('/')}
+              >
+                Inicio
+              </button>
+              <button 
+                className="nav-link active" 
+                onClick={() => navigate('/recommend')}
+              >
+                Recomendación
+              </button>
+              <button 
+                className="nav-link" 
+                onClick={() => navigate('/update')}
+              >
+                Actualización
+              </button>
+            </nav>
+            
+            {/* Botón hamburguesa móvil */}
+            <button className="mobile-menu-btn" onClick={toggleMobileMenu}>
+              <div className={`hamburger ${isMobileMenuOpen ? 'open' : ''}`}>
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </button>
+          </div>
+        </header>
+
+        {/* Sidebar móvil */}
+        {isMobileMenuOpen && (
+          <>
+            <div className="sidebar-overlay" onClick={closeMobileMenu}></div>
+            <div className={`mobile-sidebar ${isMobileMenuOpen ? 'open' : ''}`}>
+              <div className="sidebar-header">
+                <h2 className="sidebar-brand">Mi Bitácora</h2>
+                <button className="sidebar-close" onClick={closeMobileMenu}>×</button>
+              </div>
+              <nav className="sidebar-menu">
+                <button className="sidebar-link" onClick={() => navigateToPage('/')}>
+                  Inicio
+                </button>
+                <button className="sidebar-link" onClick={() => navigateToPage('/recommend')}>
+                  Recomendación
+                </button>
+                <button className="sidebar-link" onClick={() => navigateToPage('/update')}>
+                  Actualización
+                </button>
+              </nav>
+            </div>
+          </>
+        )}
+
+        {/* Banner */}
+        <div className="site-banner"></div>
+
+        {/* Título y fecha */}
+        <div className="site-header">
+          <div className="header-content">
+            <div className="title-block">
+              <div className="site-title">Mi registro personal de películas</div>
+            </div>
+            <div className="meta">
+              {new Date().toLocaleDateString('es-ES', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}
+            </div>
+          </div>
         </div>
+
         <div className="no-movies">
           <h2>No hay películas pendientes</h2>
           <p>Agrega algunas películas a tu lista de pendientes para recibir recomendaciones.</p>
@@ -71,13 +227,88 @@ const RecommendMovie = () => {
 
   return (
     <div className="recommend-page">
-      <div className="nav-buttons">
-        <button 
-          className="btn-nav" 
-          onClick={() => navigate('/')}
-        >
-          Inicio
-        </button>
+      {/* Header de navegación fijo */}
+      <header className="main-header">
+        <div className="header-container">
+          <div className="brand">
+            <h1 className="brand-title">Mi Bitácora</h1>
+          </div>
+          
+          {/* Navegación desktop */}
+          <nav className="desktop-navigation">
+            <button 
+              className="nav-link" 
+              onClick={() => navigate('/')}
+            >
+              Inicio
+            </button>
+            <button 
+              className="nav-link active" 
+              onClick={() => navigate('/recommend')}
+            >
+              Recomendación
+            </button>
+            <button 
+              className="nav-link" 
+              onClick={() => navigate('/update')}
+            >
+              Actualización
+            </button>
+          </nav>
+          
+          {/* Botón hamburguesa móvil */}
+          <button className="mobile-menu-btn" onClick={toggleMobileMenu}>
+            <div className={`hamburger ${isMobileMenuOpen ? 'open' : ''}`}>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </button>
+        </div>
+      </header>
+
+      {/* Sidebar móvil */}
+      {isMobileMenuOpen && (
+        <>
+          <div className="sidebar-overlay" onClick={closeMobileMenu}></div>
+          <div className={`mobile-sidebar ${isMobileMenuOpen ? 'open' : ''}`}>
+            <div className="sidebar-header">
+              <h2 className="sidebar-brand">Mi Bitácora</h2>
+              <button className="sidebar-close" onClick={closeMobileMenu}>×</button>
+            </div>
+            <nav className="sidebar-menu">
+              <button className="sidebar-link" onClick={() => navigateToPage('/')}>
+                Inicio
+              </button>
+              <button className="sidebar-link" onClick={() => navigateToPage('/recommend')}>
+                Recomendación
+              </button>
+              <button className="sidebar-link" onClick={() => navigateToPage('/update')}>
+                Actualización
+              </button>
+            </nav>
+          </div>
+        </>
+      )}
+
+      {/* Banner */}
+      <div className="site-banner"></div>
+
+      {/* Título y fecha */}
+      <div className="site-header">
+        <div className="header-content">
+          <div className="title-block">
+            <div className="site-title">Mi registro personal de películas</div>
+          </div>
+          <div className="meta">
+            {new Date().toLocaleDateString('es-ES', { 
+              weekday: 'long', 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            })}
+          </div>
+        </div>
       </div>
 
       <div className="movie-card">
