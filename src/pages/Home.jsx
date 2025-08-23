@@ -234,8 +234,7 @@ const Home = () => {
       <div className="site-header">
         <div className="header-content">
           <div className="title-block">
-            <div className="site-title">Mi Bitácora 2025 - Proyecto</div>
-            <div className="site-subtitle">Tu registro personal de películas</div>
+            <div className="site-title">Mi registro personal de películas</div>
           </div>
           <div className="meta">{new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
         </div>

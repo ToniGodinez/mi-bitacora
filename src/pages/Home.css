@@ -441,6 +441,10 @@
   cursor: pointer;
   transition: background 140ms ease, color 140ms ease, transform 100ms ease, border-color 140ms ease;
   box-shadow: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 /* hover: light cyan, plain background, no glow */
@@ -890,6 +894,9 @@
     padding: 0.6rem 1rem;
     font-size: 0.8rem;
     text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }
 
@@ -906,5 +913,9 @@
     padding: 0.5rem 0.75rem;
     font-size: 0.75rem;
     min-width: 60px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }
