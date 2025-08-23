@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './recomendacionMovie.css';
+import './RecommendMovie.css';
 
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w300';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
