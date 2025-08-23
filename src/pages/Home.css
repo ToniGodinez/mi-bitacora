@@ -278,22 +278,6 @@
   background: linear-gradient(135deg, rgba(0, 229, 255, 0.15) 0%, rgba(0, 150, 200, 0.08) 100%) !important;
 }
 
-/* Agregar iconos a los enlaces */
-.sidebar-link:nth-child(1)::after {
-  content: '🏠';
-  font-size: 1.2rem;
-}
-
-.sidebar-link:nth-child(2)::after {
-  content: '⭐';
-  font-size: 1.2rem;
-}
-
-.sidebar-link:nth-child(3)::after {
-  content: '📝';
-  font-size: 1.2rem;
-}
-
 /* Banner solo con imagen de fondo */
 .site-banner {
   background: url('https://iili.io/FyNGFHB.jpg');
@@ -326,6 +310,7 @@
 /* Contenedor del título y fecha */
 .site-header {
   margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
   padding: 0 1rem;
 }
 
