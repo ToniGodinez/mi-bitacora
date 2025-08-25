@@ -12,3 +12,13 @@ body {
   background-color: var(--bg-color);
   color: var(--text-color);
 }
+
+/* Prevenir desbordamiento horizontal global */
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
+* {
+  box-sizing: border-box;
+}
