@@ -16,7 +16,7 @@ const RecommendMovie = () => {
     setIsSynopsisExpanded(!isSynopsisExpanded);
   };
 
-  const isTextLong = (text, maxLength = 150) => {
+  const isTextLong = (text, maxLength = 20) => {
     return text && text.length > maxLength;
   };
 
@@ -377,20 +377,19 @@ const RecommendMovie = () => {
               <div className={`synopsis-content ${isSynopsisExpanded ? 'expanded' : ''}`}>
                 {recommendedMovie.overview}
               </div>
-              {/* Debug info - temporary */}
-              <small style={{color: 'yellow', fontSize: '0.7rem'}}>
-                Texto: {recommendedMovie.overview ? recommendedMovie.overview.length : 0} caracteres | 
-                Es largo: {isTextLong(recommendedMovie.overview) ? 'SÍ' : 'NO'}
-              </small>
-              {isTextLong(recommendedMovie.overview) && (
-                <button 
-                  className="synopsis-toggle"
-                  onClick={toggleSynopsis}
-                  style={{border: '2px solid red', background: 'rgba(255,0,0,0.2)'}}
-                >
-                  {isSynopsisExpanded ? 'Ver menos' : 'Ver más'}
-                </button>
-              )}
+              {/* Debug info - SEMPRE VISIBLE */}
+              <div style={{color: 'yellow', fontSize: '0.8rem', background: 'rgba(255,255,0,0.1)', padding: '0.5rem', margin: '0.5rem 0', border: '1px solid yellow'}}>
+                DEBUG: Texto: {recommendedMovie.overview ? recommendedMovie.overview.length : 0} caracteres<br/>
+                Es largo: {isTextLong(recommendedMovie.overview) ? 'SÍ' : 'NO'}<br/>
+                Estado expandido: {isSynopsisExpanded ? 'SÍ' : 'NO'}
+              </div>
+              <button 
+                className="synopsis-toggle"
+                onClick={toggleSynopsis}
+                style={{border: '3px solid red', background: 'rgba(255,0,0,0.3)', color: 'white', padding: '1rem', fontSize: '1rem'}}
+              >
+                {isSynopsisExpanded ? 'Ver menos' : 'Ver más'} - SIEMPRE VISIBLE
+              </button>
             </div>
           )}
 
