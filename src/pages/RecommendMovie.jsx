@@ -16,8 +16,9 @@ const RecommendMovie = () => {
     setIsSynopsisExpanded(!isSynopsisExpanded);
   };
 
-  const isTextLong = (text, maxLength = 20) => {
-    return text && text.length > maxLength;
+  const isTextLong = (text) => {
+    // Siempre retorna true si hay texto, para que siempre se pueda expandir/contraer
+    return text && text.length > 0;
   };
 
   const toggleMobileMenu = () => {
@@ -36,36 +37,40 @@ const RecommendMovie = () => {
   };
 
   useEffect(() => {
-    const fetchRandomPendingMovie = async () => {
-      try {
-        // Obtener todas las películas
-        const res = await fetch(`${API_URL}/api/movies`);
-        const data = await res.json();
-        
-        // Filtrar solo las películas pendientes
-        const pendingMovies = Array.isArray(data) 
-          ? data.filter(movie => movie.status === 'pendiente')
-          : [];
-
-        if (pendingMovies.length === 0) {
-          setLoading(false);
-          return;
-        }
-
-        // Seleccionar una película aleatoria
-        const randomIndex = Math.floor(Math.random() * pendingMovies.length);
-        const randomMovie = pendingMovies[randomIndex];
-        
-        setRecommendedMovie(randomMovie);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error al cargar las películas:', error);
-        setLoading(false);
-      }
-    };
-
     fetchRandomPendingMovie();
   }, []); // Se ejecuta solo al montar el componente
+
+  const fetchRandomPendingMovie = async () => {
+    try {
+      setLoading(true);
+      setIsSynopsisExpanded(false); // Reset synopsis state
+      // Obtener todas las películas
+      const res = await fetch(`${API_URL}/api/movies`);
+      const data = await res.json();
+      
+      // Filtrar solo las películas pendientes
+      const pendingMovies = Array.isArray(data) 
+        ? data.filter(movie => movie.status === 'pendiente')
+        : [];
+
+      if (pendingMovies.length === 0) {
+        setRecommendedMovie(null);
+        setLoading(false);
+        return;
+      }
+
+      // Seleccionar una película aleatoria
+      const randomIndex = Math.floor(Math.random() * pendingMovies.length);
+      const randomMovie = pendingMovies[randomIndex];
+      
+      setRecommendedMovie(randomMovie);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error al cargar las películas:', error);
+      setRecommendedMovie(null);
+      setLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -320,53 +325,52 @@ const RecommendMovie = () => {
         </div>
       </div>
 
+      <h1 className="recommend-title">Te recomendamos ver:</h1>
+
       <div className="movie-card">
-        <h1 className="recommend-title">Te recomendamos ver:</h1>
+        <img 
+          className="movie-poster"
+          src={recommendedMovie.poster_url || ''} 
+          alt={recommendedMovie.title} 
+        />
         
-        <div className="movie-header">
-          <img 
-            className="movie-poster"
-            src={recommendedMovie.poster_url || ''} 
-            alt={recommendedMovie.title} 
-          />
-          
-          <div className="movie-title-section">
+        <div className="movie-info">
+          <div className="movie-header">
             <h2 className="movie-title">
               {recommendedMovie.title}
             </h2>
             <span className="movie-year">({recommendedMovie.year})</span>
+            <div className="stars">★★★★★</div>
           </div>
-        </div>
-        
-        <div className="movie-content">
-          <div className="movie-details">
+          
+          <div className="movie-meta">
             {recommendedMovie.media_type && (
-              <div className="meta-info">
+              <div className="meta-line">
                 <strong>Tipo:</strong> {recommendedMovie.media_type}
               </div>
             )}
             
+            {recommendedMovie.status && (
+              <div className="meta-line">
+                <strong>Estado:</strong> {recommendedMovie.status}
+              </div>
+            )}
+            
             {recommendedMovie.director && (
-              <div className="meta-info">
+              <div className="meta-line">
                 <strong>Director:</strong> {recommendedMovie.director}
               </div>
             )}
             
             {recommendedMovie.actors && (
-              <div className="meta-info">
-                <strong>Reparto:</strong> {recommendedMovie.actors}
+              <div className="meta-line">
+                <strong>Actores:</strong> {recommendedMovie.actors}
               </div>
             )}
 
             {recommendedMovie.genres && (
-              <div className="meta-info">
+              <div className="meta-line">
                 <strong>Género:</strong> {recommendedMovie.genres}
-              </div>
-            )}
-
-            {recommendedMovie.country && (
-              <div className="meta-info">
-                <strong>País:</strong> {recommendedMovie.country}
               </div>
             )}
           </div>
@@ -377,19 +381,14 @@ const RecommendMovie = () => {
               <div className={`synopsis-content ${isSynopsisExpanded ? 'expanded' : ''}`}>
                 {recommendedMovie.overview}
               </div>
-              {/* Debug info - SEMPRE VISIBLE */}
-              <div style={{color: 'yellow', fontSize: '0.8rem', background: 'rgba(255,255,0,0.1)', padding: '0.5rem', margin: '0.5rem 0', border: '1px solid yellow'}}>
-                DEBUG: Texto: {recommendedMovie.overview ? recommendedMovie.overview.length : 0} caracteres<br/>
-                Es largo: {isTextLong(recommendedMovie.overview) ? 'SÍ' : 'NO'}<br/>
-                Estado expandido: {isSynopsisExpanded ? 'SÍ' : 'NO'}
-              </div>
-              <button 
-                className="synopsis-toggle"
-                onClick={toggleSynopsis}
-                style={{border: '3px solid red', background: 'rgba(255,0,0,0.3)', color: 'white', padding: '1rem', fontSize: '1rem'}}
-              >
-                {isSynopsisExpanded ? 'Ver menos' : 'Ver más'} - SIEMPRE VISIBLE
-              </button>
+              {isTextLong(recommendedMovie.overview) && (
+                <button 
+                  className="synopsis-toggle"
+                  onClick={toggleSynopsis}
+                >
+                  {isSynopsisExpanded ? 'Ver menos' : 'Ver más'}
+                </button>
+              )}
             </div>
           )}
 
@@ -398,13 +397,14 @@ const RecommendMovie = () => {
               className="btn-primary" 
               onClick={() => navigate('/edit', { state: { movie: { ...recommendedMovie, _isDb: true } } })}
             >
-              Editar estado
+              Editar
             </button>
             <button 
               className="btn-secondary" 
-              onClick={() => window.location.reload()}
+              onClick={fetchRandomPendingMovie}
+              disabled={loading}
             >
-              Otra
+              {loading ? 'Cargando...' : 'Otra'}
             </button>
           </div>
         </div>
