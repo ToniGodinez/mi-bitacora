@@ -16,7 +16,7 @@ const RecommendMovie = () => {
     setIsSynopsisExpanded(!isSynopsisExpanded);
   };
 
-  const isTextLong = (text, maxLength = 200) => {
+  const isTextLong = (text, maxLength = 150) => {
     return text && text.length > maxLength;
   };
 
@@ -377,10 +377,16 @@ const RecommendMovie = () => {
               <div className={`synopsis-content ${isSynopsisExpanded ? 'expanded' : ''}`}>
                 {recommendedMovie.overview}
               </div>
+              {/* Debug info - temporary */}
+              <small style={{color: 'yellow', fontSize: '0.7rem'}}>
+                Texto: {recommendedMovie.overview ? recommendedMovie.overview.length : 0} caracteres | 
+                Es largo: {isTextLong(recommendedMovie.overview) ? 'SÍ' : 'NO'}
+              </small>
               {isTextLong(recommendedMovie.overview) && (
                 <button 
                   className="synopsis-toggle"
                   onClick={toggleSynopsis}
+                  style={{border: '2px solid red', background: 'rgba(255,0,0,0.2)'}}
                 >
                   {isSynopsisExpanded ? 'Ver menos' : 'Ver más'}
                 </button>
