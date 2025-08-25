@@ -308,104 +308,116 @@ const RecommendMovie = () => {
       {/* Banner */}
       <div className="site-banner"></div>
 
-      {/* Título y fecha */}
+      {/* Título y fecha separados */}
       <div className="site-header">
         <div className="header-content">
           <div className="title-block">
             <div className="site-title">Mi registro personal de películas</div>
           </div>
-          <div className="meta">
-            {new Date().toLocaleDateString('es-ES', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}
-          </div>
         </div>
       </div>
 
-      <h1 className="recommend-title">Te recomendamos ver:</h1>
+      <div className="date-section">
+        <div className="meta">
+          {new Date().toLocaleDateString('es-ES', { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric' 
+          })}
+        </div>
+      </div>
 
       <div className="movie-card">
-        <img 
-          className="movie-poster"
-          src={recommendedMovie.poster_url || ''} 
-          alt={recommendedMovie.title} 
-        />
+        <div className="card-header">
+          <h1 className="recommend-title">Te recomendamos ver:</h1>
+        </div>
         
-        <div className="movie-info">
-          <div className="movie-header">
-            <h2 className="movie-title">
-              {recommendedMovie.title}
-            </h2>
-            <span className="movie-year">({recommendedMovie.year})</span>
-            <div className="stars">★★★★★</div>
+        <div className="card-content">
+          <div className="poster-section">
+            <img 
+              className="movie-poster"
+              src={recommendedMovie.poster_url || ''} 
+              alt={recommendedMovie.title} 
+            />
           </div>
           
-          <div className="movie-meta">
-            {recommendedMovie.media_type && (
-              <div className="meta-line">
-                <strong>Tipo:</strong> {recommendedMovie.media_type}
-              </div>
-            )}
+          <div className="movie-info">
+            <div className="title-section">
+              <h2 className="movie-title">{recommendedMovie.title}</h2>
+              <span className="movie-year">({recommendedMovie.year})</span>
+              <div className="stars">★★★★★</div>
+            </div>
             
-            {recommendedMovie.status && (
-              <div className="meta-line">
-                <strong>Estado:</strong> {recommendedMovie.status}
-              </div>
-            )}
-            
-            {recommendedMovie.director && (
-              <div className="meta-line">
-                <strong>Director:</strong> {recommendedMovie.director}
-              </div>
-            )}
-            
-            {recommendedMovie.actors && (
-              <div className="meta-line">
-                <strong>Actores:</strong> {recommendedMovie.actors}
-              </div>
-            )}
+            <div className="movie-meta">
+              {recommendedMovie.media_type && (
+                <div className="meta-row">
+                  <span className="meta-label">Tipo:</span> 
+                  <span className="meta-value">{recommendedMovie.media_type}</span>
+                </div>
+              )}
+              
+              {recommendedMovie.status && (
+                <div className="meta-row">
+                  <span className="meta-label">Estado:</span> 
+                  <span className="meta-value">{recommendedMovie.status}</span>
+                </div>
+              )}
+              
+              {recommendedMovie.director && (
+                <div className="meta-row">
+                  <span className="meta-label">Director:</span> 
+                  <span className="meta-value">{recommendedMovie.director}</span>
+                </div>
+              )}
+              
+              {recommendedMovie.actors && (
+                <div className="meta-row">
+                  <span className="meta-label">Actores:</span> 
+                  <span className="meta-value">{recommendedMovie.actors}</span>
+                </div>
+              )}
 
-            {recommendedMovie.genres && (
-              <div className="meta-line">
-                <strong>Género:</strong> {recommendedMovie.genres}
-              </div>
-            )}
-          </div>
-
-          {recommendedMovie.overview && (
-            <div className="synopsis">
-              <strong>Sinopsis:</strong><br />
-              <div className={`synopsis-content ${isSynopsisExpanded ? 'expanded' : ''}`}>
-                {recommendedMovie.overview}
-              </div>
-              {isTextLong(recommendedMovie.overview) && (
-                <button 
-                  className="synopsis-toggle"
-                  onClick={toggleSynopsis}
-                >
-                  {isSynopsisExpanded ? 'Ver menos' : 'Ver más'}
-                </button>
+              {recommendedMovie.genres && (
+                <div className="meta-row">
+                  <span className="meta-label">Género:</span> 
+                  <span className="meta-value">{recommendedMovie.genres}</span>
+                </div>
               )}
             </div>
-          )}
 
-          <div className="action-buttons">
-            <button 
-              className="btn-primary" 
-              onClick={() => navigate('/edit', { state: { movie: { ...recommendedMovie, _isDb: true } } })}
-            >
-              Editar
-            </button>
-            <button 
-              className="btn-secondary" 
-              onClick={fetchRandomPendingMovie}
-              disabled={loading}
-            >
-              {loading ? 'Cargando...' : 'Otra'}
-            </button>
+            {recommendedMovie.overview && (
+              <div className="synopsis-section">
+                <h3 className="synopsis-title">Sinopsis:</h3>
+                <div className={`synopsis-content ${isSynopsisExpanded ? 'expanded' : ''}`}>
+                  {recommendedMovie.overview}
+                </div>
+                {isTextLong(recommendedMovie.overview) && (
+                  <button 
+                    className="synopsis-toggle"
+                    onClick={toggleSynopsis}
+                  >
+                    {isSynopsisExpanded ? 'Ver menos' : 'Ver más'}
+                  </button>
+                )}
+              </div>
+            )}
+
+            <div className="action-buttons">
+              <button 
+                className="btn-primary" 
+                onClick={() => navigate('/edit', { state: { movie: { ...recommendedMovie, _isDb: true } } })}
+              >
+                Editar
+              </button>
+              <button 
+                className="btn-secondary" 
+                onClick={fetchRandomPendingMovie}
+                disabled={loading}
+              >
+                {loading ? 'Cargando...' : 'Otra'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
