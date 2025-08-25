@@ -14,7 +14,7 @@
   margin: 1.5rem auto;
   color: var(--text);
   padding: 1rem;
-  font-family: 'Roboto', system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
 }
 
 /* Estilos para el menú de navegación */

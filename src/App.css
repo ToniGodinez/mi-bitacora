@@ -62,7 +62,7 @@ body{
   margin:0;
   background: radial-gradient(1200px 400px at 10% 10%, rgba(0,229,255,0.04), transparent), linear-gradient(180deg, var(--bg-900), var(--bg-800));
   color:var(--text);
-  font-family: 'Roboto', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  font-family: 'Roboto', sans-serif;
   -webkit-font-smoothing:antialiased;
   -moz-osx-font-smoothing:grayscale;
 }
