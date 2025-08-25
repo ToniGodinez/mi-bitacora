@@ -9,7 +9,16 @@ const RecommendMovie = () => {
   const [recommendedMovie, setRecommendedMovie] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSynopsisExpanded, setIsSynopsisExpanded] = useState(false);
   const navigate = useNavigate();
+
+  const toggleSynopsis = () => {
+    setIsSynopsisExpanded(!isSynopsisExpanded);
+  };
+
+  const isTextLong = (text, maxLength = 200) => {
+    return text && text.length > maxLength;
+  };
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -365,7 +374,17 @@ const RecommendMovie = () => {
           {recommendedMovie.overview && (
             <div className="synopsis">
               <strong>Sinopsis:</strong><br />
-              {recommendedMovie.overview}
+              <div className={`synopsis-content ${isSynopsisExpanded ? 'expanded' : ''}`}>
+                {recommendedMovie.overview}
+              </div>
+              {isTextLong(recommendedMovie.overview) && (
+                <button 
+                  className="synopsis-toggle"
+                  onClick={toggleSynopsis}
+                >
+                  {isSynopsisExpanded ? 'Ver menos' : 'Ver más'}
+                </button>
+              )}
             </div>
           )}
 
