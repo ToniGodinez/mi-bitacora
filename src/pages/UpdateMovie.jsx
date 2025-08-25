@@ -11,6 +11,22 @@ const UpdateMovie = () => {
   const [updating, setUpdating] = useState({});
   const [results, setResults] = useState([]);
   const [error, setError] = useState(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+    document.body.classList.toggle('menu-open');
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+    document.body.classList.remove('menu-open');
+  };
+
+  const navigateToPage = (path) => {
+    closeMobileMenu();
+    navigate(path);
+  };
 
   // Función para generar IDs únicos
   const generateUniqueId = () => {
@@ -310,10 +326,88 @@ const UpdateMovie = () => {
 
   return (
     <div className="update-page">
-      <div className="nav-buttons">
-        <button className="btn-nav" onClick={() => navigate('/')}>
-          Inicio
-        </button>
+      {/* Header de navegación fijo */}
+      <header className="main-header">
+        <div className="header-container">
+          <div className="brand">
+            <h1 className="brand-title">🎬 Mi Bitácora</h1>
+          </div>
+          
+          {/* Navegación desktop */}
+          <nav className="desktop-navigation">
+            <button 
+              className="nav-link" 
+              onClick={() => navigate('/')}
+            >
+              Inicio
+            </button>
+            <button 
+              className="nav-link" 
+              onClick={() => navigate('/recomendacion')}
+            >
+              Recomendación
+            </button>
+            <button 
+              className="nav-link active" 
+              onClick={() => navigate('/actualizacion')}
+            >
+              Actualización
+            </button>
+          </nav>
+          
+          {/* Botón hamburguesa móvil */}
+          <button className="mobile-menu-btn" onClick={toggleMobileMenu}>
+            <div className={`hamburger ${isMobileMenuOpen ? 'open' : ''}`}>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </button>
+        </div>
+      </header>
+
+      {/* Sidebar móvil */}
+      {isMobileMenuOpen && (
+        <>
+          <div className="sidebar-overlay" onClick={closeMobileMenu}></div>
+          <div className={`mobile-sidebar ${isMobileMenuOpen ? 'open' : ''}`}>
+            <div className="sidebar-header">
+              <h2 className="sidebar-brand">Mi Bitácora</h2>
+              <button className="sidebar-close" onClick={closeMobileMenu}>×</button>
+            </div>
+            <nav className="sidebar-menu">
+              <button className="sidebar-link" onClick={() => navigateToPage('/')}>
+                Inicio
+              </button>
+              <button className="sidebar-link" onClick={() => navigateToPage('/recomendacion')}>
+                Recomendación
+              </button>
+              <button className="sidebar-link" onClick={() => navigateToPage('/actualizacion')}>
+                Actualización
+              </button>
+            </nav>
+          </div>
+        </>
+      )}
+
+      {/* Banner */}
+      <div className="site-banner"></div>
+
+      {/* Título y fecha */}
+      <div className="site-header">
+        <div className="header-content">
+          <div className="title-block">
+            <div className="site-title">Mi registro personal de películas</div>
+          </div>
+          <div className="meta">
+            {new Date().toLocaleDateString('es-ES', { 
+              weekday: 'long', 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            })}
+          </div>
+        </div>
       </div>
 
       <div className="update-container">
