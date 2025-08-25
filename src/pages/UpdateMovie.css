@@ -896,7 +896,6 @@ tr:last-child td {
   flex-direction: column !important;
   width: 100% !important;
   max-width: 525px !important;
-  min-width: 525px !important;
   font-size: 0.8rem !important;
   padding: 0 !important;
   margin-bottom: 2rem !important;
