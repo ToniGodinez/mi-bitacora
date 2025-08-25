@@ -65,7 +65,7 @@ const RecommendMovie = () => {
         <header className="main-header">
           <div className="header-container">
             <div className="brand">
-              <h1 className="brand-title">Mi Bitácora</h1>
+              <h1 className="brand-title">🎬 Mi Bitácora</h1>
             </div>
             
             {/* Navegación desktop */}
@@ -137,7 +137,7 @@ const RecommendMovie = () => {
         <header className="main-header">
           <div className="header-container">
             <div className="brand">
-              <h1 className="brand-title">Mi Bitácora</h1>
+              <h1 className="brand-title">🎬 Mi Bitácora</h1>
             </div>
             
             {/* Navegación desktop */}
@@ -231,7 +231,7 @@ const RecommendMovie = () => {
       <header className="main-header">
         <div className="header-container">
           <div className="brand">
-            <h1 className="brand-title">Mi Bitácora</h1>
+            <h1 className="brand-title">🎬 Mi Bitácora</h1>
           </div>
           
           {/* Navegación desktop */}
@@ -367,7 +367,7 @@ const RecommendMovie = () => {
               className="btn-secondary" 
               onClick={() => window.location.reload()}
             >
-              Otra recomendación
+              Otra
             </button>
           </div>
         </div>
