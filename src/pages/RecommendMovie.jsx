@@ -331,6 +331,12 @@ const RecommendMovie = () => {
         
         <div className="movie-content">
           <div className="movie-details">
+            {recommendedMovie.media_type && (
+              <div className="meta-info">
+                <strong>Tipo:</strong> {recommendedMovie.media_type}
+              </div>
+            )}
+            
             {recommendedMovie.director && (
               <div className="meta-info">
                 <strong>Director:</strong> {recommendedMovie.director}
@@ -343,6 +349,12 @@ const RecommendMovie = () => {
               </div>
             )}
 
+            {recommendedMovie.genres && (
+              <div className="meta-info">
+                <strong>Género:</strong> {recommendedMovie.genres}
+              </div>
+            )}
+
             {recommendedMovie.country && (
               <div className="meta-info">
                 <strong>País:</strong> {recommendedMovie.country}
@@ -352,6 +364,7 @@ const RecommendMovie = () => {
 
           {recommendedMovie.overview && (
             <div className="synopsis">
+              <strong>Sinopsis:</strong><br />
               {recommendedMovie.overview}
             </div>
           )}
