@@ -240,7 +240,7 @@
   height: clamp(140px, 22vw, 320px);
   position: relative;
   overflow: hidden;
-  margin-bottom: 1.5rem;
+  /* Overlay oscuro encima de la imagen */
   background-color: #000;
 }
 

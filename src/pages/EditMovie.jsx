@@ -243,6 +243,26 @@ const EditMovie = () => {
 
   return (
     <div className="edit-page">
+      {/* Banner */}
+      <div className="site-banner"></div>
+
+      {/* Título y fecha */}
+      <div className="site-header">
+        <div className="header-content">
+          <div className="title-block">
+            <div className="site-title">Mi registro personal de películas</div>
+          </div>
+          <div className="meta">
+            {new Date().toLocaleDateString('es-ES', { 
+              weekday: 'long', 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            })}
+          </div>
+        </div>
+      </div>
+
       {/* Menú de navegación */}
       <div className="nav-container">
         <div className="nav-row">

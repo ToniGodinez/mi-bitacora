@@ -9,6 +9,64 @@
   --accent-red: #ff3b6b;
 }
 
+/* Banner solo con imagen de fondo */
+.site-banner {
+  background: url('https://iili.io/FyNGFHB.jpg');
+  background-size: cover;
+  background-position: center center;
+  border-radius: 12px;
+  height: clamp(140px, 22vw, 320px);
+  position: relative;
+  overflow: hidden;
+  /* Overlay oscuro encima de la imagen */
+  background-color: #000;
+}
+
+.site-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 1;
+}
+
+.site-banner > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* Contenedor del título y fecha */
+.site-header {
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding: 0 1rem;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
+}
+
+.title-block {
+  flex: 1;
+}
+
+.site-title {
+  font-size: clamp(1.1rem, 2.4vw, 1.6rem);
+  font-weight: 800;
+}
+
+.site-subtitle {
+  font-size: clamp(0.85rem, 1.6vw, 1rem);
+  color: var(--muted);
+  margin-top: 0.25rem;
+}
+
 .edit-page {
   max-width: 1100px;
   margin: 1.5rem auto;
