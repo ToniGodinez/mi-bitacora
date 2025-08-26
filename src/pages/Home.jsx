@@ -227,18 +227,7 @@ const Home = () => {
       {/* Header Navigation */}
       <NavigationMenu />
 
-      {/* Banner solo con imagen de fondo */}
-      <div className="site-banner"></div>
-      
-      {/* Título y fecha debajo del banner */}
-      <div className="site-header">
-        <div className="header-content">
-          <div className="title-block">
-            <div className="site-title">Mi registro personal de películas</div>
-          </div>
-          <div className="meta">{new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
-        </div>
-      </div>
+  {/* Banner/title/date removed here — handled by shared Layout */}
 
       {/* Sección de búsqueda y filtros */}
       <div className="search-and-filters">
