@@ -33,6 +33,45 @@ const EditMovie = () => {
 
   useEffect(() => {
     const fetchDetails = async () => {
+      // Diccionario de países en español
+      const countriesES = {
+        'United States of America': 'Estados Unidos',
+        'United Kingdom': 'Reino Unido',
+        'Spain': 'España',
+        'France': 'Francia',
+        'Germany': 'Alemania',
+        'Italy': 'Italia',
+        'Japan': 'Japón',
+        'China': 'China',
+        'Russia': 'Rusia',
+        'Mexico': 'México',
+        'Canada': 'Canadá',
+        'Brazil': 'Brasil',
+        'Australia': 'Australia',
+        'South Korea': 'Corea del Sur'
+      };
+      // Diccionario de géneros en español
+      const genresES = {
+        'Action': 'Acción',
+        'Adventure': 'Aventura',
+        'Animation': 'Animación',
+        'Comedy': 'Comedia',
+        'Crime': 'Crimen',
+        'Documentary': 'Documental',
+        'Drama': 'Drama',
+        'Family': 'Familiar',
+        'Fantasy': 'Fantasía',
+        'History': 'Historia',
+        'Horror': 'Terror',
+        'Music': 'Música',
+        'Mystery': 'Misterio',
+        'Romance': 'Romance',
+        'Science Fiction': 'Ciencia Ficción',
+        'TV Movie': 'Película TV',
+        'Thriller': 'Suspenso',
+        'War': 'Guerra',
+        'Western': 'Western'
+      };
       // Si vinimos desde la BD, usamos esos datos y NO hacemos fetch a TMDB
       if (isDbRecord && movieFromState) {
         const m = movieFromState;
@@ -45,11 +84,12 @@ const EditMovie = () => {
         setDetails(data);
         setDirectorName(m.director || '');
         setCastNames(m.actors || '');
-        setCountryName(m.country || '');
+        setCountryName(countriesES[m.country] || m.country || 'Desconocido');
         setOverviewText(m.overview || '');
         setRating(Number(m.rating) || 0);
         setComment(m.comment || '');
         setStatus(m.status || 'pendiente');
+        setGenres((m.genres && Array.isArray(m.genres)) ? m.genres.map(g => genresES[g] || g) : []);
         return;
       }
 
@@ -66,8 +106,8 @@ const EditMovie = () => {
       const cast = (data.credits?.cast || []).slice(0, 5).map(actor => actor.name).join(', ');
       setCastNames(cast);
 
-      // Géneros
-      setGenres(data.genres || []);
+      // Géneros traducidos
+      setGenres((data.genres || []).map(g => genresES[g.name] || g.name));
 
       // Tipo de media y duración
       setMediaType(data.type === 'tv' ? 'Serie' : 'Película');
@@ -92,22 +132,6 @@ const EditMovie = () => {
 
       // País con traducción
       const countryName = data.production_countries?.[0]?.name || 'Desconocido';
-      const countriesES = {
-        'United States of America': 'Estados Unidos',
-        'United Kingdom': 'Reino Unido',
-        'Spain': 'España',
-        'France': 'Francia',
-        'Germany': 'Alemania',
-        'Italy': 'Italia',
-        'Japan': 'Japón',
-        'China': 'China',
-        'Russia': 'Rusia',
-        'Mexico': 'México',
-        'Canada': 'Canadá',
-        'Brazil': 'Brasil',
-        'Australia': 'Australia',
-        'South Korea': 'Corea del Sur'
-      };
       setCountryName(countriesES[countryName] || countryName);
       
       // Sinopsis
@@ -243,27 +267,13 @@ const EditMovie = () => {
 
   return (
     <div className="edit-page">
-  {/* Page content rendered inside Layout */}
-
-      <div className="nav-container">
-        <div className="nav-row">
-          <button 
-            className="btn-nav" 
-            onClick={() => navigate('/')}
-          >
-            Inicio
-          </button>
-        </div>
-      </div>
-
-      <div className="edit-container">
+      <div className="edit-card">
         <div className="edit-header">
           <img 
             className="movie-poster"
             src={details.poster_path ? `${IMAGE_BASE_URL}${details.poster_path}` : (details.poster_url || '')} 
             alt={details.title} 
           />
-          
           <div className="movie-info">
             <h1 className="movie-title">
               {details.title} 
@@ -271,7 +281,6 @@ const EditMovie = () => {
                 ({details.release_date?.split('-')[0]})
               </small>
             </h1>
-
             <div className="movie-details">
               <div className="details-grid">
                 <div className="meta-info">
@@ -283,7 +292,6 @@ const EditMovie = () => {
                   <div className="meta-value">{countryName || '—'}</div>
                 </div>
               </div>
-
               <div className="meta-section">
                 <div className="meta-info">
                   <strong>Director</strong>
@@ -314,7 +322,6 @@ const EditMovie = () => {
                   </div>
                 )}
               </div>
-
               <div className="meta-section">
                 <div className="meta-info">
                   <strong>Sinopsis</strong>
@@ -332,7 +339,6 @@ const EditMovie = () => {
                 )}
               </div>
             </div>
-
             <div className="form-section">
               <div className="form-group">
                 <label className="form-label">Estado</label>
@@ -346,7 +352,6 @@ const EditMovie = () => {
                   <option value="vista">Vista</option>
                 </select>
               </div>
-
               <div className="form-group">
                 <label className="form-label">Calificación</label>
                 <div className="stars-input">
@@ -360,7 +365,6 @@ const EditMovie = () => {
                   ))}
                 </div>
               </div>
-
               <div className="form-group">
                 <label className="form-label">Tu opinión</label>
                 <textarea
@@ -370,7 +374,6 @@ const EditMovie = () => {
                   placeholder="Escribe tu opinión sobre la película..."
                 />
               </div>
-
               <button className="btn-save" onClick={guardarPelicula}>
                 Guardar
               </button>

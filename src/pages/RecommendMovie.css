@@ -103,8 +103,10 @@
 .action-buttons {
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 1rem;
   margin-top: 1.2em;
+  width: 100%;
 }
 .btn-primary, .btn-secondary {
   padding: 0.8rem 2rem;
@@ -136,17 +138,14 @@
 }
 
 .recommend-page {
-  padding-top: 100px;
-  max-width: 1100px;
-  margin: 0 auto;
-  color: var(--text);
-  padding-left: 1rem;
-  padding-right: 1rem;
-  padding-bottom: 1rem;
-  font-family: 'Roboto', sans-serif;
+  min-height: 100vh;
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
+  background: #07090b;
+  color: var(--text);
+  font-family: 'Roboto', sans-serif;
+  padding: 0;
 }
 
 /* =========================
@@ -581,6 +580,12 @@
 }
 
 @media (max-width: 600px) {
+  .action-buttons {
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    gap: 0.7rem;
+  }
   .movie-card {
     padding: 1rem;
     max-width: 98vw;
