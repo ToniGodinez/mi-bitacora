@@ -398,7 +398,70 @@
 .filters-section {
   margin-top: 1.5rem;
   padding-top: 1.5rem;
-  border-top: 1px solid rgba(255,255,255,0.06);
+
+}
+
+/* Mobile-only visual tweaks: reduce banner height, title size and spacing
+   Keep desktop styles unchanged. */
+@media (max-width: 480px) {
+  .home-page {
+    padding-top: 76px; /* slightly smaller top padding for mobile header */
+  }
+
+  .site-banner {
+    height: 120px; /* reduce banner height on small screens */
+    border-radius: 10px;
+    background-position: center top;
+  }
+
+  .site-header {
+    margin-top: 0.75rem;
+    margin-bottom: 1rem;
+    padding: 0 0.6rem;
+  }
+
+  .site-title {
+    font-size: 1.25rem; /* smaller title on mobile */
+    line-height: 1.1;
+  }
+
+  .meta {
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    text-align: left;
+  }
+
+  /* Make search & filters fit mobile width nicely without changing layout on desktop */
+  .nav-row {
+    padding: 1rem 0.75rem;
+    gap: 1rem;
+  }
+
+  .nav-row .search-input {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .filters-section {
+    padding-top: 1rem;
+  }
+
+  /* Stack search input and button vertically on very small screens to avoid overflow */
+  .search-section {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-section .search-input {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .search-section .btn {
+    width: 100%;
+    margin-top: 0.6rem;
+    align-self: stretch;
+  }
 }
 
 .filter-bar { 
@@ -802,18 +865,42 @@
   margin-bottom: 2rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(0, 229, 255, 0.1);
+  /* Make the search + filters area layout responsive and contained */
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  flex-wrap: wrap;
 }
 
 /* Container principal - layout en dos filas */
 .search-section {
   display: flex;
-  justify-content: flex-end;
-  margin-bottom: 1rem;
+  justify-content: flex-start;
+  margin-bottom: 0;
+  gap: 0.5rem;
+  align-items: center;
+  flex: 1 1 360px; /* allow this column to grow/shrink inside the container */
+  min-width: 180px;
+}
+
+/* Make the search input/button flexible so they fit inside the filters container */
+.search-section .search-input {
+  flex: 1 1 auto;
+  min-width: 0; /* allow shrinking below intrinsic min-width */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.search-section .btn {
+  flex: 0 0 auto;
+  margin-left: 0; /* controlled spacing by gap */
 }
 
 .filters-section {
   display: flex;
   justify-content: flex-start;
+  flex: 1 1 360px; /* allow filters to share space with search */
+  min-width: 160px;
 }
 
 .filter-bar {
@@ -821,6 +908,7 @@
   gap: 0.75rem;
   flex-wrap: wrap;
   align-items: center;
+  width: 100%;
 }
 
 /* Estilos de los botones de filtro */
