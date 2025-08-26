@@ -418,12 +418,13 @@
 }
 
 .movie-poster {
-  flex-shrink: 0;
+  /* support for both <div class="movie-poster"><img/></div> and <img class="movie-poster"/> */
   width: 200px;
   height: 300px;
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  object-fit: cover; /* works if element is img */
 }
 
 .movie-poster img {
@@ -432,50 +433,69 @@
   object-fit: cover;
 }
 
-.movie-info {
-  flex: 1;
+/* Card structure used by JSX */
+.card-header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.card-content {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  gap: 2rem;
+  align-items: flex-start;
+  width: 100%;
 }
 
-.movie-title {
-  font-size: 2rem;
-  font-weight: 800;
-  color: var(--accent-cyan);
-  margin-bottom: 0.5rem;
+.poster-section {
+  flex-shrink: 0;
 }
 
-.movie-year {
-  font-size: 1.1rem;
-  color: var(--muted);
-  font-weight: 500;
-}
-
-.movie-details {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.5rem 1rem;
-  margin: 1rem 0;
-}
-
-.detail-label {
+/* Buttons used in JSX */
+.btn-primary {
+  padding: 0.8rem 2rem;
+  border-radius: 10px;
+  font-size: 1rem;
   font-weight: 600;
-  color: var(--accent-cyan);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  background: linear-gradient(135deg, var(--accent-cyan) 0%, rgba(0, 150, 200, 0.9) 100%);
+  color: var(--bg);
 }
 
-.detail-value {
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,229,255,0.2); }
+
+.btn-secondary {
+  padding: 0.8rem 2rem;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid rgba(255,255,255,0.2);
+  background: transparent;
   color: var(--text);
 }
 
-.movie-rating {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 1.2rem;
+.btn-secondary:hover { background: rgba(255,255,255,0.06); border-color: var(--accent-cyan); color: var(--accent-cyan); transform: translateY(-2px); }
+
+/* Synopsis toggle mapping */
+.synopsis-toggle {
+  background: none;
+  border: 1px solid var(--accent-cyan);
   color: var(--accent-cyan);
-  font-weight: 700;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin-top: 0.8rem;
+  transition: all 0.3s ease;
 }
+
+.synopsis-toggle:hover { background: var(--accent-cyan); color: var(--bg); }
+
+/* Stars */
+.stars { color: var(--accent-cyan); font-weight: 700; }
 
 .synopsis-section {
   margin-top: 1.5rem;
