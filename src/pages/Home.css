@@ -500,6 +500,37 @@
 
 /* Extra tiny-screen fixes around 410px */
 @media (max-width: 410px) {
+  /* Forzar el ancho de todo el contenido principal en Home a 88px en móvil */
+  .home-page {
+    width: 88px !important;
+    max-width: 88px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  .site-banner {
+    width: 88px !important;
+    max-width: 88px !important;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+  }
+  .search-section,
+  .filters-section {
+    width: 88px !important;
+    max-width: 88px !important;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+  }
+  .db-table,
+  .search-results {
+    width: 88px !important;
+    max-width: 88px !important;
+    margin-left: auto;
+    margin-right: auto;
+  }
   .search-card { width: 100%; }
   .row-card .poster { width: 120px; }
   .title-accent { padding: 0.2rem 0.45rem; }
