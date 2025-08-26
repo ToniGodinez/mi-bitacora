@@ -97,8 +97,7 @@ const RecommendMovie = () => {
         <div className="card-header">
           <h1 className="recommend-title">Te recomendamos ver:</h1>
         </div>
-        
-        <div className="card-content">
+        <div className="card-content vertical">
           <div className="poster-section">
             <img 
               className="movie-poster"
@@ -106,14 +105,12 @@ const RecommendMovie = () => {
               alt={recommendedMovie.title} 
             />
           </div>
-          
           <div className="movie-info">
             <div className="title-section">
               <h2 className="movie-title">{recommendedMovie.title}</h2>
               <span className="movie-year">({recommendedMovie.year})</span>
               <div className="stars">★★★★★</div>
             </div>
-            
             <div className="movie-meta">
               {recommendedMovie.media_type && (
                 <div className="meta-row">
@@ -121,28 +118,24 @@ const RecommendMovie = () => {
                   <span className="meta-value">{recommendedMovie.media_type}</span>
                 </div>
               )}
-              
               {recommendedMovie.status && (
                 <div className="meta-row">
                   <span className="meta-label">Estado:</span> 
                   <span className="meta-value">{recommendedMovie.status}</span>
                 </div>
               )}
-              
               {recommendedMovie.director && (
                 <div className="meta-row">
                   <span className="meta-label">Director:</span> 
                   <span className="meta-value">{recommendedMovie.director}</span>
                 </div>
               )}
-              
               {recommendedMovie.actors && (
                 <div className="meta-row">
                   <span className="meta-label">Actores:</span> 
                   <span className="meta-value">{recommendedMovie.actors}</span>
                 </div>
               )}
-
               {recommendedMovie.genres && (
                 <div className="meta-row">
                   <span className="meta-label">Género:</span> 
@@ -150,7 +143,6 @@ const RecommendMovie = () => {
                 </div>
               )}
             </div>
-
             {recommendedMovie.overview && (
               <div className="synopsis-section">
                 <h3 className="synopsis-title">Sinopsis:</h3>
@@ -167,7 +159,6 @@ const RecommendMovie = () => {
                 )}
               </div>
             )}
-
             <div className="action-buttons">
               <button 
                 className="btn-primary" 
