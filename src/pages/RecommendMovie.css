@@ -487,6 +487,14 @@
 
 /* Card structure used by JSX */
 .card-header {
+/* Título principal centrado y cian */
+.recommend-title {
+  text-align: center;
+  color: var(--accent-cyan);
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+}
   text-align: center;
   margin-bottom: 1rem;
 }
@@ -700,6 +708,32 @@
   }
   
   .movie-title {
+  text-align: center;
+  color: #fff;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  align-items: center;
+  text-align: center;
+  color: var(--accent-cyan);
+  font-weight: bold;
+  margin-right: 0.3em;
+  color: #fff;
+  font-weight: 400;
+  color: var(--accent-cyan);
+  font-weight: bold;
+  text-align: center;
+  text-align: center;
+  padding: 0.8rem 2rem;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  background: linear-gradient(135deg, var(--accent-cyan) 0%, rgba(0, 150, 200, 0.9) 100%);
+  color: var(--bg);
+  margin: 0 0.5rem;
     font-size: 1.5rem;
   }
   
