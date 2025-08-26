@@ -3,7 +3,8 @@ import cors from 'cors';
 import { Pool } from 'pg';
 
 const app = express();
-app.use(cors());
+const allowedOrigin = process.env.FRONTEND_URL || '*';
+app.use(cors({ origin: allowedOrigin }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
