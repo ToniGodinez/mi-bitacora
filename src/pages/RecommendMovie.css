@@ -446,6 +446,25 @@
   width: 100%;
 }
 
+@media (max-width: 600px) {
+  .card-content {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+  }
+  .movie-info {
+    width: 100%;
+    margin-top: 1rem;
+    text-align: center;
+  }
+  .title-section, .movie-meta, .synopsis-section, .action-buttons {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+}
+}
+
 .poster-section {
   flex-shrink: 0;
 }
