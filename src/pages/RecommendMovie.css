@@ -472,7 +472,6 @@
     margin: 0 auto;
   }
 }
-}
 
 .movie-poster {
   /* support for both <div class="movie-poster"><img/></div> and <img class="movie-poster"/> */
