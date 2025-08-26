@@ -27,7 +27,7 @@ const SearchBar = ({ onResults }) => {
   };
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+    <div className="search-bar">
       <input
         className="search-input"
         type="text"
@@ -36,7 +36,7 @@ const SearchBar = ({ onResults }) => {
         onChange={e => setQuery(e.target.value)}
         onKeyDown={handleKey}
       />
-      <button className="btn" onClick={searchMovies} style={{ marginLeft: '0.25rem' }} disabled={!query.trim() || loading}>
+      <button className="btn" onClick={searchMovies} disabled={!query.trim() || loading}>
         {loading ? 'Buscando...' : 'Buscar'}
       </button>
     </div>

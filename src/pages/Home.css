@@ -379,19 +379,21 @@
   
 
 
-/* Hacer el botón de inicio más grande */
+/* Ajuste estético del botón en nav-row (más compacto y alineado) */
 .nav-row .btn {
-  font-size: 1.1rem;
-  padding: 0.6rem 1.2rem;
+  font-size: 1rem; /* ligeramente menor para evitar overflow */
+  padding: 0.48rem 0.9rem; /* menos padding horizontal */
   font-weight: 500;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
+  border-radius: 10px;
+  min-height: 40px;
 }
 
-/* Hacer el campo de búsqueda más grande */
+/* Campo de búsqueda: compacto pero usable */
 .nav-row .search-input {
-  font-size: 1rem;
-  padding: 0.6rem 1rem;
-  min-width: 250px;
+  font-size: 0.95rem;
+  padding: 0.48rem 0.8rem;
+  min-width: 180px; /* reduzco para evitar overflow en pantallas pequeñas */
 }
 
 /* Divisor entre menú y filtros */
@@ -462,6 +464,45 @@
     margin-top: 0.6rem;
     align-self: stretch;
   }
+
+  /* Make row-cards stack and shrink gracefully on small screens to avoid cut content */
+  .row-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.6rem;
+  }
+
+  .row-card .poster {
+    width: 140px;
+    height: auto;
+    object-fit: cover;
+    margin: 0 auto;
+  }
+
+  .row-card .info {
+    width: 100%;
+    min-width: 0; /* allow flex children to shrink */
+  }
+
+  .overview { text-align: center; }
+
+  /* Small search result cards: make them responsive and not overflow */
+  .search-results {
+    justify-content: center;
+  }
+
+  .search-card {
+    width: calc(50% - 0.6rem);
+    box-sizing: border-box;
+  }
+}
+
+/* Extra tiny-screen fixes around 410px */
+@media (max-width: 410px) {
+  .search-card { width: 100%; }
+  .row-card .poster { width: 120px; }
+  .title-accent { padding: 0.2rem 0.45rem; }
 }
 
 .filter-bar { 
@@ -527,6 +568,13 @@
   border-radius: 8px;
   transition: all 140ms ease;
   font-size: 0.95rem;
+}
+
+/* Wrapper for the search input and button */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 /* Estilo del botón principal (Inicio y Buscar) */
@@ -990,5 +1038,127 @@
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+}
+
+/* Extra-tight rules for very small screens (phones ~409px) */
+@media (max-width: 420px) {
+  .search-and-filters {
+    padding: 0.9rem;
+    gap: 0.5rem;
+  }
+
+  .search-section {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .search-section .search-input {
+    width: 100%;
+    min-width: 0;
+    padding: 0.45rem 0.6rem;
+    font-size: 0.95rem;
+  }
+
+  .search-section .btn {
+    width: 100%;
+    margin-top: 0.4rem;
+    padding: 0.5rem 0.6rem;
+    font-size: 0.95rem;
+  }
+
+  /* Make filters wrap into 2 columns to save horizontal space */
+  .filter-bar {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .filter-btn {
+    flex: 1 1 48%;
+    min-width: 0;
+    padding: 0.5rem 0.6rem;
+    font-size: 0.9rem;
+  }
+
+  .filters-section {
+    width: 100%;
+  }
+
+  /* Reduce visual padding inside the nav-row box so everything fits */
+  .nav-row {
+    padding: 0.75rem 0.75rem;
+  }
+}
+
+/* Small mobile adjustments: stack search + button and make filters responsive to avoid overflow at ~409px */
+@media (max-width: 410px) {
+  .nav-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    padding: 0.6rem;
+  }
+
+  /* Stack search input and button vertically and make them full width */
+  .nav-row .search-section {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    width: 100%;
+    flex: none;
+  }
+
+  .nav-row .search-input {
+    width: 100%;
+    min-width: 0;
+    padding: 0.45rem 0.6rem;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+  }
+  /* Ensure the search-bar stacks vertically on very small screens with input first */
+  .search-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-bar .search-input {
+    order: 0;
+    width: 100%;
+  }
+
+  .search-bar .btn {
+    order: 1;
+    width: 100%;
+  }
+  .nav-row .btn {
+    width: 100%;
+    padding: 0.48rem 0.6rem;
+    font-size: 0.95rem;
+    margin: 0;
+    flex: none;
+  }
+
+  /* Make filters wrap and use two-column buttons that fit small screens */
+  .filters-section {
+    width: 100%;
+  }
+
+  .filter-bar {
+    gap: 0.4rem;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    flex: 1 1 48%;
+    min-width: 0;
+    padding: 0.45rem 0.6rem;
+    font-size: 0.85rem;
+    box-sizing: border-box;
   }
 }
