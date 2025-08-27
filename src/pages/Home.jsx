@@ -266,11 +266,13 @@ const Home = () => {
               <div className="info">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
-                      <div style={{ fontWeight: 800 }}>{m.title} <span className="meta">({m.year})</span></div>
-          <div className="meta"><strong>Tipo:</strong> {m.media_type || (m.is_tv ? 'Serie' : 'Película')}</div>
-          <div className="meta"><strong>Director:</strong> {m.director || 'Desconocido'}</div>
-          <div className="meta"><strong>Actores:</strong> {m.actors || '—'}</div>
-          <div className="meta"><strong>Género:</strong> {(m.genres && m.genres.length) ? m.genres.join(', ') : '—'}</div>
+                      <div style={{ fontWeight: 800 }}>
+  <span className="title">{m.title}</span> <span className="meta">({m.year})</span>
+</div>
+<div className="meta"><span className="meta-label">Tipo:</span> <span className="meta-value">{m.media_type || (m.is_tv ? 'Serie' : 'Película')}</span></div>
+<div className="meta"><span className="meta-label">Director:</span> <span className="meta-value">{m.director || 'Desconocido'}</span></div>
+<div className="meta"><span className="meta-label">Actores:</span> <span className="meta-value">{m.actors || '—'}</span></div>
+<div className="meta"><span className="meta-label">Género:</span> <span className="meta-value">{(m.genres && m.genres.length) ? m.genres.join(', ') : '—'}</span></div>
                       <p className={`overview ${m._expanded ? 'expanded' : ''}`}>{m.overview_es || m.overview || m.sinopsis || 'Sin sinopsis disponible.'}</p>
                       { (m.overview_es || m.overview || m.sinopsis) && (
                         <button className="link-more" onClick={() => setDbMovies(prev => prev.map(x => x.id === m.id ? { ...x, _expanded: !x._expanded } : x))}>

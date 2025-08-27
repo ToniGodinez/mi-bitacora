@@ -1141,3 +1141,28 @@
     box-sizing: border-box;
   }
 }
+
+/* Meta labels y valores */
+.meta-label {
+  color: var(--accent-cyan);
+  font-weight: 700;
+  margin-right: 0.3em;
+  letter-spacing: 0.01em;
+}
+.meta-value {
+  color: #e6eef3;
+  font-weight: 400;
+}
+
+/* Estilo del botón 'Mostrar más' */
+.link-more {
+  background: none;
+  border: none;
+  color: var(--accent-cyan);
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 1rem;
+  margin-top: 0.2em;
+  padding: 0;
+}
