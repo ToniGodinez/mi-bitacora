@@ -9,9 +9,11 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 const EditMovie = () => {
   const { state } = useLocation();
   const params = useParams();
-  const movieFromState = state?.movie;
-  const movieIdParam = params.id;
-  const movie = movieFromState || (movieIdParam ? { id: movieIdParam } : null);
+  // Detecta tipo y datos
+  const itemFromState = state?.item || state?.movie;
+  const mediaTypeParam = params["*"] || params.media_type || (itemFromState?.media_type);
+  const movieIdParam = params.id || itemFromState?.id;
+  const movie = itemFromState || (movieIdParam ? { id: movieIdParam, media_type: mediaTypeParam } : null);
 
   const [details, setDetails] = useState(null);
   const [status, setStatus] = useState('pendiente');
@@ -73,10 +75,10 @@ const EditMovie = () => {
         'Western': 'Western'
       };
       // Si vinimos desde la BD, usamos esos datos y NO hacemos fetch a TMDB
-      if (isDbRecord && movieFromState) {
-        const m = movieFromState;
+      if (isDbRecord && itemFromState) {
+        const m = itemFromState;
         const data = {
-          title: m.title,
+          title: m.title || m.name,
           release_date: m.year ? String(m.year) + '-01-01' : '',
           poster_path: null,
           poster_url: m.poster_url || ''
@@ -93,14 +95,26 @@ const EditMovie = () => {
         return;
       }
 
-      // Hacer el fetch con language=es-ES para obtener todo en español
-      const res = await fetch(`https://api.themoviedb.org/3/movie/${movie.id}?api_key=${TMDB_API_KEY}&append_to_response=credits,release_dates&language=es-ES`);
+      // Detecta tipo para el fetch
+      const type = mediaTypeParam || movie.media_type || 'movie';
+      let url = '';
+      if (type === 'tv') {
+        url = `https://api.themoviedb.org/3/tv/${movie.id}?api_key=${TMDB_API_KEY}&append_to_response=credits,release_dates&language=es-ES`;
+      } else if (type === 'person') {
+        url = `https://api.themoviedb.org/3/person/${movie.id}?api_key=${TMDB_API_KEY}&language=es-ES`;
+      } else {
+        url = `https://api.themoviedb.org/3/movie/${movie.id}?api_key=${TMDB_API_KEY}&append_to_response=credits,release_dates&language=es-ES`;
+      }
+      const res = await fetch(url);
       const data = await res.json();
       setDetails(data);
 
-      // Director
-      const dir = data.credits?.crew?.find(person => person.job === 'Director');
-      setDirectorName(dir?.name || '');
+      // Director (solo para movie/tv)
+      let dir = '';
+      if (data.credits?.crew) {
+        dir = data.credits.crew.find(person => person.job === 'Director')?.name || '';
+      }
+      setDirectorName(dir);
 
       // Cast principal (primeros 5)
       const cast = (data.credits?.cast || []).slice(0, 5).map(actor => actor.name).join(', ');
@@ -110,7 +124,7 @@ const EditMovie = () => {
       setGenres((data.genres || []).map(g => genresES[g.name] || g.name));
 
       // Tipo de media y duración
-      setMediaType(data.type === 'tv' ? 'Serie' : 'Película');
+      setMediaType(type === 'tv' ? 'Serie' : (type === 'person' ? 'Persona' : 'Película'));
       if (data.runtime) {
         const hours = Math.floor(data.runtime / 60);
         const minutes = data.runtime % 60;
@@ -118,8 +132,9 @@ const EditMovie = () => {
       }
 
       // Fecha de estreno formateada
-      if (data.release_date) {
-        const date = new Date(data.release_date);
+      if (data.release_date || data.first_air_date) {
+        const dateStr = data.release_date || data.first_air_date;
+        const date = new Date(dateStr);
         setReleaseDate(date.toLocaleDateString('es-ES', {
           year: 'numeric',
           month: 'long',
