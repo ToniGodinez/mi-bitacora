@@ -34,8 +34,22 @@ const EditMovie = () => {
 
   useEffect(() => {
     const fetchDetails = async () => {
-      // Diccionario de países en español
+      // Diccionario de países en español y códigos ISO
       const countriesES = {
+        'US': 'Estados Unidos',
+        'GB': 'Reino Unido',
+        'ES': 'España',
+        'FR': 'Francia',
+        'DE': 'Alemania',
+        'IT': 'Italia',
+        'JP': 'Japón',
+        'CN': 'China',
+        'RU': 'Rusia',
+        'MX': 'México',
+        'CA': 'Canadá',
+        'BR': 'Brasil',
+        'AU': 'Australia',
+        'KR': 'Corea del Sur',
         'United States of America': 'Estados Unidos',
         'United Kingdom': 'Reino Unido',
         'Spain': 'España',
@@ -94,15 +108,17 @@ const EditMovie = () => {
           cast = m.cast.map(a => a.name).join(', ');
         }
         setCastNames(cast || '—');
-        // País
+        // País (robusto para tv y movie)
         let country = m.country || '';
         if (!country && Array.isArray(m.origin_country) && m.origin_country.length > 0) {
-          country = m.origin_country.join(', ');
+          // origin_country es array de códigos ISO (ej: ['US'])
+          country = m.origin_country.map(code => countriesES[code] || code).join(', ');
         }
         if (!country && Array.isArray(m.production_countries) && m.production_countries.length > 0) {
-          country = m.production_countries.map(c => c.name).join(', ');
+          // production_countries es array de objetos {iso_3166_1, name}
+          country = m.production_countries.map(c => countriesES[c.iso_3166_1] || countriesES[c.name] || c.name).join(', ');
         }
-        setCountryName(countriesES[country] || country || 'Desconocido');
+        setCountryName(country || 'Desconocido');
         // Géneros
         let genresArr = [];
         if (Array.isArray(m.genres) && m.genres.length > 0) {
@@ -116,12 +132,18 @@ const EditMovie = () => {
         setMediaType(m.media_type || '');
         setRuntime(m.runtime ? `${Math.floor(m.runtime / 60)}h ${m.runtime % 60}min` : '');
         setReleaseDate(m.release_date ? new Date(m.release_date).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }) : '');
+        // Año para mostrar debajo del título
+        setReleaseDate(
+          m.release_date
+            ? new Date(m.release_date).getFullYear()
+            : (m.year ? m.year : '')
+        );
         setProductionCompanies(m.production_companies || []);
         return;
       }
       // Si no, haz el fetch como antes
       const res = await fetch(`https://api.themoviedb.org/3/movie/${movie.id}?api_key=${TMDB_API_KEY}&append_to_response=credits,release_dates&language=es-ES`);
-      const data = await res.json();
+  const data = await res.json();
       setDetails(data);
       const dir = data.credits?.crew?.find(person => person.job === 'Director');
       setDirectorName(dir?.name || '');
@@ -141,6 +163,11 @@ const EditMovie = () => {
       setProductionCompanies(data.production_companies || []);
       const countryName = data.production_countries?.[0]?.name || 'Desconocido';
       setCountryName(countriesES[countryName] || countryName);
+      setCountryName(
+        data.production_countries?.length > 0
+          ? (countriesES[data.production_countries[0].iso_3166_1] || countriesES[data.production_countries[0].name] || data.production_countries[0].name)
+          : 'Desconocido'
+      );
       setOverviewText(data.overview || 'Sin descripción disponible.');
     };
 
