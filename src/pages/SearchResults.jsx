@@ -43,8 +43,8 @@ export default function SearchResults() {
   }, [q]);
 
   const openEdit = (item) => {
-    // Navega a /edit/tipo/id y pasa el objeto completo
-    navigate(`/edit/${item.media_type}/${item.id}`, { state: { item } });
+    // Navega a /edit/:id y pasa el objeto completo
+    navigate(`/edit/${item.id}`, { state: { movie: item } });
   }
 
   return (
