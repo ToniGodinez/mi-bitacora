@@ -18,7 +18,7 @@ const Layout = () => {
       <header className="main-header">
         <div className="header-container">
           <div className="brand">
-            <h1 className="brand-title">Mi Bitácora</h1>
+            <h1 className="brand-title">🎬 Mi Bitácora</h1>
           </div>
 
           <nav className="desktop-navigation">
@@ -40,7 +40,7 @@ const Layout = () => {
           <div className="sidebar-overlay" onClick={closeMobileMenu}></div>
           <div className={`mobile-sidebar ${isMobileMenuOpen ? 'open' : ''}`}>
             <div className="sidebar-header">
-              <h2 className="sidebar-brand">Mi Bitácora</h2>
+              <h2 className="sidebar-brand">🎬 Mi Bitácora</h2>
               <button className="sidebar-close" onClick={closeMobileMenu}>×</button>
             </div>
             <nav className="sidebar-menu">

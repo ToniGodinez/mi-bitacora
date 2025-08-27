@@ -7,11 +7,11 @@
   background: linear-gradient(135deg, #10151a 80%, #0f222f 100%);
   border-radius: 18px;
   align-items: center;
-  box-shadow: 0 8px 32px rgba(0,229,255,0.10), 0 2px 12px rgba(0,0,0,0.18);
+  box-shadow: 0 0 32px 8px rgba(0,229,255,0.22), 0 2px 12px rgba(0,0,0,0.18);
   transition: box-shadow 0.2s, border-color 0.2s;
   border: 1.5px solid var(--accent-cyan);
   width: 100%;
-  max-width: 420px;
+  max-width: 700px;
   margin: 2.5rem auto;
 }
 .recommend-title {
