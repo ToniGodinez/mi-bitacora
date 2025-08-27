@@ -51,7 +51,6 @@ const EditMovie = () => {
         'Australia': 'Australia',
         'South Korea': 'Corea del Sur'
       };
-      // Diccionario de géneros en español
       const genresES = {
         'Action': 'Acción',
         'Adventure': 'Aventura',
@@ -73,69 +72,52 @@ const EditMovie = () => {
         'War': 'Guerra',
         'Western': 'Western'
       };
-      // Si vinimos desde la BD, usamos esos datos y NO hacemos fetch a TMDB
-      if (isDbRecord && movieFromState) {
+      // Si el objeto recibido ya tiene los datos completos, úsalo directamente
+      if (movieFromState && (movieFromState.overview || movieFromState.genres || movieFromState.title || movieFromState.name)) {
         const m = movieFromState;
         const data = {
           title: m.title || m.name,
-          release_date: m.year ? String(m.year) + '-01-01' : '',
-          poster_path: null,
+          release_date: m.release_date || m.year ? String(m.year) + '-01-01' : '',
+          poster_path: m.poster_path || null,
           poster_url: m.poster_url || ''
         };
         setDetails(data);
-        setDirectorName(m.director || '');
-        setCastNames(m.actors || '');
+        setDirectorName(m.director || m.created_by?.[0]?.name || '');
+        setCastNames(m.actors || (m.cast ? m.cast.map(a => a.name).join(', ') : ''));
         setCountryName(countriesES[m.country] || m.country || 'Desconocido');
         setOverviewText(m.overview || '');
         setRating(Number(m.rating) || 0);
         setComment(m.comment || '');
         setStatus(m.status || 'pendiente');
-        setGenres((m.genres && Array.isArray(m.genres)) ? m.genres.map(g => genresES[g] || g) : []);
+        setGenres((m.genres && Array.isArray(m.genres)) ? m.genres.map(g => genresES[g.name || g] || g.name || g) : []);
+        setMediaType(m.media_type || '');
+        setRuntime(m.runtime ? `${Math.floor(m.runtime / 60)}h ${m.runtime % 60}min` : '');
+        setReleaseDate(m.release_date ? new Date(m.release_date).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }) : '');
+        setProductionCompanies(m.production_companies || []);
         return;
       }
-
-      // Hacer el fetch con language=es-ES para obtener todo en español
+      // Si no, haz el fetch como antes
       const res = await fetch(`https://api.themoviedb.org/3/movie/${movie.id}?api_key=${TMDB_API_KEY}&append_to_response=credits,release_dates&language=es-ES`);
       const data = await res.json();
       setDetails(data);
-
-      // Director
       const dir = data.credits?.crew?.find(person => person.job === 'Director');
       setDirectorName(dir?.name || '');
-
-      // Cast principal (primeros 5)
       const cast = (data.credits?.cast || []).slice(0, 5).map(actor => actor.name).join(', ');
       setCastNames(cast);
-
-      // Géneros traducidos
       setGenres((data.genres || []).map(g => genresES[g.name] || g.name));
-
-      // Tipo de media y duración
       setMediaType('Película');
       if (data.runtime) {
         const hours = Math.floor(data.runtime / 60);
         const minutes = data.runtime % 60;
         setRuntime(hours > 0 ? `${hours}h ${minutes}min` : `${minutes} min`);
       }
-
-      // Fecha de estreno formateada
       if (data.release_date) {
         const date = new Date(data.release_date);
-        setReleaseDate(date.toLocaleDateString('es-ES', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        }));
+        setReleaseDate(date.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }));
       }
-
-      // Compañías productoras
       setProductionCompanies(data.production_companies || []);
-
-      // País con traducción
       const countryName = data.production_countries?.[0]?.name || 'Desconocido';
       setCountryName(countriesES[countryName] || countryName);
-      
-      // Sinopsis
       setOverviewText(data.overview || 'Sin descripción disponible.');
     };
 
