@@ -43,8 +43,75 @@ export default function SearchResults() {
   }, [q]);
 
   const openEdit = (item) => {
-    // Navega a /edit/:id y pasa el objeto completo
-    navigate(`/edit/${item.id}`, { state: { movie: item } });
+    // Detecta tipo y obtiene detalle completo de TMDB antes de navegar
+    const fetchAndNavigate = async () => {
+      let detailUrl = '';
+      let type = item.media_type || (item.title ? 'movie' : (item.name ? 'tv' : ''));
+      if (type === 'movie') {
+        detailUrl = `https://api.themoviedb.org/3/movie/${item.id}?api_key=${TMDB_API_KEY}&language=es-ES&append_to_response=credits`;
+      } else if (type === 'tv') {
+        detailUrl = `https://api.themoviedb.org/3/tv/${item.id}?api_key=${TMDB_API_KEY}&language=es-ES&append_to_response=credits`;
+      } else {
+        // Si no es movie ni tv, navega con el objeto original
+        navigate(`/edit/${item.id}`, { state: { movie: item } });
+        return;
+      }
+      try {
+        const res = await fetch(detailUrl);
+        if (!res.ok) throw new Error('TMDB detalle error ' + res.status);
+        const data = await res.json();
+        // Mapeo robusto de campos clave
+        let director = '';
+        if (type === 'movie') {
+          const dirObj = data.credits?.crew?.find(p => p.job === 'Director');
+          director = dirObj?.name || '';
+        } else if (type === 'tv') {
+          director = Array.isArray(data.created_by) ? data.created_by.map(c => c.name).join(', ') : '';
+        }
+        let cast = '';
+        if (data.credits?.cast?.length) {
+          cast = data.credits.cast.slice(0, 5).map(a => a.name).join(', ');
+        }
+        let country = '';
+        if (type === 'movie' && Array.isArray(data.production_countries) && data.production_countries.length > 0) {
+          const c = data.production_countries[0];
+          const countriesES = {
+            'US': 'Estados Unidos', 'GB': 'Reino Unido', 'ES': 'España', 'FR': 'Francia', 'DE': 'Alemania', 'IT': 'Italia', 'JP': 'Japón', 'CN': 'China', 'RU': 'Rusia', 'MX': 'México', 'CA': 'Canadá', 'BR': 'Brasil', 'AU': 'Australia', 'KR': 'Corea del Sur',
+            'United States of America': 'Estados Unidos', 'United Kingdom': 'Reino Unido', 'Spain': 'España', 'France': 'Francia', 'Germany': 'Alemania', 'Italy': 'Italia', 'Japan': 'Japón', 'China': 'China', 'Russia': 'Rusia', 'Mexico': 'México', 'Canada': 'Canadá', 'Brazil': 'Brasil', 'Australia': 'Australia', 'South Korea': 'Corea del Sur'
+          };
+          country = countriesES[c.iso_3166_1] || countriesES[c.name] || c.name;
+        } else if (type === 'tv' && Array.isArray(data.origin_country) && data.origin_country.length > 0) {
+          const countriesES = {
+            'US': 'Estados Unidos', 'GB': 'Reino Unido', 'ES': 'España', 'FR': 'Francia', 'DE': 'Alemania', 'IT': 'Italia', 'JP': 'Japón', 'CN': 'China', 'RU': 'Rusia', 'MX': 'México', 'CA': 'Canadá', 'BR': 'Brasil', 'AU': 'Australia', 'KR': 'Corea del Sur'
+          };
+          country = data.origin_country.map(code => countriesES[code] || code).join(', ');
+        }
+        let genres = [];
+        if (Array.isArray(data.genres)) {
+          genres = data.genres.map(g => g.name);
+        }
+        const robustMovie = {
+          id: data.id,
+          title: data.title || data.name || '',
+          year: (data.release_date || data.first_air_date || '').split('-')[0] || '',
+          poster_path: data.poster_path || '',
+          overview: data.overview || '',
+          director,
+          actors: cast,
+          country,
+          genres,
+          media_type: type,
+          vote_average: data.vote_average || '',
+          production_companies: data.production_companies || [],
+          runtime: data.runtime || data.episode_run_time?.[0] || '',
+        };
+        navigate(`/edit/${data.id}`, { state: { movie: robustMovie } });
+      } catch (err) {
+        // Si falla, navega con el objeto original
+        navigate(`/edit/${item.id}`, { state: { movie: item } });
+      }
+    };
+    fetchAndNavigate();
   }
 
   return (
