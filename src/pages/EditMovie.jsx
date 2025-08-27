@@ -77,19 +77,42 @@ const EditMovie = () => {
         const m = movieFromState;
         const data = {
           title: m.title || m.name,
-          release_date: m.release_date || m.year ? String(m.year) + '-01-01' : '',
+          release_date: m.release_date || (m.year ? String(m.year) + '-01-01' : ''),
           poster_path: m.poster_path || null,
           poster_url: m.poster_url || ''
         };
         setDetails(data);
-        setDirectorName(m.director || m.created_by?.[0]?.name || '');
-        setCastNames(m.actors || (m.cast ? m.cast.map(a => a.name).join(', ') : ''));
-        setCountryName(countriesES[m.country] || m.country || 'Desconocido');
+        // Director/creador
+        let director = m.director || '';
+        if (!director && Array.isArray(m.created_by) && m.created_by.length > 0) {
+          director = m.created_by.map(c => c.name).join(', ');
+        }
+        setDirectorName(director || 'Desconocido');
+        // Reparto
+        let cast = m.actors || '';
+        if (!cast && Array.isArray(m.cast) && m.cast.length > 0) {
+          cast = m.cast.map(a => a.name).join(', ');
+        }
+        setCastNames(cast || '—');
+        // País
+        let country = m.country || '';
+        if (!country && Array.isArray(m.origin_country) && m.origin_country.length > 0) {
+          country = m.origin_country.join(', ');
+        }
+        if (!country && Array.isArray(m.production_countries) && m.production_countries.length > 0) {
+          country = m.production_countries.map(c => c.name).join(', ');
+        }
+        setCountryName(countriesES[country] || country || 'Desconocido');
+        // Géneros
+        let genresArr = [];
+        if (Array.isArray(m.genres) && m.genres.length > 0) {
+          genresArr = m.genres.map(g => g.name || g);
+        }
+        setGenres(genresArr);
         setOverviewText(m.overview || '');
         setRating(Number(m.rating) || 0);
         setComment(m.comment || '');
         setStatus(m.status || 'pendiente');
-        setGenres((m.genres && Array.isArray(m.genres)) ? m.genres.map(g => genresES[g.name || g] || g.name || g) : []);
         setMediaType(m.media_type || '');
         setRuntime(m.runtime ? `${Math.floor(m.runtime / 60)}h ${m.runtime % 60}min` : '');
         setReleaseDate(m.release_date ? new Date(m.release_date).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }) : '');
