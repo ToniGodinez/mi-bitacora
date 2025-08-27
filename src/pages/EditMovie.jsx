@@ -275,12 +275,10 @@ const EditMovie = () => {
             alt={details.title} 
           />
           <div className="movie-info">
-            <h1 className="movie-title">
-              {details.title} 
-              <small style={{fontSize: '0.6em', opacity: 0.7, marginLeft: '0.5rem'}}>
-                ({details.release_date?.split('-')[0]})
-              </small>
-            </h1>
+            <h1 className="movie-title">{details.title}</h1>
+            <div className="movie-date" style={{ color: '#00e5ff', fontWeight: 700, fontSize: '1.05em', marginBottom: '0.5em' }}>
+              {releaseDate || (details.release_date?.split('-')[0])}
+            </div>
             <div className="movie-details">
               <div className="details-grid">
                 <div className="meta-info">
@@ -303,14 +301,8 @@ const EditMovie = () => {
                 </div>
                 <div className="meta-info">
                   <strong>Géneros</strong>
-                  <div className="meta-tags">
-                    {genres.length > 0 ? (
-                      genres.map(g => (
-                        <span key={g.id} className="tag">{g.name}</span>
-                      ))
-                    ) : (
-                      <span className="tag">Sin información</span>
-                    )}
+                  <div className="meta-value">
+                    {genres.length > 0 ? genres.join(', ') : 'Sin información'}
                   </div>
                 </div>
                 {productionCompanies.length > 0 && (

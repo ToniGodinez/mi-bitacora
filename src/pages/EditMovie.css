@@ -30,6 +30,12 @@
   margin-bottom: 0.5rem;
 }
 .movie-poster {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+}
+.movie-poster {
   width: 180px;
   max-width: 100%;
   height: 270px;

@@ -634,15 +634,14 @@
   background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
   border-radius:12px;
   align-items:flex-start;
-  box-shadow: 0 8px 30px rgba(3,6,10,0.6);
-  transition: all 0.3s ease;
-  border: 1px solid rgba(255,255,255,0.05);
+  box-shadow: 0 12px 40px rgba(0,229,255,0.13), 0 2px 16px rgba(0,0,0,0.22);
+  transition: box-shadow 0.2s, border-color 0.2s;
+  border: 2px solid var(--accent-cyan);
 }
 
 .row-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0,0,0,0.3);
-  border-color: rgba(0,229,255,0.4);
+  box-shadow: 0 20px 60px rgba(0,229,255,0.18), 0 4px 24px rgba(0,0,0,0.28);
+  border-color: var(--accent-cyan);
 }
 
 .poster{ width:110px; height:160px; object-fit:cover; border-radius:6px }
