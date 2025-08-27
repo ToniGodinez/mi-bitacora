@@ -546,9 +546,9 @@
   background: linear-gradient(135deg, #10151a 80%, #0f222f 100%);
   border-radius: 20px;
   align-items: center;
-  box-shadow: 0 20px 60px rgba(0,229,255,0.18), 0 4px 24px rgba(0,0,0,0.28);
+    box-shadow: 0 12px 40px rgba(0,229,255,0.13), 0 2px 16px rgba(0,0,0,0.22);
   transition: box-shadow 0.2s, border-color 0.2s;
-  border: 2px solid var(--accent-cyan);
+    border: 1.5px solid var(--accent-cyan);
   width: 100%;
   max-width: 700px;
   margin: 0 auto 2.2rem auto;
@@ -559,7 +559,8 @@
 }
 
 .movie-card:hover {
-  box-shadow: 0 4px 24px rgba(0,0,0,0.16);
+    box-shadow: 0 20px 60px rgba(0,229,255,0.18), 0 4px 24px rgba(0,0,0,0.28);
+    border-color: var(--accent-cyan);
 }
 
 .poster-section {

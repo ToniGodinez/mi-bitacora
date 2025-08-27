@@ -26,7 +26,7 @@ export default function SearchResults() {
       setLoading(true);
       setError(null);
       try {
-        const url = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(q)}&language=es-ES&page=1`;
+  const url = `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(q)}&language=es-ES&page=1`;
         const res = await fetch(url);
         if (!res.ok) throw new Error('TMDB error ' + res.status);
         const data = await res.json();
