@@ -13,7 +13,6 @@
   width: 100%;
   max-width: 700px;
   margin: 2.5rem auto;
-}
 .recommend-title {
   text-align: center;
   color: var(--accent-cyan);
@@ -58,8 +57,29 @@
 }
 .stars {
   color: var(--accent-cyan);
-  font-size: 1.1rem;
-  margin-bottom: 0.7em;
+}
+
+.btn-ver-online {
+  display: inline-block;
+  margin-top: 1.2rem;
+  padding: 0.7em 2em;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(90deg, #00e5ff 60%, #0ff 100%);
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 0 16px 4px rgba(0,229,255,0.45), 0 2px 12px rgba(0,0,0,0.18);
+  text-shadow: 0 2px 8px rgba(0,229,255,0.18);
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.2s;
+  outline: none;
+}
+.btn-ver-online:hover {
+  box-shadow: 0 0 32px 8px rgba(0,229,255,0.65), 0 2px 12px rgba(0,0,0,0.22);
+  transform: translateY(-2px) scale(1.04);
+  background: linear-gradient(90deg, #00e5ff 80%, #0ff 100%);
+}
 }
 .movie-info {
   width: 100%;

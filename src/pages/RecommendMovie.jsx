@@ -173,6 +173,16 @@ const RecommendMovie = () => {
               >
                 {loading ? 'Cargando...' : 'Otra'}
               </button>
+              {recommendedMovie.ver_online && (
+                <a
+                  className="btn-ver-online"
+                  href={recommendedMovie.ver_online}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Ver online
+                </a>
+              )}
             </div>
           </div>
         </div>
