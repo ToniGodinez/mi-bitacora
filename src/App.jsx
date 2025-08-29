@@ -41,5 +41,6 @@ const App = () => {
   );
 };
 
+// Cambio leve IA para forzar deploy
 // Commit automático generado por IA para forzar deploy
 export default App;
