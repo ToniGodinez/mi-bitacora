@@ -19,6 +19,9 @@ const Home = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
+  const [dbSearch, setDbSearch] = useState("");
+  const [dbAlpha, setDbAlpha] = useState("");
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
     // Prevenir scroll del body cuando el menú esté abierto
@@ -209,6 +212,11 @@ const Home = () => {
         const updated = { ...m, overview_es: info.overview || m.overview_es, genres: info.genres || m.genres, media_type: info.media_type || m.media_type };
         // Actualizar UI
         setDbMovies(prev => prev.map(x => x.id === m.id ? { ...x, ...updated } : x));
+    // Filtrado compuesto: primero por status, luego por letra, luego por búsqueda
+    const filteredDb = applyFilter(dbMovies)
+      .filter(m => dbAlpha ? (m.title && m.title[0] && m.title[0].toUpperCase() === dbAlpha) : true)
+      .filter(m => dbSearch ? (m.title && m.title.toLowerCase().includes(dbSearch.toLowerCase())) : true);
+
         // Persistir en la BD (PUT parcial)
         try {
           await fetch(`${API_URL}/api/movies/${m.id}`, {
@@ -243,14 +251,11 @@ const Home = () => {
       {/* Header Navigation */}
       <NavigationMenu />
 
-  {/* Banner/title/date removed here — handled by shared Layout */}
-
       {/* Sección de búsqueda y filtros */}
       <div className="search-and-filters">
         <div className="search-section">
           <SearchBar onResults={results => setSearchResults(results && results.length ? results : null)} />
         </div>
-        
         <div className="filters-section">
           <div className="filter-bar">
             <button className={`filter-btn ${statusFilter === 'all' ? 'active' : ''}`} onClick={() => setStatusFilter('all')}>Todas</button>
@@ -258,6 +263,36 @@ const Home = () => {
             <button className={`filter-btn ${statusFilter === 'en-proceso' ? 'active' : ''}`} onClick={() => setStatusFilter('en-proceso')}>En Proceso</button>
             <button className={`filter-btn ${statusFilter === 'pendiente' ? 'active' : ''}`} onClick={() => setStatusFilter('pendiente')}>Pendientes</button>
           </div>
+        </div>
+      </div>
+
+      {/* Cuadro especial para búsqueda y filtro alfabético en la base de datos */}
+      <div className="db-search-box">
+        <div className="db-search-row">
+          <input
+            type="text"
+            className="db-search-input"
+            placeholder="Buscar en tu bitácora..."
+            value={dbSearch}
+            onChange={e => setDbSearch(e.target.value)}
+            style={{ fontSize: '1.1rem', padding: '0.5rem 1rem', borderRadius: 8, border: '1px solid var(--accent-cyan)', background: 'rgba(0,229,255,0.07)', color: 'var(--text)', width: '100%', maxWidth: 340 }}
+          />
+        </div>
+        <div className="db-alpha-filter">
+          {[...Array(26)].map((_, i) => {
+            const letter = String.fromCharCode(65 + i);
+            return (
+              <button
+                key={letter}
+                className={`db-alpha-btn${dbAlpha === letter ? ' active' : ''}`}
+                style={{ color: 'var(--accent-cyan)', fontWeight: 'bold', textDecoration: dbAlpha === letter ? 'underline' : 'none', fontSize: '1.1rem', margin: '0 0.2rem', background: 'none', border: 'none', cursor: 'pointer' }}
+                onClick={() => setDbAlpha(dbAlpha === letter ? '' : letter)}
+              >{letter}</button>
+            );
+          })}
+        </div>
+        <div className="db-count-row" style={{ marginTop: 10, fontSize: '1.05rem', color: 'var(--accent-cyan)' }}>
+          <span>Total: {filteredDb.length}</span> | <span>Vistas: {filteredDb.filter(m => String(m.status).toLowerCase().trim() === 'vista').length}</span> | <span>En proceso: {filteredDb.filter(m => String(m.status).toLowerCase().trim() === 'en proceso').length}</span> | <span>Pendientes: {filteredDb.filter(m => String(m.status).toLowerCase().trim() === 'pendiente').length}</span>
         </div>
       </div>
 
@@ -276,25 +311,25 @@ const Home = () => {
         </div>
       ) : (
         <div className="db-table">
-    {applyFilter(dbMovies).map(m => (
-              <article className="row-card" key={m.id} role="article" aria-label={`Ficha de película ${m.title}`}>
+          {filteredDb.map(m => (
+            <article className="row-card" key={m.id} role="article" aria-label={`Ficha de película ${m.title}`}>
               <img className="poster" src={m.poster_url || FALLBACK} alt={m.title} />
               <div className="info">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
-                      <div style={{ fontWeight: 800 }}>
-  <span className="title">{m.title}</span> <span className="meta">({m.year})</span>
-</div>
-<div className="meta"><span className="meta-label">Tipo:</span> <span className="meta-value">{m.media_type || (m.is_tv ? 'Serie' : 'Película')}</span></div>
-<div className="meta"><span className="meta-label">Director:</span> <span className="meta-value">{m.director || 'Desconocido'}</span></div>
-<div className="meta"><span className="meta-label">Actores:</span> <span className="meta-value">{m.actors || '—'}</span></div>
-<div className="meta"><span className="meta-label">Género:</span> <span className="meta-value">{(m.genres && m.genres.length) ? m.genres.join(', ') : '—'}</span></div>
-                      <p className={`overview ${m._expanded ? 'expanded' : ''}`}>{m.overview_es || m.overview || m.sinopsis || 'Sin sinopsis disponible.'}</p>
-                      { (m.overview_es || m.overview || m.sinopsis) && (
-                        <button className="link-more" onClick={() => setDbMovies(prev => prev.map(x => x.id === m.id ? { ...x, _expanded: !x._expanded } : x))}>
-                          {m._expanded ? 'Mostrar menos' : 'Mostrar más'}
-                        </button>
-                      )}
+                    <div style={{ fontWeight: 800 }}>
+                      <span className="title">{m.title}</span> <span className="meta">({m.year})</span>
+                    </div>
+                    <div className="meta"><span className="meta-label">Tipo:</span> <span className="meta-value">{m.media_type || (m.is_tv ? 'Serie' : 'Película')}</span></div>
+                    <div className="meta"><span className="meta-label">Director:</span> <span className="meta-value">{m.director || 'Desconocido'}</span></div>
+                    <div className="meta"><span className="meta-label">Actores:</span> <span className="meta-value">{m.actors || '—'}</span></div>
+                    <div className="meta"><span className="meta-label">Género:</span> <span className="meta-value">{(m.genres && m.genres.length) ? m.genres.join(', ') : '—'}</span></div>
+                    <p className={`overview ${m._expanded ? 'expanded' : ''}`}>{m.overview_es || m.overview || m.sinopsis || 'Sin sinopsis disponible.'}</p>
+                    {(m.overview_es || m.overview || m.sinopsis) && (
+                      <button className="link-more" onClick={() => setDbMovies(prev => prev.map(x => x.id === m.id ? { ...x, _expanded: !x._expanded } : x))}>
+                        {m._expanded ? 'Mostrar menos' : 'Mostrar más'}
+                      </button>
+                    )}
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <Stars value={m.rating} />
@@ -336,8 +371,5 @@ const Home = () => {
           ))}
         </div>
       )}
-    </div>
-  );
-};
 
-export default Home;
+
