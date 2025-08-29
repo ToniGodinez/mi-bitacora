@@ -22,120 +22,9 @@ const Home = () => {
   const [dbSearch, setDbSearch] = useState("");
   const [dbAlpha, setDbAlpha] = useState("");
 
-  const filteredDb = applyFilter(dbMovies)
-    .filter(m => dbAlpha ? (m.title && m.title[0] && m.title[0].toUpperCase() === dbAlpha) : true)
-    .filter(m => dbSearch ? (m.title && m.title.toLowerCase().includes(dbSearch.toLowerCase())) : true);
+  // applyFilter is declared below; define it as a function and then compute filteredDb
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-    // Prevenir scroll del body cuando el menú esté abierto
-    document.body.style.overflow = !isMenuOpen ? 'hidden' : 'auto';
-  };
-
-  const closeMenu = () => {
-    setIsMenuOpen(false);
-    document.body.style.overflow = 'auto';
-  };
-
-  const handleNavigation = (path) => {
-    navigate(path);
-    closeMenu();
-  };
-
-  // Navigation menu component
-  const NavigationMenu = () => (
-    <>
-      {/* Header responsivo tipo navbar moderno */}
-      <header className="main-header">
-        <div className="header-container">
-          {/* Logo/Brand */}
-          <div className="brand">
-            <h1 className="brand-title">🎬 Mi Bitácora</h1>
-          </div>
-
-          {/* Desktop Navigation */}
-          <nav className="desktop-navigation">
-            <button 
-              className="nav-link"
-              onClick={() => navigate('/')}
-            >
-              Inicio
-            </button>
-            <button 
-              className="nav-link"
-              onClick={() => navigate('/recomendacion')}
-            >
-              Recomendación
-            </button>
-            <button 
-              className="nav-link"
-              onClick={() => navigate('/actualizacion')}
-            >
-              Actualización
-            </button>
-          </nav>
-
-          {/* Mobile Hamburger Button */}
-          <button 
-            className="mobile-menu-btn"
-            onClick={toggleMenu}
-            aria-label="Toggle menu"
-          >
-            <div className={`hamburger ${isMenuOpen ? 'open' : ''}`}>
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
-          </button>
-        </div>
-      </header>
-
-      {/* Mobile Sidebar Overlay */}
-      {isMenuOpen && (
-        <div 
-          className="sidebar-overlay"
-          onClick={closeMenu}
-        />
-      )}
-
-      {/* Mobile Sidebar */}
-      <nav className={`mobile-sidebar ${isMenuOpen ? 'open' : ''}`}>
-        <div className="sidebar-header">
-          <h2 className="sidebar-brand">Mi Bitácora</h2>
-          <button 
-            className="sidebar-close"
-            onClick={closeMenu}
-            aria-label="Close menu"
-          >
-            ×
-          </button>
-        </div>
-        
-        <div className="sidebar-menu">
-          <button 
-            className="sidebar-link"
-            onClick={() => handleNavigation('/')}
-          >
-            Inicio
-          </button>
-          
-          <button 
-            className="sidebar-link"
-            onClick={() => handleNavigation('/recomendacion')}
-          >
-            Recomendación
-          </button>
-          
-          <button 
-            className="sidebar-link"
-            onClick={() => handleNavigation('/actualizacion')}
-          >
-            Actualización
-          </button>
-        </div>
-      </nav>
-    </>
-  );
+  // NOTE: Navigation and mobile sidebar are provided by `Layout.jsx` to avoid duplication.
 
   const loadDb = async () => {
     try {
@@ -216,10 +105,6 @@ const Home = () => {
         const updated = { ...m, overview_es: info.overview || m.overview_es, genres: info.genres || m.genres, media_type: info.media_type || m.media_type };
         // Actualizar UI
         setDbMovies(prev => prev.map(x => x.id === m.id ? { ...x, ...updated } : x));
-    // Filtrado compuesto: primero por status, luego por letra, luego por búsqueda
-    const filteredDb = applyFilter(dbMovies)
-      .filter(m => dbAlpha ? (m.title && m.title[0] && m.title[0].toUpperCase() === dbAlpha) : true)
-      .filter(m => dbSearch ? (m.title && m.title.toLowerCase().includes(dbSearch.toLowerCase())) : true);
 
         // Persistir en la BD (PUT parcial)
         try {
@@ -249,6 +134,11 @@ const Home = () => {
     if (statusFilter === 'pendiente') return movies.filter(m => String(m.status || '').toLowerCase().trim() === 'pendiente');
     return movies;
   };
+
+  // compute filteredDb after applyFilter is available
+  const filteredDb = applyFilter(dbMovies)
+    .filter(m => dbAlpha ? (m.title && m.title[0] && m.title[0].toUpperCase() === dbAlpha) : true)
+    .filter(m => dbSearch ? (m.title && m.title.toLowerCase().includes(dbSearch.toLowerCase())) : true);
 
   return (
     <div className="home-page">
