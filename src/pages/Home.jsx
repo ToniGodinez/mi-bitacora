@@ -127,17 +127,17 @@ const Home = () => {
             placeholder="Buscar en tu bitácora..."
             value={dbSearch}
             onChange={e => setDbSearch(e.target.value)}
-            style={{ fontSize: '1.1rem', padding: '0.5rem 1rem', borderRadius: 8, border: '1px solid var(--accent-cyan)', background: 'rgba(0,229,255,0.07)', color: 'var(--text)', width: '100%', maxWidth: 340 }}
           />
         </div>
         <div className="db-alpha-filter">
+          <button type="button" className="db-alpha-clear" title="Limpiar selección" onClick={() => setDbAlpha('')}>Limpiar</button>
           {[...Array(26)].map((_, i) => {
             const letter = String.fromCharCode(65 + i);
             return (
               <button
                 key={letter}
+                type="button"
                 className={`db-alpha-btn${dbAlpha === letter ? ' active' : ''}`}
-                style={{ color: 'var(--accent-cyan)', fontWeight: 'bold', textDecoration: dbAlpha === letter ? 'underline' : 'none', fontSize: '1.1rem', margin: '0 0.2rem', background: 'none', border: 'none', cursor: 'pointer' }}
                 onClick={() => setDbAlpha(dbAlpha === letter ? '' : letter)}
               >{letter}</button>
             );

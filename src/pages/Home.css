@@ -627,6 +627,69 @@
   gap: 0.9rem;
 }
 
+/* DB search box styles: make input larger and responsive, add bottom spacing */
+.db-search-box {
+  margin-top: 1rem;
+  padding-bottom: 1.2rem; /* espacio abajo pedido */
+}
+
+.db-search-row { display: flex; }
+
+.db-search-input {
+  width: 100%;
+  max-width: 720px; /* allow large on wide screens */
+  font-size: 1.125rem;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--accent-cyan);
+  background: rgba(0,229,255,0.06);
+  color: var(--text);
+  box-shadow: 0 6px 20px rgba(0,229,255,0.06);
+}
+
+.db-search-input:focus { outline: none; box-shadow: 0 8px 28px rgba(0,229,255,0.08); }
+
+/* Alphabet filter: centered and wrap on small screens */
+.db-alpha-filter {
+  margin-top: 0.6rem;
+  display: flex;
+  gap: 0.35rem;
+  justify-content: center; /* centrar siempre */
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.db-alpha-btn {
+  color: var(--accent-cyan);
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin: 0.18rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  transition: background 140ms ease, transform 100ms ease, color 140ms ease;
+}
+
+.db-alpha-btn:hover, .db-alpha-btn:focus { background: rgba(0,229,255,0.06); transform: translateY(-2px); }
+.db-alpha-btn.active { text-decoration: underline; background: rgba(0,229,255,0.12); }
+
+/* Clear selection button */
+.db-alpha-clear {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.06);
+  color: var(--muted);
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  margin-right: 0.5rem;
+}
+
+.db-alpha-clear:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); transform: translateY(-2px); }
+
+
 .row-card{
   display:flex;
   gap:1rem;
@@ -665,6 +728,9 @@
   }
   .poster { width: 90px; height: 135px }
   .filters-row{ margin-top:0.55rem }
+
+  /* make db search input fit mobile screens */
+  .db-search-input { max-width: 100%; font-size: 1rem; padding: 0.6rem 0.9rem; }
 }
 
 /* Delete button styling */
