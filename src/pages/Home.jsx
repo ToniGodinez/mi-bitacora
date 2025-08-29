@@ -22,6 +22,10 @@ const Home = () => {
   const [dbSearch, setDbSearch] = useState("");
   const [dbAlpha, setDbAlpha] = useState("");
 
+  const filteredDb = applyFilter(dbMovies)
+    .filter(m => dbAlpha ? (m.title && m.title[0] && m.title[0].toUpperCase() === dbAlpha) : true)
+    .filter(m => dbSearch ? (m.title && m.title.toLowerCase().includes(dbSearch.toLowerCase())) : true);
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
     // Prevenir scroll del body cuando el menú esté abierto
