@@ -1175,3 +1175,13 @@
   margin-top: 0.2em;
   padding: 0;
 }
+
+/* TEMPORAL: ocultar overlays en caso de que queden visibles por duplicado
+   Esto sirve para diagnosticar la pantalla negra; si funciona, podemos
+   aplicar un fix más preciso (ajustar z-index y comportamiento). */
+.sidebar-overlay,
+.menu-overlay {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
