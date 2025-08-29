@@ -177,7 +177,15 @@ const EditMovie = () => {
   if (!details) return <p>Cargando detalles...</p>;
 
   const guardarPelicula = async () => {
-    // Build full payload for creation, pero ahora incluye tmdbId
+    // Build full payload for creation, asegurando tmdbId correcto
+    let tmdbIdFinal = null;
+    if (details && typeof details.id === 'number') {
+      tmdbIdFinal = details.id;
+    } else if (movie && typeof movie.id === 'number') {
+      tmdbIdFinal = movie.id;
+    } else if (movie && typeof movie.tmdbId === 'number') {
+      tmdbIdFinal = movie.tmdbId;
+    }
     const fullMovieData = {
       title: details.title,
       year: details.release_date?.split('-')[0] || '',
@@ -189,7 +197,7 @@ const EditMovie = () => {
       actors: castNames,
       country: countryName,
       overview: overviewText,
-      tmdbId: details.id || movie?.id || null
+      tmdbId: tmdbIdFinal
     };
 
     // For updating an existing DB record, only change rating/comment/status
@@ -218,7 +226,7 @@ const EditMovie = () => {
             actors: movieFromState.actors,
             country: movieFromState.country,
             overview: movieFromState.overview,
-            tmdbId: movieFromState.tmdbId || movieFromState.id || null,
+            tmdbId: typeof movieFromState.tmdbId === 'number' ? movieFromState.tmdbId : (typeof movieFromState.id === 'number' ? movieFromState.id : null),
             // editable
             rating: editableOnly.rating,
             comment: editableOnly.comment,
@@ -270,7 +278,7 @@ const EditMovie = () => {
               const updateResp2 = await fetch(`${API_URL}/api/movies/${existingId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ ...fullMovieData, tmdbId: details.id || movie?.id || null })
+                body: JSON.stringify({ ...fullMovieData, tmdbId: tmdbIdFinal })
               });
 
               if (updateResp2.ok) {
