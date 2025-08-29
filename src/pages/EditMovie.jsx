@@ -177,7 +177,7 @@ const EditMovie = () => {
   if (!details) return <p>Cargando detalles...</p>;
 
   const guardarPelicula = async () => {
-    // Build full payload for creation, but for DB-updates we'll send only editable fields
+    // Build full payload for creation, pero ahora incluye tmdbId
     const fullMovieData = {
       title: details.title,
       year: details.release_date?.split('-')[0] || '',
@@ -188,7 +188,8 @@ const EditMovie = () => {
       director: directorName,
       actors: castNames,
       country: countryName,
-      overview: overviewText
+      overview: overviewText,
+      tmdbId: details.id || movie?.id || null
     };
 
     // For updating an existing DB record, only change rating/comment/status
@@ -217,6 +218,7 @@ const EditMovie = () => {
             actors: movieFromState.actors,
             country: movieFromState.country,
             overview: movieFromState.overview,
+            tmdbId: movieFromState.tmdbId || movieFromState.id || null,
             // editable
             rating: editableOnly.rating,
             comment: editableOnly.comment,
@@ -268,7 +270,7 @@ const EditMovie = () => {
               const updateResp2 = await fetch(`${API_URL}/api/movies/${existingId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(fullMovieData)
+                body: JSON.stringify({ ...fullMovieData, tmdbId: details.id || movie?.id || null })
               });
 
               if (updateResp2.ok) {

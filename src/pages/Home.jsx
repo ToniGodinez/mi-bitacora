@@ -151,35 +151,51 @@ const Home = () => {
 
   // Busca en TMDB (multi) y obtiene overview, géneros y tipo (movie/tv) en español
   async function fetchSpanishOverview(title, year) {
-    try {
-      const q = encodeURIComponent(title);
-      const url = `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${q}${year ? `&year=${encodeURIComponent(year)}` : ''}&language=es-ES&page=1`;
-      const r = await fetch(url);
-      if (!r.ok) return null;
-      const d = await r.json();
-      const first = (d.results || [])[0];
-      if (!first) return null;
-
-      // Determine whether it's movie or tv and request details accordingly
-      let detail = null;
-      if (first.media_type === 'movie' || first.media_type === undefined) {
-        const detRes = await fetch(`https://api.themoviedb.org/3/movie/${first.id}?api_key=${TMDB_API_KEY}&language=es-ES`);
-        if (detRes.ok) detail = await detRes.json();
-      } else if (first.media_type === 'tv') {
-        const detRes = await fetch(`https://api.themoviedb.org/3/tv/${first.id}?api_key=${TMDB_API_KEY}&language=es-ES`);
-        if (detRes.ok) detail = await detRes.json();
+    // Ahora acepta tmdbId como primer argumento, si existe lo usa
+    async function fetchSpanishOverview(title, year, tmdbId, mediaType) {
+      try {
+        if (tmdbId) {
+          let detail = null;
+          let type = mediaType || 'movie';
+          if (type === 'tv') {
+            const detRes = await fetch(`https://api.themoviedb.org/3/tv/${tmdbId}?api_key=${TMDB_API_KEY}&language=es-ES`);
+            if (detRes.ok) detail = await detRes.json();
+          } else {
+            const detRes = await fetch(`https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${TMDB_API_KEY}&language=es-ES`);
+            if (detRes.ok) detail = await detRes.json();
+          }
+          if (!detail) return null;
+          const overview = detail.overview || detail.tagline || null;
+          const genres = Array.isArray(detail.genres) ? detail.genres.map(g => g.name) : [];
+          const media_type = type === 'tv' ? 'Serie' : 'Película';
+          const isDocumentary = genres.some(g => /documentary|documental/i.test(g));
+          return { overview, genres, media_type: isDocumentary ? 'Documental' : media_type };
+        } else {
+          const q = encodeURIComponent(title);
+          const url = `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${q}${year ? `&year=${encodeURIComponent(year)}` : ''}&language=es-ES&page=1`;
+          const r = await fetch(url);
+          if (!r.ok) return null;
+          const d = await r.json();
+          const first = (d.results || [])[0];
+          if (!first) return null;
+          let detail = null;
+          if (first.media_type === 'movie' || first.media_type === undefined) {
+            const detRes = await fetch(`https://api.themoviedb.org/3/movie/${first.id}?api_key=${TMDB_API_KEY}&language=es-ES`);
+            if (detRes.ok) detail = await detRes.json();
+          } else if (first.media_type === 'tv') {
+            const detRes = await fetch(`https://api.themoviedb.org/3/tv/${first.id}?api_key=${TMDB_API_KEY}&language=es-ES`);
+            if (detRes.ok) detail = await detRes.json();
+          }
+          const overview = (detail && (detail.overview || detail.tagline)) || first.overview || null;
+          const genres = (detail && detail.genres && Array.isArray(detail.genres)) ? detail.genres.map(g => g.name) : (first.genre_ids ? first.genre_ids : []);
+          const media_type = first.media_type === 'tv' ? 'Serie' : 'Película';
+          const isDocumentary = genres.some(g => /documentary|documental/i.test(g));
+          return { overview, genres, media_type: isDocumentary ? 'Documental' : media_type };
+        }
+      } catch (e) {
+        console.error('Error TMDB overview fetch:', e);
+        return null;
       }
-
-      const overview = (detail && (detail.overview || detail.tagline)) || first.overview || null;
-      const genres = (detail && detail.genres && Array.isArray(detail.genres)) ? detail.genres.map(g => g.name) : (first.genre_ids ? first.genre_ids : []);
-      const media_type = first.media_type === 'tv' ? 'Serie' : 'Película';
-
-      // if genre names include Documentary (EN) or Documental (ES), mark as Documental
-      const isDocumentary = genres.some(g => /documentary|documental/i.test(g));
-      return { overview, genres, media_type: isDocumentary ? 'Documental' : media_type };
-    } catch (e) {
-      console.error('Error TMDB overview fetch:', e);
-      return null;
     }
   }
 
@@ -188,7 +204,7 @@ const Home = () => {
     if (!Array.isArray(movies) || movies.length === 0) return;
     const toFetch = movies.filter(m => !m.overview_es || !m.genres || !m.media_type).slice(0, 8);
     for (const m of toFetch) {
-      const info = await fetchSpanishOverview(m.title, m.year);
+      const info = await fetchSpanishOverview(m.title, m.year, m.tmdbId, m.media_type);
       if (info) {
         const updated = { ...m, overview_es: info.overview || m.overview_es, genres: info.genres || m.genres, media_type: info.media_type || m.media_type };
         // Actualizar UI
@@ -198,7 +214,7 @@ const Home = () => {
           await fetch(`${API_URL}/api/movies/${m.id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ overview: info.overview || m.overview_es, genres: info.genres, media_type: info.media_type })
+            body: JSON.stringify({ overview: info.overview || m.overview_es, genres: info.genres, media_type: info.media_type, tmdbId: m.tmdbId })
           });
         } catch (e) {
           console.warn('No se pudo persistir overview_es en la BD:', e);
