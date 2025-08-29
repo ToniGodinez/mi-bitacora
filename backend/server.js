@@ -98,7 +98,7 @@ app.post('/api/movies', async (req, res) => {
     const result = await pool.query(
       `INSERT INTO movies (
         title, year, poster_url, rating, comment, status,
-        director, actors, country, overview, media_type, genres, tmdbId
+        director, actors, country, overview, media_type, genres, tmdbid
       ) VALUES (
         $1, $2, $3, $4, $5, $6,
         $7, $8, $9, $10, $11, $12, $13
@@ -116,7 +116,7 @@ app.post('/api/movies', async (req, res) => {
         overview,
         media_type,
         genresArray,
-        tmdbId
+        tmdbId // el valor recibido del frontend
       ]
     );
 

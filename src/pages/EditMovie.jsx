@@ -178,13 +178,14 @@ const EditMovie = () => {
 
   const guardarPelicula = async () => {
     // Build full payload for creation, asegurando tmdbId correcto
+    // Obtener el id de TMDB como número, sin importar el tipo
     let tmdbIdFinal = null;
-    if (details && typeof details.id === 'number') {
-      tmdbIdFinal = details.id;
-    } else if (movie && typeof movie.id === 'number') {
-      tmdbIdFinal = movie.id;
-    } else if (movie && typeof movie.tmdbId === 'number') {
-      tmdbIdFinal = movie.tmdbId;
+    if (details && details.id) {
+      tmdbIdFinal = Number(details.id);
+    } else if (movie && movie.id) {
+      tmdbIdFinal = Number(movie.id);
+    } else if (movie && movie.tmdbId) {
+      tmdbIdFinal = Number(movie.tmdbId);
     }
     const fullMovieData = {
       title: details.title,
