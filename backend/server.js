@@ -15,6 +15,8 @@ const pool = new Pool({
 
 // 🧠 Ruta para guardar película
 app.post('/api/movies', async (req, res) => {
+  // Log completo del body recibido para depuración
+  console.log('Body recibido:', req.body);
   console.log('🔎 Headers recibidos:');
   console.log(req.headers);
   console.log('📌 Content-Type:', req.headers['content-type']);
@@ -23,7 +25,7 @@ app.post('/api/movies', async (req, res) => {
   console.log(JSON.stringify(req.body, null, 2));
 
   // Extraer campos con valores por defecto
-  const {
+  let {
     id,
     title = 'Sin título',
     year = '',
@@ -39,6 +41,13 @@ app.post('/api/movies', async (req, res) => {
     genres = '',
     tmdbId = null
   } = req.body;
+
+  // Si tmdbId llega como string, conviértelo a número
+  if (typeof tmdbId === 'string') {
+    tmdbId = Number(tmdbId);
+  }
+
+  console.log('Valor recibido para tmdbId:', tmdbId);
 
   // Validación mínima - solo verificar que el body no esté completamente vacío
   if (Object.keys(req.body).length === 0) {
