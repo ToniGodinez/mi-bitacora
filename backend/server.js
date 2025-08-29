@@ -36,7 +36,8 @@ app.post('/api/movies', async (req, res) => {
     country = '',
     overview = '',
     media_type = 'Película',
-    genres = ''
+    genres = '',
+    tmdbId = null
   } = req.body;
 
   // Validación mínima - solo verificar que el body no esté completamente vacío
@@ -88,10 +89,10 @@ app.post('/api/movies', async (req, res) => {
     const result = await pool.query(
       `INSERT INTO movies (
         title, year, poster_url, rating, comment, status,
-        director, actors, country, overview, media_type, genres
+        director, actors, country, overview, media_type, genres, tmdbId
       ) VALUES (
         $1, $2, $3, $4, $5, $6,
-        $7, $8, $9, $10, $11, $12
+        $7, $8, $9, $10, $11, $12, $13
       ) RETURNING *`,
       [
         title,
@@ -105,7 +106,8 @@ app.post('/api/movies', async (req, res) => {
         country,
         overview,
         media_type,
-        genresArray
+        genresArray,
+        tmdbId
       ]
     );
 
@@ -158,8 +160,10 @@ app.put('/api/movies/:id', async (req, res) => {
     director,
     actors,
     country,
-    overview
-    , media_type, genres
+    overview,
+    media_type,
+    genres,
+    tmdbId
   } = req.body;
 
   if (!id) return res.status(400).json({ error: 'Missing id parameter' });
@@ -179,8 +183,9 @@ app.put('/api/movies/:id', async (req, res) => {
     const newDirector = director !== undefined ? director : existing.director;
     const newActors = actors !== undefined ? actors : existing.actors;
     const newCountry = country !== undefined ? country : existing.country;
-    const newOverview = overview !== undefined ? overview : existing.overview;
-    const newMediaType = media_type !== undefined ? media_type : existing.media_type;
+  const newOverview = overview !== undefined ? overview : existing.overview;
+  const newMediaType = media_type !== undefined ? media_type : existing.media_type;
+  const newTmdbId = tmdbId !== undefined ? tmdbId : existing.tmdbid;
     
     // Convertir géneros de string a array para PostgreSQL
     let newGenres = existing.genres;
@@ -205,8 +210,9 @@ app.put('/api/movies/:id', async (req, res) => {
         country = $9,
         overview = $10,
         media_type = $11,
-        genres = $12
-      WHERE id = $13
+        genres = $12,
+        tmdbId = $13
+      WHERE id = $14
       RETURNING *`,
       [
         newTitle,
@@ -221,6 +227,7 @@ app.put('/api/movies/:id', async (req, res) => {
         newOverview,
         newMediaType,
         newGenres,
+        newTmdbId,
         id
       ]
     );
@@ -252,6 +259,26 @@ app.get('/api/movies', async (req, res) => {
 });
 
 // Ruta para eliminar película por id
+// Ruta para obtener sinopsis en español desde TMDB usando tmdbId
+import fetch from 'node-fetch';
+
+app.get('/api/tmdb/overview/:tmdbId', async (req, res) => {
+  const { tmdbId } = req.params;
+  const apiKey = process.env.VITE_TMDB_API_KEY || process.env.TMDB_API_KEY;
+  if (!tmdbId || !apiKey) {
+    return res.status(400).json({ error: 'Falta tmdbId o apiKey' });
+  }
+  try {
+    const url = `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${apiKey}&language=es-ES`;
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('TMDB error ' + response.status);
+    const data = await response.json();
+    res.json({ overview: data.overview || '', title: data.title || '', year: (data.release_date || '').split('-')[0] });
+  } catch (err) {
+    console.error('Error TMDB overview:', err);
+    res.status(500).json({ error: 'No se pudo obtener la sinopsis', detail: err.message });
+  }
+});
 app.delete('/api/movies/:id', async (req, res) => {
   const { id } = req.params;
   if (!id) return res.status(400).json({ error: 'Missing id parameter' });
