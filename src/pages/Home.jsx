@@ -8,8 +8,8 @@ const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || '5f9a774c4ea58c1d35759
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 const Stars = ({ value = 0 }) => {
-  const full = Math.round(Number(value) || 0);
-  return <div className="stars">{'★'.repeat(full)}{'☆'.repeat(5 - full)}</div>;
+  const full = Math.max(0, Math.min(5, Math.round(Number(value) || 0)));
+  return <div className="stars">{'★'.repeat(full)}{'☆'.repeat(Math.max(0, 5 - full))}</div>;
 };
 
 const Home = () => {
