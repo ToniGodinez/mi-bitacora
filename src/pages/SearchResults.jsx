@@ -123,17 +123,35 @@ export default function SearchResults() {
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(220px,1fr))', gap: '1rem', marginTop: '1rem' }}>
         {results.map(r => {
-          // El nombre correcto depende del tipo
-          const nombre = r.title || r.name || '—';
-          const fecha = r.release_date || r.first_air_date || '';
+          const tipo = r.media_type;
+          let nombre = r.title || r.name || '—';
+          let fecha = r.release_date || r.first_air_date || '';
+          let imagen = FALLBACK;
+          let descripcion = '';
+          let extra = '';
+          if (tipo === 'movie' || tipo === 'tv') {
+            imagen = r.poster_path ? `${IMAGE_BASE_URL}${r.poster_path}` : FALLBACK;
+            descripcion = r.overview ? (r.overview.length > 120 ? r.overview.slice(0, 120) + '…' : r.overview) : 'Sin sinopsis';
+            extra = r.vote_average ? `⭐ ${r.vote_average.toFixed(1)}` : '';
+          } else if (tipo === 'person') {
+            imagen = r.profile_path ? `${IMAGE_BASE_URL.replace('w300','w185')}${r.profile_path}` : FALLBACK;
+            descripcion = r.known_for && r.known_for.length > 0
+              ? 'Conocido por: ' + r.known_for.map(k => k.title || k.name).filter(Boolean).join(', ')
+              : 'Sin información';
+            extra = r.known_for_department ? r.known_for_department : '';
+            fecha = '';
+          }
           return (
-            <div key={r.id} style={{ background: 'rgba(255,255,255,0.02)', padding: '0.6rem', borderRadius: 10, cursor: 'pointer' }} onClick={() => openEdit(r)}>
-              <img src={r.poster_path ? `${IMAGE_BASE_URL}${r.poster_path}` : FALLBACK} alt={nombre} style={{ width: '100%', borderRadius: 6, objectFit: 'cover' }} />
+            <div key={r.id + (tipo || '')} style={{ background: 'rgba(255,255,255,0.02)', padding: '0.6rem', borderRadius: 10, cursor: 'pointer' }} onClick={() => openEdit(r)}>
+              <img src={imagen} alt={nombre} style={{ width: '100%', borderRadius: 6, objectFit: 'cover' }} />
               <h3 style={{ margin: '0.5rem 0 0.2rem' }}>{nombre} <small style={{ opacity: 0.8 }}>({fecha?.split('-')?.[0] || '—'})</small></h3>
-              <p style={{ color: 'var(--muted)', fontSize: '0.95rem', minHeight: '2.2rem' }}>{r.overview ? (r.overview.length > 120 ? r.overview.slice(0, 120) + '…' : r.overview) : 'Sin sinopsis'}</p>
+              <p style={{ color: 'var(--muted)', fontSize: '0.95rem', minHeight: '2.2rem' }}>{descripcion}</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 }}>
-                <button className="btn" onClick={(e) => { e.stopPropagation(); openEdit(r); }}>Editar</button>
-                <div style={{ color: 'var(--muted)' }}>{r.vote_average ? r.vote_average.toFixed(1) : '—'}</div>
+                <span style={{ fontSize: '0.85rem', color: 'var(--accent)' }}>{tipo === 'person' ? 'Persona' : tipo === 'movie' ? 'Película' : tipo === 'tv' ? 'Serie' : ''}</span>
+                {tipo !== 'person' && (
+                  <button className="btn" onClick={(e) => { e.stopPropagation(); openEdit(r); }}>Editar</button>
+                )}
+                <div style={{ color: 'var(--muted)' }}>{extra}</div>
               </div>
             </div>
           );
