@@ -9,6 +9,7 @@ import Layout from './components/Layout.jsx';
 
 const App = () => {
   // 🚀 Keep-alive para mantener el backend activo (evita cold starts)
+    // App principal (modificado para commit)
   useEffect(() => {
     const keepAlive = () => {
       fetch(`${import.meta.env.VITE_API_URL || 'https://tonyonly-backend.onrender.com'}/api/movies`)
