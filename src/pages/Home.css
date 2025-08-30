@@ -676,7 +676,7 @@
 /* DB search box styles: make input larger and responsive, add bottom spacing */
 .db-search-box {
   margin-top: 1rem;
-  padding-bottom: 1.2rem; /* espacio abajo pedido */
+  padding: 0.4rem 0 0.9rem 0; /* espacio ajustado */
 }
 
 .db-search-row { display: flex; }
@@ -700,9 +700,10 @@
   margin-top: 0.35rem;
   display: flex;
   gap: 0.18rem 0.4rem; /* fila / columna */
-  justify-content: center; /* centrar siempre */
+  justify-content: flex-start; /* alinear a la izquierda */
   align-items: center;
   flex-wrap: wrap;
+  padding-left: 0.25rem;
 }
 
 .db-alpha-btn {
@@ -730,7 +731,7 @@
   border-radius: 8px;
   cursor: pointer;
   font-size: 0.92rem;
-  margin-right: 0.35rem;
+  margin-right: 0.6rem; /* separar ligeramente del abecedario */
 }
 
 @media (max-width: 480px) {
@@ -740,6 +741,14 @@
 }
 
 .db-alpha-clear:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); transform: translateY(-2px); }
+
+/* Totals row under db search */
+.db-count-row {
+  margin-top: 0.6rem;
+  font-size: 1.05rem;
+  color: var(--accent-cyan);
+  text-align: left;
+}
 
 
 .row-card{

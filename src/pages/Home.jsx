@@ -143,7 +143,7 @@ const Home = () => {
             );
           })}
         </div>
-        <div className="db-count-row" style={{ marginTop: 10, fontSize: '1.05rem', color: 'var(--accent-cyan)' }}>
+  <div className="db-count-row">
           <span>Total: {filteredDb.length}</span> | <span>Vistas: {filteredDb.filter(m => String(m.status).toLowerCase().trim() === 'vista').length}</span> | <span>En proceso: {filteredDb.filter(m => String(m.status).toLowerCase().trim() === 'en proceso').length}</span> | <span>Pendientes: {filteredDb.filter(m => String(m.status).toLowerCase().trim() === 'pendiente').length}</span>
         </div>
       </div>
