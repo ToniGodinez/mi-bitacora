@@ -1008,28 +1008,27 @@
    ========================= */
 
 .search-and-filters {
-  background: var(--panel);
-  border-radius: 12px;
-  padding: 1.5rem;
-  margin-bottom: 2rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(0, 229, 255, 0.1);
-  /* Make the search + filters area layout responsive and contained */
-  display: flex;
-  gap: 1rem;
-  align-items: flex-start;
-  flex-wrap: wrap;
+  /* No boxed panel: let sections live directly in the page flow */
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  margin-bottom: 0.5rem;
+  box-shadow: none;
+  border: none;
+  display: block;
 }
 
 /* Container principal - layout en dos filas */
 .search-section {
   display: flex;
   justify-content: flex-start;
-  margin-bottom: 0;
+  margin-bottom: 0.6rem;
   gap: 0.5rem;
   align-items: center;
-  flex: 1 1 360px; /* allow this column to grow/shrink inside the container */
+  flex: 1 1 360px;
   min-width: 180px;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
 }
 
 /* Make the search input/button flexible so they fit inside the filters container */
@@ -1048,8 +1047,10 @@
 .filters-section {
   display: flex;
   justify-content: flex-start;
-  flex: 1 1 360px; /* allow filters to share space with search */
+  flex: 1 1 360px;
   min-width: 160px;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
 }
 
 .filter-bar {
