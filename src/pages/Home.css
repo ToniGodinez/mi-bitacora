@@ -699,8 +699,8 @@
 .db-alpha-filter {
   margin-top: 0.35rem;
   display: flex;
-  gap: 0.18rem 0.4rem; /* fila / columna */
-  justify-content: flex-start; /* alinear a la izquierda */
+  gap: 0.12rem 0.32rem; /* row / column gaps */
+  justify-content: flex-start; /* align left */
   align-items: center;
   flex-wrap: wrap;
   padding-left: 0.25rem;
@@ -743,11 +743,43 @@
 .db-alpha-clear:hover { border-color: var(--accent-cyan); color: var(--accent-cyan); transform: translateY(-2px); }
 
 /* Totals row under db search */
+.db-divider {
+  height: 1px;
+  background: rgba(255,255,255,0.03);
+  margin: 0.75rem 0;
+  border-radius: 1px;
+}
+
 .db-count-row {
   margin-top: 0.6rem;
-  font-size: 1.05rem;
+  font-size: 1rem;
+  color: rgba(255,255,255,0.9);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.db-count-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   color: var(--accent-cyan);
-  text-align: left;
+}
+
+.db-count-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
+  color: rgba(255,255,255,0.85);
+}
+
+.db-count-item .label { color: rgba(255,255,255,0.7); margin-right: 0.18rem; }
+
+@media (max-width: 600px) {
+  .db-count-row { flex-direction: column; align-items: flex-start; }
+  .db-count-right { align-items: flex-start; }
 }
 
 

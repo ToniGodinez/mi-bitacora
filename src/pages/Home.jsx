@@ -129,6 +129,10 @@ const Home = () => {
             onChange={e => setDbSearch(e.target.value)}
           />
         </div>
+
+        {/* subtle divider between search input and alphabet */}
+        <div className="db-divider" />
+
         <div className="db-alpha-filter">
           <button type="button" className="db-alpha-clear" title="Limpiar selección" onClick={() => setDbAlpha('')}>Limpiar</button>
           {[...Array(26)].map((_, i) => {
@@ -143,8 +147,17 @@ const Home = () => {
             );
           })}
         </div>
-  <div className="db-count-row">
-          <span>Total: {filteredDb.length}</span> | <span>Vistas: {filteredDb.filter(m => String(m.status).toLowerCase().trim() === 'vista').length}</span> | <span>En proceso: {filteredDb.filter(m => String(m.status).toLowerCase().trim() === 'en proceso').length}</span> | <span>Pendientes: {filteredDb.filter(m => String(m.status).toLowerCase().trim() === 'pendiente').length}</span>
+
+        <div className="db-count-row">
+          <div className="db-count-left">
+            <span>Total: {filteredDb.length}</span>
+            {' '}|{' '}
+            <span>Pendientes: {filteredDb.filter(m => String(m.status).toLowerCase().trim() === 'pendiente').length}</span>
+          </div>
+          <div className="db-count-right">
+            <div className="db-count-item"><span className="label">Vistas:</span> <span className="value">{filteredDb.filter(m => String(m.status).toLowerCase().trim() === 'vista').length}</span></div>
+            <div className="db-count-item"><span className="label">En proceso:</span> <span className="value">{filteredDb.filter(m => String(m.status).toLowerCase().trim() === 'en proceso').length}</span></div>
+          </div>
         </div>
       </div>
 
