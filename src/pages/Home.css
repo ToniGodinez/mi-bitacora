@@ -10,7 +10,7 @@
 }
 
 .home-page{
-  padding-top: 48px; /* Espacio reducido para el header fijo */
+  padding-top: 0; /* Sin espacio: contenido pegado al header fijo */
   max-width:1100px;
   margin: 0 auto;
   color:var(--text);
@@ -309,8 +309,8 @@
 
 /* Contenedor del título y fecha */
 .site-header {
-  margin-top: 0.5rem;
-  margin-bottom: 0.3rem; /* mitad del gap anterior */
+  margin-top: 0;
+  margin-bottom: 0; /* sin espacio */
   padding: 0 1rem;
 }
 
@@ -355,9 +355,9 @@
 .nav-row {
   display: flex;
   gap: 2rem;
-  margin-top: 0.3rem; /* mitad del espacio anterior */
+  margin-top: 0; /* sin espacio entre título y nav */
   align-items: center;
-  padding: 0.45rem 0.5rem; /* padding vertical reducido a la mitad */
+  padding: 0.2rem 0.5rem; /* muy poco padding vertical */
   background: linear-gradient(135deg, rgba(15, 20, 23, 0.95) 0%, rgba(31, 31, 31, 0.9) 100%);
   border-radius: 16px;
   border: 1px solid rgba(0, 229, 255, 0.1);
