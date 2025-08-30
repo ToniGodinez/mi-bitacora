@@ -309,8 +309,8 @@
 
 /* Contenedor del título y fecha */
 .site-header {
-  margin-top: 1.5rem;
-  margin-bottom: 1.5rem;
+  margin-top: 1rem;
+  margin-bottom: 0.6rem; /* reduced gap under title */
   padding: 0 1rem;
 }
 
@@ -355,9 +355,9 @@
 .nav-row {
   display: flex;
   gap: 2rem;
-  margin-top: 1.5rem;
+  margin-top: 0.6rem; /* reduce space between title and search */
   align-items: center;
-  padding: 1.2rem 1.5rem;
+  padding: 0.9rem 1rem; /* slightly tighter vertical padding */
   background: linear-gradient(135deg, rgba(15, 20, 23, 0.95) 0%, rgba(31, 31, 31, 0.9) 100%);
   border-radius: 16px;
   border: 1px solid rgba(0, 229, 255, 0.1);
