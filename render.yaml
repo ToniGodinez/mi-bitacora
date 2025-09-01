@@ -1,10 +1,37 @@
 services:
+  # 🚀 Backend optimizado (Node.js + Express)
   - type: web
-    name: mi-bitacora
+    name: mi-bitacora-backend
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false  # Configurar manualmente en Render Dashboard
+      - key: VITE_TMDB_API_KEY
+        value: 5f9a774c4ea58c1d35759ac3a48088d4
+      - key: TMDB_API_KEY
+        value: 5f9a774c4ea58c1d35759ac3a48088d4
+      - key: PORT
+        value: 10000
+
+  # 🎨 Frontend optimizado (React + Vite)
+  - type: web
+    name: mi-bitacora-frontend
     env: static
-    buildCommand: npm run build
+    region: oregon
+    plan: free
+    buildCommand: npm install && npm run build
     staticPublishPath: ./dist
     routes:
       - type: rewrite
         source: /*
         destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        value: https://mi-bitacora-backend.onrender.com

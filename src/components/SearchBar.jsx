@@ -18,6 +18,8 @@ const SearchBar = ({ onResults }) => {
     navigate(`/search?query=${encodeURIComponent(q)}`);
   };
 
+  // No auto-fetch: searches only run on Enter or button click
+
   const handleKey = (e) => {
     if (e.key === 'Enter') searchMovies();
   };
@@ -31,7 +33,7 @@ const SearchBar = ({ onResults }) => {
       <input
         className="search-input"
         type="text"
-        placeholder="Buscar película..."
+        placeholder="Buscar película en TMDB..."
         value={query}
         onChange={e => setQuery(e.target.value)}
         onKeyDown={handleKey}

@@ -8,21 +8,70 @@ app.use(cors({ origin: allowedOrigin }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 🔗 Tu connection string de Neon - usar variable de entorno en production
+// �️ OPTIMIZACIÓN: Middleware de validación para inputs
+const validateMovieInput = (req, res, next) => {
+  const { title, year, rating, comment, status } = req.body;
+  
+  // Validar título
+  if (title && (typeof title !== 'string' || title.length > 500)) {
+    return res.status(400).json({ 
+      error: 'Título inválido', 
+      detail: 'El título debe ser texto y menor a 500 caracteres' 
+    });
+  }
+  
+  // Validar año
+  if (year && (isNaN(year) || year < 1800 || year > 2030)) {
+    return res.status(400).json({ 
+      error: 'Año inválido', 
+      detail: 'El año debe estar entre 1800 y 2030' 
+    });
+  }
+  
+  // Validar rating
+  if (rating && (isNaN(rating) || rating < 0 || rating > 10)) {
+    return res.status(400).json({ 
+      error: 'Rating inválido', 
+      detail: 'El rating debe estar entre 0 y 10' 
+    });
+  }
+  
+  // Validar comentario (evitar ataques de texto masivo)
+  if (comment && (typeof comment !== 'string' || comment.length > 2000)) {
+    return res.status(400).json({ 
+      error: 'Comentario inválido', 
+      detail: 'El comentario debe ser texto y menor a 2000 caracteres' 
+    });
+  }
+  
+  // Validar status
+  const validStatuses = ['pendiente', 'en proceso', 'vista'];
+  if (status && !validStatuses.includes(status.toLowerCase())) {
+    return res.status(400).json({ 
+      error: 'Status inválido', 
+      detail: 'Status debe ser: pendiente, en proceso, o vista' 
+    });
+  }
+  
+  next();
+};
+
+// �🔗 Tu connection string de Neon - usar variable de entorno en production
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_9TcH0ExpkdWX@ep-red-cherry-aerqtahe-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
 });
 
 // 🧠 Ruta para guardar película
-app.post('/api/movies', async (req, res) => {
-  // Log completo del body recibido para depuración
-  console.log('Body recibido:', req.body);
-  console.log('🔎 Headers recibidos:');
-  console.log(req.headers);
-  console.log('📌 Content-Type:', req.headers['content-type']);
-
-  console.log('🧾 Payload recibido del frontend:');
-  console.log(JSON.stringify(req.body, null, 2));
+app.post('/api/movies', validateMovieInput, async (req, res) => {
+  // 🚀 OPTIMIZADO: Solo logs detallados en desarrollo
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('Body recibido:', req.body);
+    console.log('🔎 Headers recibidos:');
+    console.log(req.headers);
+    console.log('📌 Content-Type:', req.headers['content-type']);
+    console.log('🧾 Payload recibido del frontend:');
+    console.log(JSON.stringify(req.body, null, 2));
+  }
 
   // Extraer campos con valores por defecto
   let {
@@ -47,7 +96,9 @@ app.post('/api/movies', async (req, res) => {
     tmdbId = Number(tmdbId);
   }
 
-  console.log('Valor recibido para tmdbId:', tmdbId);
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('Valor recibido para tmdbId:', tmdbId);
+  }
 
   // Validación mínima - solo verificar que el body no esté completamente vacío
   if (Object.keys(req.body).length === 0) {
@@ -55,19 +106,21 @@ app.post('/api/movies', async (req, res) => {
     return res.status(400).json({ error: 'Request body vacío' });
   }
 
-  console.log('🎯 Valores a insertar en Neon:');
-  console.log('title:', title);
-  console.log('year:', year);
-  console.log('poster_url:', poster_url);
-  console.log('rating:', rating);
-  console.log('comment:', comment);
-  console.log('status:', status);
-  console.log('director:', director);
-  console.log('actors:', actors);
-  console.log('country:', country);
-  console.log('overview:', overview);
-  console.log('media_type:', media_type);
-  console.log('genres:', genres);
+  if (process.env.NODE_ENV !== 'production') {
+    console.log('🎯 Valores a insertar en Neon:');
+    console.log('title:', title);
+    console.log('year:', year);
+    console.log('poster_url:', poster_url);
+    console.log('rating:', rating);
+    console.log('comment:', comment);
+    console.log('status:', status);
+    console.log('director:', director);
+    console.log('actors:', actors);
+    console.log('country:', country);
+    console.log('overview:', overview);
+    console.log('media_type:', media_type);
+    console.log('genres:', genres);
+  }
 
   try {
     // Solo verificar duplicados si tenemos título y año válidos
@@ -78,7 +131,9 @@ app.post('/api/movies', async (req, res) => {
       );
 
       if (dupCheck.rows.length > 0) {
-        console.warn('⚠️ Película duplicada encontrada:', dupCheck.rows[0]);
+        if (process.env.NODE_ENV !== 'production') {
+          console.warn('⚠️ Película duplicada encontrada:', dupCheck.rows[0]);
+        }
         return res.status(409).json({ 
           error: 'Película duplicada', 
           existing: dupCheck.rows[0],
@@ -121,6 +176,8 @@ app.post('/api/movies', async (req, res) => {
     );
 
     console.log('✅ Película guardada en Neon:', result.rows[0]);
+  // Invalidar cache TMDB si tiene tmdbId
+  try { if (result.rows[0] && result.rows[0].tmdbid) await delCachedTmdb(String(result.rows[0].tmdbid)); } catch (e) { /* ignore */ }
     res.json({ 
       success: true, 
       movie: result.rows[0],
@@ -157,7 +214,7 @@ app.post('/api/movies', async (req, res) => {
 });
 
 // Ruta para actualizar película por id
-app.put('/api/movies/:id', async (req, res) => {
+app.put('/api/movies/:id', validateMovieInput, async (req, res) => {
   const { id } = req.params;
   const {
     title,
@@ -244,8 +301,12 @@ app.put('/api/movies/:id', async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Registro no encontrado' });
     }
-
-    console.log('🔄 Película actualizada:', result.rows[0]);
+    // Invalidar cache TMDB si tiene tmdbId
+    try { if (result.rows[0] && result.rows[0].tmdbid) await delCachedTmdb(String(result.rows[0].tmdbid)); } catch (e) { /* ignore */ }
+    
+    if (process.env.NODE_ENV !== 'production') {
+      console.log('🔄 Película actualizada:', result.rows[0]);
+    }
     res.json(result.rows[0]);
   } catch (err) {
     console.error('❌ Error al actualizar en Neon:', err);
@@ -257,8 +318,33 @@ app.put('/api/movies/:id', async (req, res) => {
 });
 
 // Ruta para obtener todas las películas (para el Home)
+// Lista de películas con paginación opcional: /api/movies?page=1&limit=20
 app.get('/api/movies', async (req, res) => {
   try {
+    const page = parseInt(req.query.page, 10) || null;
+    const limit = parseInt(req.query.limit, 10) || null;
+
+    if (page && limit) {
+      const offset = (Math.max(1, page) - 1) * limit;
+      // 🚀 OPTIMIZADO: Una sola query con COUNT(*) OVER() - 50% menos queries
+      const result = await pool.query(`
+        SELECT *, COUNT(*) OVER() as total_count 
+        FROM movies 
+        ORDER BY id DESC 
+        LIMIT $1 OFFSET $2
+      `, [limit, offset]);
+      
+      const total = result.rows.length > 0 ? Number(result.rows[0].total_count) : 0;
+      // Limpiar total_count de cada fila para compatibilidad
+      const cleanRows = result.rows.map(row => {
+        const { total_count, ...cleanRow } = row;
+        return cleanRow;
+      });
+      
+      return res.json({ rows: cleanRows, total });
+    }
+
+    // Fallback: devolver todo (compatibilidad hacia atrás)
     const result = await pool.query('SELECT * FROM movies ORDER BY id DESC');
     res.json(result.rows);
   } catch (err) {
@@ -270,24 +356,196 @@ app.get('/api/movies', async (req, res) => {
 // Ruta para eliminar película por id
 // Ruta para obtener sinopsis en español desde TMDB usando tmdbId
 import fetch from 'node-fetch';
+import { createClient } from 'redis';
+
+// Simple cache en memoria para respuestas TMDB (keyed por tmdbId)
+const tmdbCache = new Map(); // key -> { ts, data }
+const TMDB_CACHE_TTL = 1000 * 60 * 60; // 1 hora
+
+// Redis client - usar si REDIS_URL está presente
+const REDIS_URL = process.env.REDIS_URL || process.env.REDIS_TLS_URL || null;
+let redisClient = null;
+let redisAvailable = false;
+if (REDIS_URL) {
+  redisClient = createClient({ url: REDIS_URL });
+  redisClient.on('error', (err) => console.error('Redis Client Error', err));
+  redisClient.connect().then(() => {
+    console.log('✅ Redis conectado');
+    redisAvailable = true;
+  }).catch(err => {
+    console.error('No se pudo conectar a Redis:', err);
+    redisAvailable = false;
+  });
+}
+
+async function getCachedTmdb(key) {
+  const now = Date.now();
+  // Prefer Redis
+  if (redisClient && redisAvailable) {
+    try {
+      const v = await redisClient.get(`tmdb:${key}`);
+      if (!v) return null;
+      const parsed = JSON.parse(v);
+      if ((now - parsed.ts) < TMDB_CACHE_TTL) return parsed.data;
+      // expired
+      await redisClient.del(`tmdb:${key}`).catch(() => {});
+      return null;
+    } catch (e) {
+      console.error('Redis get error, falling back to memory cache', e);
+    }
+  }
+
+  const cached = tmdbCache.get(key);
+  if (cached && (now - cached.ts) < TMDB_CACHE_TTL) return cached.data;
+  return null;
+}
+
+async function setCachedTmdb(key, data) {
+  const now = Date.now();
+  // Try Redis first
+  if (redisClient && redisAvailable) {
+    try {
+      await redisClient.set(`tmdb:${key}`, JSON.stringify({ ts: now, data }), { EX: Math.floor(TMDB_CACHE_TTL / 1000) });
+      return;
+    } catch (e) {
+      console.error('Redis set error, falling back to memory cache', e);
+    }
+  }
+  tmdbCache.set(key, { ts: now, data });
+}
+
+async function delCachedTmdb(key) {
+  if (redisClient && redisAvailable) {
+    try { await redisClient.del(`tmdb:${key}`); } catch (e) { /* ignore */ }
+  }
+  tmdbCache.delete(key);
+}
 
 app.get('/api/tmdb/overview/:tmdbId', async (req, res) => {
   const { tmdbId } = req.params;
-  const apiKey = process.env.VITE_TMDB_API_KEY || process.env.TMDB_API_KEY;
+  const { nocache } = req.query;
+  const apiKey = process.env.VITE_TMDB_API_KEY || process.env.TMDB_API_KEY || '5f9a774c4ea58c1d35759ac3a48088d4';
   if (!tmdbId || !apiKey) {
     return res.status(400).json({ error: 'Falta tmdbId o apiKey' });
   }
+
   try {
+    const key = String(tmdbId);
+    
+    // Check cache unless nocache=1
+    let cached = null;
+    let cacheHit = false;
+    if (nocache !== '1') {
+      cached = await getCachedTmdb(key);
+      if (cached) {
+        cacheHit = true;
+        if (process.env.NODE_ENV !== 'production') {
+          console.log(`🎯 Cache HIT para tmdbId: ${tmdbId}`);
+        }
+      }
+    }
+
+    if (cached) {
+      // Set cache headers for CDN/proxy caching
+      res.set({
+        'Cache-Control': 'public, max-age=0, s-maxage=3600', // CDN can cache 1h
+        'X-Cache-Status': 'HIT'
+      });
+      return res.json(cached);
+    }
+
+    if (process.env.NODE_ENV !== 'production') {
+      console.log(`🔄 Cache MISS para tmdbId: ${tmdbId} (fetching from TMDB)`);
+    }
     const url = `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${apiKey}&language=es-ES`;
     const response = await fetch(url);
     if (!response.ok) throw new Error('TMDB error ' + response.status);
     const data = await response.json();
-    res.json({ overview: data.overview || '', title: data.title || '', year: (data.release_date || '').split('-')[0] });
+    const payload = { 
+      overview: data.overview || '', 
+      title: data.title || '', 
+      year: (data.release_date || '').split('-')[0],
+      cached_at: new Date().toISOString()
+    };
+    
+    // Save to cache unless nocache=1
+    if (nocache !== '1') {
+      await setCachedTmdb(key, payload);
+    }
+    
+    // Set cache headers
+    res.set({
+      'Cache-Control': 'public, max-age=0, s-maxage=3600',
+      'X-Cache-Status': 'MISS'
+    });
+    res.json(payload);
   } catch (err) {
     console.error('Error TMDB overview:', err);
     res.status(500).json({ error: 'No se pudo obtener la sinopsis', detail: err.message });
   }
 });
+
+// 🔍 Endpoint para debug de caché
+app.get('/api/cache/status', async (req, res) => {
+  try {
+    const status = {
+      redis_available: redisAvailable,
+      redis_url_configured: !!REDIS_URL,
+      memory_cache_size: tmdbCache.size,
+      memory_cache_keys: Array.from(tmdbCache.keys()),
+      ttl_hours: TMDB_CACHE_TTL / (1000 * 60 * 60),
+      timestamp: new Date().toISOString()
+    };
+
+    // Si Redis está disponible, obtener info adicional
+    if (redisClient && redisAvailable) {
+      try {
+        const redisKeys = await redisClient.keys('tmdb:*');
+        status.redis_cache_size = redisKeys.length;
+        status.redis_cache_keys = redisKeys;
+      } catch (e) {
+        status.redis_error = e.message;
+      }
+    }
+
+    res.json(status);
+  } catch (err) {
+    console.error('Error en cache status:', err);
+    res.status(500).json({ error: 'Error al obtener estado de caché' });
+  }
+});
+
+// 🧹 Endpoint para limpiar caché (útil para debug)
+app.delete('/api/cache/clear', async (req, res) => {
+  try {
+    let cleared = { memory: 0, redis: 0 };
+    
+    // Limpiar memoria
+    const memorySize = tmdbCache.size;
+    tmdbCache.clear();
+    cleared.memory = memorySize;
+
+    // Limpiar Redis si está disponible
+    if (redisClient && redisAvailable) {
+      try {
+        const redisKeys = await redisClient.keys('tmdb:*');
+        if (redisKeys.length > 0) {
+          await redisClient.del(redisKeys);
+          cleared.redis = redisKeys.length;
+        }
+      } catch (e) {
+        cleared.redis_error = e.message;
+      }
+    }
+
+    console.log('🧹 Caché limpiada:', cleared);
+    res.json({ message: 'Caché limpiada exitosamente', cleared });
+  } catch (err) {
+    console.error('Error limpiando caché:', err);
+    res.status(500).json({ error: 'Error al limpiar caché' });
+  }
+});
+
 app.delete('/api/movies/:id', async (req, res) => {
   const { id } = req.params;
   if (!id) return res.status(400).json({ error: 'Missing id parameter' });
@@ -296,7 +554,12 @@ app.delete('/api/movies/:id', async (req, res) => {
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Registro no encontrado' });
     }
+  // Invalidar cache TMDB si existe tmdbid en la fila eliminada
+  try { if (result.rows[0] && result.rows[0].tmdbid) await delCachedTmdb(String(result.rows[0].tmdbid)); } catch (e) { /* ignore */ }
+  
+  if (process.env.NODE_ENV !== 'production') {
     console.log('🗑️ Película eliminada:', result.rows[0]);
+  }
     res.json({ deleted: result.rows[0] });
   } catch (err) {
     console.error('❌ Error al eliminar película:', err);
@@ -306,6 +569,11 @@ app.delete('/api/movies/:id', async (req, res) => {
 
 // 🚀 Server startup
 const PORT = process.env.PORT || 3000;
+// Ruta raíz para mostrar mensaje amigable
+app.get('/', (req, res) => {
+  res.send('¡Backend funcionando correctamente! 🚀');
+});
+
 app.listen(PORT, () => {
   console.log(`🚀 Servidor iniciado en puerto ${PORT}`);
   console.log(`🎬 Bitácora de Películas lista para usar!`);

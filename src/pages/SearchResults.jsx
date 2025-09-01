@@ -22,24 +22,33 @@ export default function SearchResults() {
       return;
     }
 
+    const controller = new AbortController();
+    const signal = controller.signal;
+
     const fetchResults = async () => {
       setLoading(true);
       setError(null);
       try {
-  const url = `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(q)}&language=es-MX&page=1`;
-        const res = await fetch(url);
+        const url = `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(q)}&language=es-MX&page=1`;
+        const res = await fetch(url, { signal });
         if (!res.ok) throw new Error('TMDB error ' + res.status);
         const data = await res.json();
-        setResults(data.results || []);
+        if (!signal.aborted) setResults(data.results || []);
       } catch (err) {
+        if (err.name === 'AbortError') {
+          // petición abortada por cleanup (React Strict / navegación rápida)
+          return;
+        }
         console.error('Error buscando en TMDB:', err);
         setError('Error al obtener resultados');
       } finally {
-        setLoading(false);
+        if (!signal.aborted) setLoading(false);
       }
     };
 
     fetchResults();
+
+    return () => controller.abort();
   }, [q]);
 
   const openEdit = (item) => {

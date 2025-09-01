@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import SearchBar from '../components/SearchBar.jsx';
 import { useNavigate } from 'react-router-dom';
 import './Home.css';
@@ -14,25 +14,46 @@ const Stars = ({ value = 0 }) => {
 
 const Home = () => {
   const [dbMovies, setDbMovies] = useState([]);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
+  const [total, setTotal] = useState(null);
   const [searchResults, setSearchResults] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
   const [dbSearch, setDbSearch] = useState('');
   const [dbAlpha, setDbAlpha] = useState('');
   const navigate = useNavigate();
 
+  // ya no usamos onResults en SearchBar (sin autocompletado)
+
   const loadDb = useCallback(async () => {
     try {
-      const res = await fetch(`${API_URL}/api/movies`);
-      if (!res.ok) return setDbMovies([]);
+      const res = await fetch(`${API_URL}/api/movies?page=${page}&limit=${limit}`);
+      if (!res.ok) {
+        setDbMovies([]);
+        setTotal(null);
+        return;
+      }
       const data = await res.json();
-      const movies = Array.isArray(data) ? data : (data.value || data.rows || []);
-      setDbMovies(movies || []);
-      fillSpanishOverviews(movies || []);
+      // Soportar dos formatos: array (legacy) o { rows, total }
+      if (Array.isArray(data)) {
+        setDbMovies(data || []);
+        setTotal(data.length);
+      } else if (data && Array.isArray(data.rows)) {
+        setDbMovies(data.rows || []);
+        setTotal(typeof data.total === 'number' ? data.total : data.rows.length);
+      } else {
+        setDbMovies([]);
+        setTotal(null);
+      }
+      // Ejecutar auto-fill solo si está explícitamente habilitado y hay TMDB key
+      if (import.meta.env.VITE_ENABLE_AUTO_FILL === 'true' && TMDB_API_KEY) {
+        fillSpanishOverviews(movies || []);
+      }
     } catch (e) {
       console.error('Error cargando DB', e);
       setDbMovies([]);
     }
-  }, []);
+  }, [page, limit]);
 
   useEffect(() => { loadDb(); }, [loadDb]);
 
@@ -72,19 +93,31 @@ const Home = () => {
     } catch (e) { return null; }
   }
 
+  const fillingRef = useRef(false);
+
   async function fillSpanishOverviews(movies) {
+    // No continuar si no hay TMDB key
+    if (!TMDB_API_KEY) return;
     if (!Array.isArray(movies) || movies.length === 0) return;
-    const toFetch = movies.filter(m => !m.overview_es && !m.genres).slice(0, 6);
-    for (const m of toFetch) {
-      try {
-        let info = null;
-        if (m.tmdbId) info = await fetchSpanishOverviewById(m.tmdbId, m.media_type === 'Serie' ? 'tv' : 'movie');
-        if (!info) info = await fetchSpanishOverviewByQuery(m.title, m.year);
-        if (info) {
-          setDbMovies(prev => prev.map(x => x.id === m.id ? { ...x, overview_es: info.overview || x.overview_es, genres: info.genres || x.genres, media_type: info.media_type || x.media_type } : x));
-          fetch(`${API_URL}/api/movies/${m.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ overview: info.overview, genres: info.genres, media_type: info.media_type }) }).catch(() => {});
-        }
-      } catch (e) { /* silent */ }
+    // Evitar ejecuciones concurrentes
+    if (fillingRef.current) return;
+    fillingRef.current = true;
+    try {
+      const batchSize = Number(import.meta.env.VITE_AUTO_FILL_BATCH_SIZE || 1);
+      const toFetch = movies.filter(m => !m.overview_es && !m.genres).slice(0, Math.max(0, batchSize));
+      for (const m of toFetch) {
+        try {
+          let info = null;
+          if (m.tmdbId) info = await fetchSpanishOverviewById(m.tmdbId, m.media_type === 'Serie' ? 'tv' : 'movie');
+          if (!info) info = await fetchSpanishOverviewByQuery(m.title, m.year);
+          if (info) {
+            setDbMovies(prev => prev.map(x => x.id === m.id ? { ...x, overview_es: info.overview || x.overview_es, genres: info.genres || x.genres, media_type: info.media_type || x.media_type } : x));
+            fetch(`${API_URL}/api/movies/${m.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ overview: info.overview, genres: info.genres, media_type: info.media_type }) }).catch(() => {});
+          }
+        } catch (e) { /* silent */ }
+      }
+    } finally {
+      fillingRef.current = false;
     }
   }
 
@@ -107,7 +140,7 @@ const Home = () => {
     <div className="home-page">
       <div className="search-and-filters">
         <div className="search-section">
-          <SearchBar onResults={results => setSearchResults(results && results.length ? results : null)} />
+          <SearchBar />
         </div>
         <div className="filters-section">
           <div className="filter-bar">
@@ -158,6 +191,21 @@ const Home = () => {
             <div className="db-count-item"><span className="label">Vistas:</span> <span className="value">{filteredDb.filter(m => String(m.status).toLowerCase().trim() === 'vista').length}</span></div>
             <div className="db-count-item"><span className="label">En proceso:</span> <span className="value">{filteredDb.filter(m => String(m.status).toLowerCase().trim() === 'en proceso').length}</span></div>
           </div>
+        </div>
+      </div>
+
+      {/* Pagination controls */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0.6rem 0' }}>
+        <div>
+          <button className="btn" disabled={page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))}>Prev</button>
+          <button className="btn" disabled={total !== null && page >= Math.ceil(total / limit)} onClick={() => setPage(p => p + 1)} style={{ marginLeft: '0.5rem' }}>Next</button>
+          <span style={{ marginLeft: '1rem' }}>Página {page}{total ? ` de ${Math.max(1, Math.ceil(total / limit))}` : ''}</span>
+        </div>
+        <div>
+          <label style={{ marginRight: '0.5rem' }}>Por página:</label>
+          <select value={limit} onChange={e => { setLimit(Number(e.target.value)); setPage(1); }}>
+            {[10,20,50,100].map(n => <option key={n} value={n}>{n}</option>)}
+          </select>
         </div>
       </div>
 
