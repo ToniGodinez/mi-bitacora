@@ -1,12 +1,25 @@
 import express from 'express';
 import cors from 'cors';
 import { Pool } from 'pg';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// Para ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const allowedOrigin = process.env.FRONTEND_URL || '*';
 app.use(cors({ origin: allowedOrigin }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// 🌐 Servir archivos estáticos del frontend (para producción)
+if (process.env.NODE_ENV === 'production') {
+  const distPath = path.join(__dirname, '..', 'dist');
+  app.use(express.static(distPath));
+  console.log('📁 Sirviendo archivos estáticos desde:', distPath);
+}
 
 // �️ OPTIMIZACIÓN: Middleware de validación para inputs
 const validateMovieInput = (req, res, next) => {
@@ -314,6 +327,128 @@ app.put('/api/movies/:id', validateMovieInput, async (req, res) => {
       return res.status(409).json({ error: 'Duplicado (constraint)', detail: err.detail });
     }
     res.status(500).send('Error al actualizar la película');
+  }
+});
+
+// 🆕 Nuevo endpoint para obtener conteos globales por status
+app.get('/api/movies/stats', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        COUNT(*) as total,
+        COUNT(CASE WHEN LOWER(TRIM(status)) = 'pendiente' THEN 1 END) as pendientes,
+        COUNT(CASE WHEN LOWER(TRIM(status)) = 'vista' THEN 1 END) as vistas,
+        COUNT(CASE WHEN LOWER(TRIM(status)) = 'en proceso' THEN 1 END) as en_proceso
+      FROM movies
+    `);
+    
+    const stats = result.rows[0];
+    res.json({
+      total: Number(stats.total) || 0,
+      pendientes: Number(stats.pendientes) || 0,
+      vistas: Number(stats.vistas) || 0,
+      en_proceso: Number(stats.en_proceso) || 0
+    });
+  } catch (err) {
+    console.error('❌ Error al obtener estadísticas:', err);
+    res.status(500).json({ error: 'Error al obtener estadísticas' });
+  }
+});
+
+// 🆕 Nuevo endpoint para obtener géneros únicos de todas las películas
+app.get('/api/movies/genres', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT DISTINCT unnest(genres) as genre 
+      FROM movies 
+      WHERE genres IS NOT NULL AND array_length(genres, 1) > 0
+      ORDER BY genre
+    `);
+    
+    const genres = result.rows
+      .map(row => row.genre)
+      .filter(genre => genre && genre.trim())
+      .map(genre => genre.trim());
+    
+    res.json(genres);
+  } catch (err) {
+    console.error('❌ Error al obtener géneros:', err);
+    res.status(500).json({ error: 'Error al obtener géneros' });
+  }
+});
+
+// 🆕 Nuevo endpoint para búsqueda global con filtros
+app.get('/api/movies/search', async (req, res) => {
+  try {
+    const { 
+      q: searchQuery, 
+      status, 
+      alpha, 
+      genre,
+      page = 1, 
+      limit = 20 
+    } = req.query;
+
+    let whereConditions = [];
+    let queryParams = [];
+    let paramIndex = 1;
+
+    // Filtro de búsqueda por título
+    if (searchQuery && searchQuery.trim()) {
+      whereConditions.push(`title ILIKE $${paramIndex}`);
+      queryParams.push(`%${searchQuery.trim()}%`);
+      paramIndex++;
+    }
+
+    // Filtro por status
+    if (status && status !== 'all') {
+      if (status === 'vista') {
+        whereConditions.push(`LOWER(TRIM(status)) = 'vista'`);
+      } else if (status === 'en-proceso') {
+        whereConditions.push(`LOWER(TRIM(status)) = 'en proceso'`);
+      } else if (status === 'pendiente') {
+        whereConditions.push(`LOWER(TRIM(status)) = 'pendiente'`);
+      }
+    }
+
+    // Filtro alfabético
+    if (alpha && alpha.length === 1) {
+      whereConditions.push(`UPPER(LEFT(title, 1)) = $${paramIndex}`);
+      queryParams.push(alpha.toUpperCase());
+      paramIndex++;
+    }
+
+    // 🆕 Filtro por género
+    if (genre && genre.trim()) {
+      whereConditions.push(`genres @> $${paramIndex}::jsonb`);
+      queryParams.push(JSON.stringify([genre.trim()]));
+      paramIndex++;
+    }
+
+    const whereClause = whereConditions.length > 0 
+      ? `WHERE ${whereConditions.join(' AND ')}` 
+      : '';
+
+    const offset = (Math.max(1, parseInt(page)) - 1) * parseInt(limit);
+
+    const result = await pool.query(`
+      SELECT *, COUNT(*) OVER() as total_count 
+      FROM movies 
+      ${whereClause}
+      ORDER BY id DESC 
+      LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
+    `, [...queryParams, parseInt(limit), offset]);
+
+    const total = result.rows.length > 0 ? Number(result.rows[0].total_count) : 0;
+    const cleanRows = result.rows.map(row => {
+      const { total_count, ...cleanRow } = row;
+      return cleanRow;
+    });
+
+    res.json({ rows: cleanRows, total });
+  } catch (err) {
+    console.error('❌ Error en búsqueda:', err);
+    res.status(500).json({ error: 'Error en búsqueda' });
   }
 });
 

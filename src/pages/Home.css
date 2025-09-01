@@ -577,19 +577,24 @@
   gap: 0.5rem;
 }
 
-/* Make the top SearchBar visually match the DB search: larger, responsive, cyan button */
+/* Make the top SearchBar visually match the DB search: aligned with stats bar */
 .search-section {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: center; /* centrar el contenido */
   width: 100%;
 }
 
-.search-section .search-bar { width: 100%; max-width: 920px; }
+.search-section .search-bar { 
+  width: 100%; 
+  max-width: 100%; /* usar todo el ancho disponible como las otras barras */
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
 
 .search-section .search-input {
-  width: 100%;
-  max-width: 720px;
+  flex: 1; /* que el input ocupe todo el espacio disponible menos el botón */
   font-size: 1.125rem;
   padding: 0.75rem 1rem;
   border-radius: 10px;
@@ -605,11 +610,13 @@
   background: var(--accent-cyan);
   color: #012;
   border: 1px solid var(--accent-cyan);
-  padding: 0.6rem 1rem;
+  padding: 0.75rem 1rem; /* mismo padding vertical que el input */
   border-radius: 10px;
   font-weight: 700;
   box-shadow: 0 8px 26px rgba(0,229,255,0.08);
   transition: transform 140ms ease, box-shadow 140ms ease;
+  flex-shrink: 0; /* evitar que el botón se comprima */
+  min-width: 100px; /* ancho mínimo para el botón */
 }
 
 .search-section .btn:hover:not(:disabled), .search-section .btn:focus:not(:disabled) {
@@ -673,17 +680,20 @@
   gap: 0.9rem;
 }
 
-/* DB search box styles: make input larger and responsive, add bottom spacing */
+/* DB search box styles: alineado con la barra de estadísticas */
 .db-search-box {
   margin-top: 1rem;
   padding: 0.4rem 0 0.9rem 0; /* espacio ajustado */
 }
 
-.db-search-row { display: flex; }
+.db-search-row { 
+  display: flex; 
+  justify-content: center; /* centrar el input */
+}
 
 .db-search-input {
   width: 100%;
-  max-width: 720px; /* allow large on wide screens */
+  max-width: 100%; /* usar todo el ancho disponible como la barra de stats */
   font-size: 1.125rem;
   padding: 0.75rem 1rem;
   border-radius: 10px;
@@ -751,15 +761,44 @@
 }
 
 .db-count-row {
-  margin-top: 0.6rem;
-  font-size: 1rem;
-  color: rgba(255,255,255,0.9);
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
+  margin-top: 0.8rem;
+  padding: 0.75rem 1rem;
+  background: rgba(0, 229, 255, 0.08);
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  border-radius: 8px;
+  text-align: center;
 }
 
+/* New unified count styles */
+.db-count-unified {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.count-item {
+  color: var(--accent-cyan);
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.count-value {
+  font-weight: 700;
+  color: var(--accent-cyan);
+  font-size: 1.05em;
+}
+
+.count-separator {
+  color: rgba(0, 229, 255, 0.5);
+  font-weight: 300;
+}
+
+/* Legacy count styles - mantener para compatibilidad */
 .db-count-left {
   display: inline-flex;
   align-items: center;
@@ -780,6 +819,16 @@
 @media (max-width: 600px) {
   .db-count-row { flex-direction: column; align-items: flex-start; }
   .db-count-right { align-items: flex-start; }
+  
+  /* Responsive for new unified count */
+  .db-count-unified {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .count-separator {
+    display: none;
+  }
 }
 
 
@@ -1337,3 +1386,163 @@
 }
 
 /* overlays are controlled by Layout; no temporary overrides here */
+
+/* =========================
+   UNIFIED FILTER BAR
+   ========================= */
+
+.unified-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding: 0.75rem 1rem;
+  background: rgba(0, 229, 255, 0.05);
+  border: 1px solid rgba(0, 229, 255, 0.15);
+  border-radius: 8px;
+}
+
+.status-filters {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.filter-separator {
+  color: rgba(0, 229, 255, 0.6);
+  font-size: 1.2rem;
+  font-weight: 300;
+  margin: 0 0.5rem;
+}
+
+.genre-filters {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.filter-label {
+  color: var(--accent-cyan);
+  font-weight: 500;
+  font-size: 0.95rem;
+  white-space: nowrap;
+}
+
+.genre-select {
+  background: rgba(0, 229, 255, 0.08);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  min-width: 150px;
+  max-width: 200px;
+  cursor: pointer;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.genre-select:focus {
+  outline: none;
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.15);
+}
+
+.genre-select option {
+  background: var(--panel);
+  color: var(--text);
+}
+
+.genre-clear-btn {
+  background: transparent;
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  color: var(--accent-cyan);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.genre-clear-btn:hover {
+  background: rgba(0, 229, 255, 0.1);
+  border-color: var(--accent-cyan);
+  transform: translateY(-1px);
+}
+
+/* Responsive design para la barra unificada */
+@media (max-width: 1024px) {
+  .unified-filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .filter-separator {
+    display: none;
+  }
+  
+  .status-filters {
+    justify-content: center;
+  }
+  
+  .genre-filters {
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 768px) {
+  .genre-filters {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  
+  .genre-select {
+    min-width: 100%;
+  }
+  
+  .genre-clear-btn {
+    width: 100%;
+  }
+}
+
+/* =========================
+   HORIZONTAL SEPARATOR
+   ========================= */
+
+.horizontal-separator {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(0, 229, 255, 0.3) 20%, 
+    rgba(0, 229, 255, 0.6) 50%, 
+    rgba(0, 229, 255, 0.3) 80%, 
+    transparent 100%
+  );
+  margin: 1.5rem 0;
+  border-radius: 1px;
+}
+
+/* =========================
+   GENRE FILTER SECTION (Legacy - mantener por compatibilidad)
+   ========================= */
+
+/* Responsive para filtros de género (Legacy) */
+@media (max-width: 768px) {
+  .genre-filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .genre-filter-left {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+}

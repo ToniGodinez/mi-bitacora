@@ -21,9 +21,89 @@ const Home = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [dbSearch, setDbSearch] = useState('');
   const [dbAlpha, setDbAlpha] = useState('');
+  // 🆕 Nuevo estado para filtro por género
+  const [genreFilter, setGenreFilter] = useState('');
+  // 🆕 Nuevos estados para estadísticas globales
+  const [globalStats, setGlobalStats] = useState({
+    total: 0,
+    pendientes: 0,
+    vistas: 0,
+    en_proceso: 0
+  });
+  const [isSearching, setIsSearching] = useState(false);
+  // 🆕 Estado para géneros disponibles
+  const [availableGenres, setAvailableGenres] = useState([]);
   const navigate = useNavigate();
 
   // ya no usamos onResults en SearchBar (sin autocompletado)
+
+  // 🆕 Función para cargar estadísticas globales
+  const loadGlobalStats = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/movies/stats`);
+      if (res.ok) {
+        const stats = await res.json();
+        setGlobalStats(stats);
+      }
+    } catch (e) {
+      console.error('Error cargando estadísticas globales', e);
+    }
+  }, []);
+
+  // 🆕 Función para cargar géneros disponibles desde el endpoint específico
+  const loadAvailableGenres = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/movies/genres`);
+      if (res.ok) {
+        const genres = await res.json();
+        setAvailableGenres(genres || []);
+        console.log('📊 Géneros cargados desde base de datos:', genres);
+      } else {
+        console.error('Error al cargar géneros:', res.status);
+        setAvailableGenres([]);
+      }
+    } catch (e) {
+      console.error('Error cargando géneros', e);
+      setAvailableGenres([]);
+    }
+  }, []);
+
+  // 🆕 Función para búsqueda/filtrado global
+  const loadFilteredMovies = useCallback(async () => {
+    // Si hay búsqueda o filtro alfabético, usar el endpoint de búsqueda
+    if (dbSearch.trim() || dbAlpha || statusFilter !== 'all' || genreFilter) {
+      setIsSearching(true);
+      try {
+        const params = new URLSearchParams({
+          page: page.toString(),
+          limit: limit.toString()
+        });
+        
+        if (dbSearch.trim()) params.set('q', dbSearch.trim());
+        if (statusFilter !== 'all') params.set('status', statusFilter);
+        if (dbAlpha) params.set('alpha', dbAlpha);
+        if (genreFilter) params.set('genre', genreFilter);
+
+        const res = await fetch(`${API_URL}/api/movies/search?${params}`);
+        if (res.ok) {
+          const data = await res.json();
+          setDbMovies(data.rows || []);
+          setTotal(data.total || 0);
+        } else {
+          setDbMovies([]);
+          setTotal(0);
+        }
+      } catch (e) {
+        console.error('Error en búsqueda global', e);
+        setDbMovies([]);
+        setTotal(0);
+      }
+      setIsSearching(false);
+    } else {
+      // Sin filtros, usar el endpoint normal
+      loadDb();
+    }
+  }, [page, limit, dbSearch, dbAlpha, statusFilter, genreFilter]);
 
   const loadDb = useCallback(async () => {
     try {
@@ -55,7 +135,26 @@ const Home = () => {
     }
   }, [page, limit]);
 
-  useEffect(() => { loadDb(); }, [loadDb]);
+  useEffect(() => { 
+    loadFilteredMovies(); 
+  }, [loadFilteredMovies]);
+
+  // 🆕 Cargar estadísticas globales al iniciar
+  useEffect(() => {
+    loadGlobalStats();
+  }, [loadGlobalStats]);
+
+  // 🆕 Cargar géneros disponibles al iniciar
+  useEffect(() => {
+    loadAvailableGenres();
+  }, [loadAvailableGenres]);
+
+  // 🆕 Recargar estadísticas cuando se elimina una película
+  const refreshAfterDelete = useCallback(() => {
+    loadGlobalStats();
+    loadFilteredMovies();
+    loadAvailableGenres(); // 🆕 También recargar géneros
+  }, [loadGlobalStats, loadFilteredMovies, loadAvailableGenres]);
 
   async function fetchSpanishOverviewById(id, type = 'movie') {
     try {
@@ -123,18 +222,8 @@ const Home = () => {
 
   const titleCase = s => { if (!s) return '—'; return String(s).split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '); };
 
-  const applyFilter = movies => {
-    if (!Array.isArray(movies)) return [];
-    if (statusFilter === 'all') return movies;
-    if (statusFilter === 'vista') return movies.filter(m => String(m.status || '').toLowerCase().trim() === 'vista');
-    if (statusFilter === 'en-proceso') return movies.filter(m => String(m.status || '').toLowerCase().trim() === 'en proceso');
-    if (statusFilter === 'pendiente') return movies.filter(m => String(m.status || '').toLowerCase().trim() === 'pendiente');
-    return movies;
-  };
-
-  const filteredDb = applyFilter(dbMovies)
-    .filter(m => dbAlpha ? (m.title && m.title[0] && m.title[0].toUpperCase() === dbAlpha) : true)
-    .filter(m => dbSearch ? (m.title && m.title.toLowerCase().includes(dbSearch.toLowerCase())) : true);
+  // 🆕 Ya no necesitamos filtrar localmente porque el backend hace el filtrado
+  const displayMovies = dbMovies;
 
   return (
     <div className="home-page">
@@ -143,13 +232,46 @@ const Home = () => {
           <SearchBar />
         </div>
         <div className="filters-section">
-          <div className="filter-bar">
-            <button className={`filter-btn ${statusFilter === 'all' ? 'active' : ''}`} onClick={() => setStatusFilter('all')}>Todas</button>
-            <button className={`filter-btn ${statusFilter === 'vista' ? 'active' : ''}`} onClick={() => setStatusFilter('vista')}>Vistas</button>
-            <button className={`filter-btn ${statusFilter === 'en-proceso' ? 'active' : ''}`} onClick={() => setStatusFilter('en-proceso')}>En Proceso</button>
-            <button className={`filter-btn ${statusFilter === 'pendiente' ? 'active' : ''}`} onClick={() => setStatusFilter('pendiente')}>Pendientes</button>
+          <div className="unified-filter-bar">
+            <div className="status-filters">
+              <button className={`filter-btn ${statusFilter === 'all' ? 'active' : ''}`} onClick={() => setStatusFilter('all')}>Todas</button>
+              <button className={`filter-btn ${statusFilter === 'vista' ? 'active' : ''}`} onClick={() => setStatusFilter('vista')}>Vistas</button>
+              <button className={`filter-btn ${statusFilter === 'en-proceso' ? 'active' : ''}`} onClick={() => setStatusFilter('en-proceso')}>En Proceso</button>
+              <button className={`filter-btn ${statusFilter === 'pendiente' ? 'active' : ''}`} onClick={() => setStatusFilter('pendiente')}>Pendientes</button>
+            </div>
+            
+            <div className="filter-separator">|</div>
+            
+            <div className="genre-filters">
+              <span className="filter-label">Filtrar por género:</span>
+              <select 
+                className="genre-select" 
+                value={genreFilter} 
+                onChange={(e) => setGenreFilter(e.target.value)}
+              >
+                <option value="">Todos los géneros</option>
+                {availableGenres.map(genre => (
+                  <option key={genre} value={genre}>{genre}</option>
+                ))}
+              </select>
+              <button 
+                className="genre-clear-btn" 
+                onClick={() => {
+                  setGenreFilter('');
+                  setStatusFilter('all');
+                  setDbSearch('');
+                  setDbAlpha('');
+                  setPage(1);
+                }}
+              >
+                Limpiar filtros
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Separador horizontal */}
+        <div className="horizontal-separator"></div>
       </div>
 
       <div className="db-search-box">
@@ -182,14 +304,14 @@ const Home = () => {
         </div>
 
         <div className="db-count-row">
-          <div className="db-count-left">
-            <span>Total: {filteredDb.length}</span>
-            {' '}|{' '}
-            <span>Pendientes: {filteredDb.filter(m => String(m.status).toLowerCase().trim() === 'pendiente').length}</span>
-          </div>
-          <div className="db-count-right">
-            <div className="db-count-item"><span className="label">Vistas:</span> <span className="value">{filteredDb.filter(m => String(m.status).toLowerCase().trim() === 'vista').length}</span></div>
-            <div className="db-count-item"><span className="label">En proceso:</span> <span className="value">{filteredDb.filter(m => String(m.status).toLowerCase().trim() === 'en proceso').length}</span></div>
+          <div className="db-count-unified">
+            <span className="count-item">Total: <span className="count-value">{globalStats.total}</span></span>
+            <span className="count-separator">|</span>
+            <span className="count-item">Pendientes: <span className="count-value">{globalStats.pendientes}</span></span>
+            <span className="count-separator">|</span>
+            <span className="count-item">Vistas: <span className="count-value">{globalStats.vistas}</span></span>
+            <span className="count-separator">|</span>
+            <span className="count-item">En proceso: <span className="count-value">{globalStats.en_proceso}</span></span>
           </div>
         </div>
       </div>
@@ -223,7 +345,7 @@ const Home = () => {
         </div>
       ) : (
         <div className="db-table">
-          {filteredDb.map(m => (
+          {displayMovies.map(m => (
             <article className="row-card" key={m.id} role="article" aria-label={`Ficha de película ${m.title}`}>
               <img className="poster" src={m.poster_url || FALLBACK} alt={m.title} />
               <div className="info">
@@ -262,6 +384,7 @@ const Home = () => {
                         const resp = await fetch(`${API_URL}/api/movies/${m.id}`, { method: 'DELETE' });
                         if (resp.ok) {
                           setDbMovies(prev => prev.filter(x => x.id !== m.id));
+                          refreshAfterDelete(); // 🆕 Recargar estadísticas
                           alert('Registro eliminado');
                         } else {
                           alert('No se pudo eliminar el registro');
