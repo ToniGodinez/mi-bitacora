@@ -311,19 +311,19 @@ const RecommendMovie = () => {
                 </div>
               )}
               {/* INFORMACIÓN ESPECÍFICA PARA SERIES/TV */}
-              {isTv && details?.episode_run_time && details.episode_run_time.length > 0 && (
+              {isTv && details?.episode_run_time && details.episode_run_time.length > 0 && details.episode_run_time[0] > 0 && (
                 <div className="info-item">
                   <span className="info-label">⏱️ Duración episodio:</span>
                   <span className="info-value">{formatRuntime(details.episode_run_time[0])}</span>
                 </div>
               )}
-              {isTv && details?.number_of_seasons && (
+              {isTv && details?.number_of_seasons && details.number_of_seasons > 0 && (
                 <div className="info-item">
                   <span className="info-label">📺 Temporadas:</span>
                   <span className="info-value">{details.number_of_seasons}</span>
                 </div>
               )}
-              {isTv && details?.number_of_episodes && (
+              {isTv && details?.number_of_episodes && details.number_of_episodes > 0 && (
                 <div className="info-item">
                   <span className="info-label">🎬 Episodios:</span>
                   <span className="info-value">{details.number_of_episodes}</span>
