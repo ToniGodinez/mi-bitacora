@@ -317,15 +317,15 @@ const Home = () => {
       </div>
 
       {/* Pagination controls */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '0.6rem 0' }}>
-        <div>
+      <div className="pagination-controls">
+        <div className="pagination-nav">
           <button className="btn" disabled={page <= 1} onClick={() => setPage(p => Math.max(1, p - 1))}>Prev</button>
-          <button className="btn" disabled={total !== null && page >= Math.ceil(total / limit)} onClick={() => setPage(p => p + 1)} style={{ marginLeft: '0.5rem' }}>Next</button>
-          <span style={{ marginLeft: '1rem' }}>Página {page}{total ? ` de ${Math.max(1, Math.ceil(total / limit))}` : ''}</span>
+          <button className="btn" disabled={total !== null && page >= Math.ceil(total / limit)} onClick={() => setPage(p => p + 1)}>Next</button>
+          <span className="pagination-info">Página {page}{total ? ` de ${Math.max(1, Math.ceil(total / limit))}` : ''}</span>
         </div>
-        <div>
-          <label style={{ marginRight: '0.5rem' }}>Por página:</label>
-          <select value={limit} onChange={e => { setLimit(Number(e.target.value)); setPage(1); }}>
+        <div className="per-page-controls">
+          <label className="per-page-label">Por página:</label>
+          <select className="per-page-select" value={limit} onChange={e => { setLimit(Number(e.target.value)); setPage(1); }}>
             {[10,20,50,100].map(n => <option key={n} value={n}>{n}</option>)}
           </select>
         </div>

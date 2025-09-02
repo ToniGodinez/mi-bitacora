@@ -418,10 +418,10 @@ app.get('/api/movies/search', async (req, res) => {
       paramIndex++;
     }
 
-    // 🆕 Filtro por género
+    // 🆕 Filtro por género - Corregido: usar ANY para arrays de PostgreSQL
     if (genre && genre.trim()) {
-      whereConditions.push(`genres @> $${paramIndex}::jsonb`);
-      queryParams.push(JSON.stringify([genre.trim()]));
+      whereConditions.push(`$${paramIndex} = ANY(genres)`);
+      queryParams.push(genre.trim());
       paramIndex++;
     }
 

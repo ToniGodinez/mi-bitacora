@@ -1474,6 +1474,72 @@
   transform: translateY(-1px);
 }
 
+/* ==============================================
+   PAGINATION CONTROLS STYLING
+   ============================================== */
+
+.pagination-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0.6rem 0;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 12px;
+  border: 1px solid rgba(0, 229, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.pagination-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.pagination-info {
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.per-page-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.per-page-label {
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 500;
+  opacity: 0.8;
+  white-space: nowrap;
+}
+
+.per-page-select {
+  background: rgba(0, 229, 255, 0.08);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.9rem;
+  min-width: 80px;
+  cursor: pointer;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.per-page-select:focus {
+  outline: none;
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.15);
+}
+
+.per-page-select option {
+  background: var(--panel);
+  color: var(--text);
+}
+
 /* Responsive design para la barra unificada */
 @media (max-width: 1024px) {
   .unified-filter-bar {
@@ -1493,6 +1559,15 @@
   .genre-filters {
     justify-content: space-between;
   }
+  
+  /* Pagination responsive para tablets */
+  .pagination-controls {
+    padding: 0.8rem;
+  }
+  
+  .pagination-nav {
+    gap: 0.6rem;
+  }
 }
 
 @media (max-width: 768px) {
@@ -1508,6 +1583,27 @@
   
   .genre-clear-btn {
     width: 100%;
+  }
+  
+  /* Pagination responsive para móviles */
+  .pagination-controls {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0.8rem;
+  }
+  
+  .pagination-nav {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .per-page-controls {
+    justify-content: center;
+  }
+  
+  .per-page-select {
+    min-width: 100px;
   }
 }
 
