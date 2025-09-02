@@ -13,15 +13,15 @@
   border-radius: 20px;
   box-shadow: 0 12px 40px rgba(0,229,255,0.13), 0 2px 16px rgba(0,0,0,0.22);
   border: 2px solid var(--accent-cyan);
-  padding: 2.8rem 2.2rem 2.2rem 2.2rem;
+  padding: 1.8rem 2rem 1.8rem 2rem; /* Reducido padding */
   width: 100%;
-  max-width: none; /* Sin límite de ancho */
-  margin: 2rem auto;
+  max-width: none;
+  margin: 1.5rem auto; /* Reducido margen */
   display: flex;
-  flex-direction: column; /* Por defecto columna (móvil) */
+  flex-direction: column;
   align-items: center;
-  gap: 2.2rem;
-  transition: flex-direction 0.3s ease; /* Transición suave */
+  gap: 0.8rem; /* Reducido gap principal para menor separación */
+  transition: flex-direction 0.3s ease;
 }
 /* LAYOUT WIREFRAME ESPECÍFICO */
 
@@ -29,20 +29,22 @@
 .edit-header {
   width: 100%;
   display: flex;
-  flex-direction: row; /* Horizontal por defecto para desktop */
+  flex-direction: row;
   align-items: flex-start;
-  gap: 2rem;
-  margin-bottom: 1.5rem;
+  gap: 1.5rem; /* Reducido gap */
+  margin-bottom: 0.4rem; /* Reducido drásticamente el margen inferior */
   transition: all 0.3s ease;
 }
 
 /* Info básica al lado del poster */
 .movie-info {
   flex: 1;
+  width: 100%; /* Asegurar mismo ancho que form-fields-full */
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.6rem; /* Reducido gap entre campos */
   min-width: 0;
+  box-sizing: border-box; /* Consistencia en el box model */
 }
 
 /* Campos completos de ancho total debajo del header */
@@ -50,8 +52,9 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
-  margin-bottom: 1.5rem;
+  gap: 0.6rem; /* Reducido gap entre campos */
+  margin-bottom: 0.4rem; /* Reducido drásticamente el margen inferior */
+  box-sizing: border-box; /* Consistencia en el box model */
 }
 
 /* Sección final con estado, rating y opinión */
@@ -59,7 +62,7 @@
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
+  gap: 0.8rem; /* Reducido gap */
 }
 
 /* Fila horizontal para estado y rating */
@@ -67,25 +70,39 @@
   display: flex;
   gap: 2rem;
   align-items: flex-end;
+  justify-content: center; /* Centrar horizontalmente */
+  width: 100%;
+}
+
+/* Meta info editable con espaciado reducido */
+.meta-info-editable {
+  margin-bottom: 0.5rem; /* Muy reducido */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.meta-info-editable strong {
+  display: block;
+  margin-bottom: 0; /* Sin margen inferior ya que está en línea */
+  color: rgba(255,255,255,0.7);
+  font-size: 0.85rem; /* Ligeramente más pequeño */
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  min-width: 60px; /* Ancho mínimo para el label */
+  flex-shrink: 0; /* No se encoge */
 }
 
 /* Ajustes para labels en mayúsculas como el wireframe */
 .form-label {
   color: var(--accent-cyan);
   font-weight: 800;
-  margin-bottom: 0.5em;
+  margin-bottom: 0.3em; /* Reducido */
   text-transform: uppercase;
-  font-size: 0.9rem;
-  letter-spacing: 0.02em;
-}
-
-.meta-info-editable strong {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: rgba(255,255,255,0.7);
-  font-size: 0.9rem;
-  font-weight: 500;
-  text-transform: uppercase;
+  font-size: 0.85rem; /* Más pequeño */
   letter-spacing: 0.02em;
 }
 .movie-poster {
@@ -101,6 +118,7 @@
   box-shadow: 0 12px 40px rgba(0,229,255,0.15), 0 2px 16px rgba(0,0,0,0.22);
   object-fit: cover;
   margin-bottom: 1.1rem;
+  aspect-ratio: 2/3; /* Mantener proporción de poster */
 }
 .movie-title {
   text-align: center;
@@ -189,14 +207,34 @@
 }
 .form-select, .form-textarea {
   width: 100%;
-  border-radius: 10px;
-  border: 1.5px solid rgba(0,229,255,0.18);
-  background: #0f1417;
+  border-radius: 8px;
+  border: 1.5px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.08);
   color: #e6eef3;
-  font-size: 1.05rem;
-  padding: 0.6em 1em;
+  font-size: 0.9rem;
+  padding: 0.6rem 0.8rem;
   margin-bottom: 0.2em;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: all 0.2s ease;
 }
+
+.form-select:focus, .form-textarea:focus {
+  outline: none;
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 0 2px rgba(0,229,255,0.2);
+  background: rgba(255,255,255,0.12);
+}
+
+.form-select:hover, .form-textarea:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.25);
+}
+
+.form-textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
 .stars-input {
   font-size: 1.4rem;
   color: var(--accent-cyan);
@@ -204,22 +242,26 @@
   margin-top: 0.2em;
 }
 .btn-save {
-  padding: 0.9rem 2.2rem;
-  border-radius: 12px;
-  font-size: 1.08rem;
-  font-weight: 800;
+  padding: 0.7rem 2rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
-  border: none;
-  background: linear-gradient(135deg, var(--accent-cyan) 0%, var(--accent-cyan-dark) 100%);
+  border: 1.5px solid var(--accent-cyan);
+  background: var(--accent-cyan);
   color: #10151a;
-  margin: 0.7rem 0 0 0;
-  box-shadow: 0 2px 8px rgba(0,229,255,0.13);
+  margin: 0.5rem auto 0 auto;
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  box-shadow: 0 4px 12px rgba(0,229,255,0.25);
 }
 .btn-save:hover {
-  background: linear-gradient(135deg, var(--accent-cyan-dark) 0%, var(--accent-cyan) 100%);
-  color: #fff;
-  box-shadow: 0 12px 32px rgba(0,229,255,0.18);
+  background: transparent;
+  color: var(--accent-cyan);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,229,255,0.35);
 }
 @media (max-width: 600px) {
   .edit-card {
@@ -654,54 +696,57 @@
 }
 
 .meta-inline-input {
-  background: rgba(255,255,255,0.05) !important;
-  border: 1px solid rgba(255,255,255,0.1) !important;
+  background: rgba(255,255,255,0.08) !important; /* Más visible */
+  border: 1.5px solid rgba(255,255,255,0.15) !important; /* Border más definido */
   border-radius: 8px !important;
   color: var(--text) !important;
-  padding: 0.75rem 1rem !important;
-  font-size: 0.95rem !important;
+  padding: 0.6rem 0.8rem !important; /* Padding más compacto */
+  font-size: 0.9rem !important; /* Ligeramente más pequeño */
   width: 100% !important;
   outline: none !important;
   transition: all 0.2s ease !important;
   font-family: inherit !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important; /* Sombra sutil */
+  flex: 1; /* Ocupa todo el espacio disponible */
 }
 
 .meta-inline-input:focus {
-  background: rgba(255,255,255,0.08) !important;
-  border-color: rgba(255,255,255,0.2) !important;
-  box-shadow: none !important;
+  background: rgba(255,255,255,0.12) !important;
+  border-color: var(--accent-cyan) !important; /* Border cyan al focus */
+  box-shadow: 0 0 0 2px rgba(0,229,255,0.2) !important; /* Glow effect */
 }
 
 .meta-inline-input:hover {
-  background: rgba(255,255,255,0.07) !important;
-  border-color: rgba(255,255,255,0.15) !important;
+  background: rgba(255,255,255,0.1) !important;
+  border-color: rgba(255,255,255,0.25) !important;
 }
 
 .synopsis-inline-edit {
-  background: rgba(255,255,255,0.05) !important;
-  border: 1px solid rgba(255,255,255,0.1) !important;
+  background: rgba(255,255,255,0.08) !important;
+  border: 1.5px solid rgba(255,255,255,0.15) !important;
   border-radius: 8px !important;
   color: var(--text) !important;
-  padding: 0.75rem 1rem !important;
-  font-size: 0.95rem !important;
+  padding: 0.6rem 0.8rem !important;
+  font-size: 0.9rem !important;
   width: 100% !important;
   outline: none !important;
   transition: all 0.2s ease !important;
   font-family: inherit !important;
   resize: vertical !important;
-  min-height: 100px !important;
-  margin-top: 0.5rem !important;
+  min-height: 80px !important; /* Reducido */
+  margin-top: 0.2rem !important; /* Reducido */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
 }
 
 .synopsis-inline-edit:focus {
-  background: rgba(255,255,255,0.08) !important;
-  border-color: rgba(255,255,255,0.2) !important;
-  box-shadow: none !important;
+  background: rgba(255,255,255,0.12) !important;
+  border-color: var(--accent-cyan) !important;
+  box-shadow: 0 0 0 2px rgba(0,229,255,0.2) !important;
 }
 
 .synopsis-inline-edit:hover {
-  background: rgba(255,255,255,0.07) !important;
-  border-color: rgba(255,255,255,0.15) !important;
+  background: rgba(255,255,255,0.1) !important;
+  border-color: rgba(255,255,255,0.25) !important;
 }
 
 /* Estilo para título y año más limpio */
@@ -736,43 +781,61 @@
   }
   
   .edit-card {
-    padding: 1.5rem 1rem;
-    margin: 1rem auto;
+    padding: 1rem 0.8rem;
+    margin: 0.5rem auto;
     border-radius: 12px;
-    gap: 1.5rem;
-    flex-direction: column; /* Todo en columna */
+    gap: 1rem;
+    flex-direction: column;
   }
   
   .edit-header {
-    flex-direction: column; /* Poster arriba en móvil */
-    gap: 1rem;
-    align-items: center; /* Centrar poster */
+    flex-direction: column;
+    gap: 0.8rem;
+    align-items: center;
     width: 100%;
+    margin-bottom: 0.8rem;
   }
   
   .movie-poster {
-    width: 180px;
-    height: 270px;
-    margin-bottom: 1rem;
+    width: 160px;
+    height: 240px;
+    margin-bottom: 0.5rem;
     align-self: center;
   }
   
   .movie-info {
     width: 100%;
     text-align: left;
+    gap: 0.5rem;
   }
   
   .form-fields-full {
     width: 100%;
+    gap: 0.5rem;
+    margin-bottom: 0.8rem;
+  }
+  
+  .form-section-final {
+    gap: 0.6rem;
   }
   
   .form-row-horizontal {
     flex-direction: column;
-    gap: 1rem;
-    align-items: stretch;
+    gap: 0.6rem;
+    align-items: center; /* Centrar en móvil también */
+    justify-content: center;
   }
   
   .form-group {
+    width: 100%;
+  }
+  
+  .meta-info-editable {
+    margin-bottom: 0.4rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.8rem;
     width: 100%;
   }
 }
@@ -806,6 +869,11 @@
   
   .meta-info-editable {
     margin-bottom: 1rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.8rem;
+    width: 100%;
   }
 }
 
@@ -816,41 +884,47 @@
   }
   
   .edit-card {
-    padding: 3rem 2.5rem;
-    gap: 2rem;
-    flex-direction: column; /* Mantener layout vertical general */
+    padding: 2rem 2.5rem;
+    gap: 1.5rem;
+    flex-direction: column;
     align-items: stretch;
   }
   
   .edit-header {
-    flex-direction: row; /* Poster izquierda, campos derecha */
+    flex-direction: row;
     align-items: flex-start;
     gap: 2rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.2rem;
   }
   
   .movie-poster {
     flex-shrink: 0;
-    width: 240px;
-    height: 360px;
+    width: 35%; /* 35% del ancho disponible */
+    max-width: 200px; /* Límite máximo */
+    height: auto; /* Altura automática para mantener proporción */
     align-self: flex-start;
   }
   
   .movie-info {
-    flex: 1;
+    flex: 0 0 65%; /* 65% del ancho disponible */
+    width: 65%;
     text-align: left;
-    max-width: 400px; /* Limitar ancho de campos básicos */
+    max-width: none; /* Quitar limitación de ancho */
+    gap: 0.6rem;
   }
   
   .form-fields-full {
-    width: 100%; /* Campos completos ocupan todo el ancho */
+    width: 100%;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
   }
   
   .form-row-horizontal {
     flex-direction: row;
     gap: 3rem;
     align-items: flex-end;
-    max-width: 600px; /* Limitar ancho del row horizontal */
+    justify-content: center; /* Centrar en desktop */
+    max-width: none; /* Quitar limitación de ancho */
   }
 }
 
@@ -862,8 +936,9 @@
   }
   
   .movie-poster {
-    width: 280px;
-    height: 420px;
+    width: 35%; /* Mantener la proporción 35% */
+    max-width: 250px; /* Límite un poco mayor para pantallas grandes */
+    height: auto;
   }
   
   .edit-header {

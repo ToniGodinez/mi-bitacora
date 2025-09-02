@@ -373,7 +373,20 @@ const Home = () => {
                 </div>
                 <div className="opinion">"{m.comment ? String(m.comment) : 'Sin opinión'}"</div>
                 <div style={{ marginTop: '0.6rem', display: 'flex', gap: '0.5rem' }}>
-                  <button className="btn" onClick={() => navigate('/edit', { state: { movie: { ...m, _isDb: true } } })}>Editar</button>
+                  <button className="btn" title="Información">❗ Info</button>
+                  <button className="btn" onClick={() => navigate('/edit', { state: { movie: { ...m, _isDb: true } } })}>✏️ Editar</button>
+                  {m.ver_online && (
+                    <a
+                      className="btn-ver-online btn"
+                      href={m.ver_online}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="Ver online"
+                      style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center' }}
+                    >
+                      ▶︎ Ver Online
+                    </a>
+                  )}
                   <button
                     className="btn-delete"
                     title="Eliminar"

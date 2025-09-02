@@ -899,6 +899,26 @@
 }
 .btn-delete:active{ transform: translateY(0) scale(0.98) }
 
+/* Botón Ver Online - coherente con el diseño existente */
+.btn-ver-online {
+  background: transparent !important;
+  border: 1px solid var(--accent-cyan) !important;
+  color: var(--accent-cyan) !important;
+  cursor: pointer !important;
+  font-weight: 500 !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 6px !important;
+  transition: all 0.2s ease !important;
+  text-decoration: none !important;
+}
+
+.btn-ver-online:hover {
+  background: var(--accent-cyan) !important;
+  color: #012 !important;
+  border-color: var(--accent-cyan) !important;
+  transform: translateY(-2px) !important;
+}
+
 .row-card .info {
   width: 100%;
   min-width: 0; /* allow flex children to shrink */
