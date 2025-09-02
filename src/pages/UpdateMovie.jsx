@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import TMDBSearchModal from '../components/TMDBSearchModal'; // ✅ IMPORTAR MODAL
 import './UpdateMovie.css';
 
 const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || '5f9a774c4ea58c1d35759ac3a48088d4';
@@ -12,6 +13,10 @@ const UpdateMovie = () => {
   const [results, setResults] = useState([]);
   const [error, setError] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  // ✅ NUEVOS ESTADOS PARA EL MODAL
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedMovieIndex, setSelectedMovieIndex] = useState(null);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -81,7 +86,8 @@ const UpdateMovie = () => {
           country: movie.country || '',
           overview: movie.overview || '',
           media_type: movie.media_type || 'Película',
-          genres: movie.genres || ''
+          genres: movie.genres || '',
+          tmdbId: movie.tmdbid || null // ✅ INCLUIR TMDB ID
         };
 
         console.log(`📡 Guardando película ${i + 1}/${movies.length}: "${movieData.title}"`);
@@ -270,58 +276,29 @@ const UpdateMovie = () => {
 
 
 
-  const updateMovieFromTMDB = async (index) => {
-    setUpdating(prev => ({ ...prev, [index]: true }));
-    
-    try {
-      const movie = movies[index];
-      if (!movie.title) {
-        console.log(`Saltando película en índice ${index}: sin título`);
-        return false;
-      }
-
-      // 1. Buscar película en TMDB
-      const searchResponse = await fetch(
-        `https://api.themoviedb.org/3/search/movie?api_key=5f9a774c4ea58c1d35759ac3a48088d4&query=${encodeURIComponent(movie.title)}&language=es-ES`
-      );
-      const searchData = await searchResponse.json();
-      
-      if (!searchResponse.ok || !searchData.results?.[0]) {
-        console.log(`No se encontró "${movie.title}" en TMDB`);
-        return false;
-      }
-
-      // 2. Obtener detalles completos
-      const tmdbMovie = searchData.results[0];
-      const detailsResponse = await fetch(
-        `https://api.themoviedb.org/3/movie/${tmdbMovie.id}?api_key=5f9a774c4ea58c1d35759ac3a48088d4&language=es-ES&append_to_response=credits`
-      );
-      const details = await detailsResponse.json();
-
-      // 3. Actualizar los campos específicos SIN sobrescribir campos existentes importantes
-      const newMovies = [...movies];
-      newMovies[index] = {
-        ...newMovies[index],
-        year: tmdbMovie.release_date?.split('-')[0] || newMovies[index].year,
-        poster_url: tmdbMovie.poster_path ? `https://image.tmdb.org/t/p/w300${tmdbMovie.poster_path}` : newMovies[index].poster_url,
-        director: details.credits?.crew?.find(p => p.job === 'Director')?.name || newMovies[index].director,
-        actors: details.credits?.cast?.slice(0, 5).map(a => a.name).join(', ') || newMovies[index].actors,
-        country: details.production_countries?.[0]?.name || newMovies[index].country,
-        overview: details.overview || newMovies[index].overview,
-        media_type: 'Película',
-        genres: details.genres?.map(g => g.name).join(', ') || newMovies[index].genres
-      };
-      
-      setMovies(newMovies);
-      console.log(`✅ Película "${movie.title}" actualizada correctamente`);
-      return true;
-      
-    } catch (error) {
-      console.error(`❌ Error actualizando "${movies[index]?.title}":`, error);
-      return false;
-    } finally {
-      setUpdating(prev => ({ ...prev, [index]: false }));
+  // ✅ NUEVA FUNCIÓN PARA ABRIR MODAL DE BÚSQUEDA
+  const openTMDBSearchModal = (index) => {
+    const movie = movies[index];
+    if (!movie.title) {
+      alert('Por favor ingresa un título antes de buscar en TMDB');
+      return;
     }
+    setSelectedMovieIndex(index);
+    setModalOpen(true);
+  };
+
+  // ✅ NUEVA FUNCIÓN PARA MANEJAR SELECCIÓN DE PELÍCULA
+  const handleMovieSelection = (updatedMovieData) => {
+    const newMovies = [...movies];
+    newMovies[selectedMovieIndex] = updatedMovieData;
+    setMovies(newMovies);
+    console.log(`✅ Película "${updatedMovieData.title}" actualizada con TMDB ID: ${updatedMovieData.tmdbid}`);
+  };
+
+  // ✅ FUNCIÓN ORIGINAL COMO FALLBACK (por si acaso)
+  const updateMovieFromTMDB = async (index) => {
+    // Ahora simplemente abre el modal
+    openTMDBSearchModal(index);
   };
 
   return (
@@ -390,9 +367,9 @@ const UpdateMovie = () => {
                         className="btn-update"
                         onClick={() => updateMovieFromTMDB(index)}
                         disabled={updating[index] || !movie.title.trim()}
-                        title="Actualizar desde TMDB"
+                        title="🔍 Buscar y seleccionar película en TMDB"
                       >
-                        {updating[index] ? '⏳' : '🔄'}
+                        {updating[index] ? '⏳' : '�'}
                       </button>
                       <button
                         type="button"
@@ -673,9 +650,21 @@ const UpdateMovie = () => {
             </div>
           </div>
         )}
+
+        {/* ✅ AGREGAR EL MODAL */}
+        <TMDBSearchModal
+          isOpen={modalOpen}
+          onClose={() => {
+            setModalOpen(false);
+            setSelectedMovieIndex(null);
+          }}
+          searchQuery={selectedMovieIndex !== null ? movies[selectedMovieIndex]?.title : ''}
+          onSelect={handleMovieSelection}
+          currentMovie={selectedMovieIndex !== null ? movies[selectedMovieIndex] : null}
+        />
       </div>
     </div>
   );
 };
 
-export { UpdateMovie as default };
+export default UpdateMovie;
