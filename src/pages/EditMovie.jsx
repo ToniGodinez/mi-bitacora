@@ -124,6 +124,7 @@ const EditMovie = () => {
         if (Array.isArray(m.genres) && m.genres.length > 0) {
           genresArr = m.genres.map(g => g.name || g);
         }
+        console.log('🏷️ Géneros procesados:', genresArr, 'desde movieFromState:', m.genres);
         setGenres(genresArr);
         setOverviewText(m.overview || '');
         setRating(Number(m.rating) || 0);
@@ -178,15 +179,27 @@ const EditMovie = () => {
 
   const guardarPelicula = async () => {
     // Build full payload for creation, asegurando tmdbId correcto
-    // Obtener el id de TMDB como número, sin importar el tipo
+    // ✅ LÓGICA MEJORADA: Buscar TMDB ID en orden de prioridad
     let tmdbIdFinal = null;
-    if (details && details.id) {
-      tmdbIdFinal = Number(details.id);
-    } else if (movie && movie.id) {
-      tmdbIdFinal = Number(movie.id);
-    } else if (movie && movie.tmdbId) {
-      tmdbIdFinal = Number(movie.tmdbId);
+    
+    // 1. Primero intentar desde movieFromState.tmdbId (viene de SearchResults)
+    if (movieFromState && movieFromState.tmdbId) {
+      tmdbIdFinal = Number(movieFromState.tmdbId);
     }
+    // 2. Luego desde details.id (respuesta directa de TMDB API)
+    else if (details && details.id) {
+      tmdbIdFinal = Number(details.id);
+    }
+    // 3. Como último recurso, desde movie.id SOLO si es numérico y > 1000 (IDs de TMDB)
+    else if (movie && movie.id && Number(movie.id) > 1000) {
+      tmdbIdFinal = Number(movie.id);
+    }
+    
+    console.log('🔍 TMDB ID encontrado:', tmdbIdFinal, 'desde:', 
+      movieFromState?.tmdbId ? 'movieFromState.tmdbId' :
+      details?.id ? 'details.id' : 
+      (movie?.id && Number(movie.id) > 1000) ? 'movie.id' : 'ninguno'
+    );
     const fullMovieData = {
       title: details.title,
       year: details.release_date?.split('-')[0] || '',
@@ -198,8 +211,13 @@ const EditMovie = () => {
       actors: castNames,
       country: countryName,
       overview: overviewText,
+      genres: genres, // ✅ Enviar array de géneros
       tmdbId: tmdbIdFinal
     };
+
+    console.log('📦 Géneros a enviar:', genres);
+    console.log('📦 TMDB ID a enviar:', tmdbIdFinal);
+    console.log('📦 Enviando a backend (full):', fullMovieData);
 
     // For updating an existing DB record, only change rating/comment/status
     const editableOnly = {
@@ -208,8 +226,7 @@ const EditMovie = () => {
       status
     };
 
-  console.log('📦 Enviando a backend (full):', fullMovieData);
-  console.log('📦 Enviando a backend (editableOnly):', editableOnly);
+    console.log('📦 Enviando a backend (editableOnly):', editableOnly);
 
     try {
       // If editing DB record, PUT only editable fields

@@ -101,14 +101,16 @@ export default function SearchResults() {
         }
         const robustMovie = {
           id: data.id,
+          tmdbId: data.id, // ✅ AGREGAR TMDB ID EXPLÍCITAMENTE
           title: data.title || data.name || '',
           year: (data.release_date || data.first_air_date || '').split('-')[0] || '',
           poster_path: data.poster_path || '',
+          poster_url: data.poster_path ? `https://image.tmdb.org/t/p/w300${data.poster_path}` : '', // ✅ URL completa
           overview: data.overview || '',
           director,
           actors: cast,
           country,
-          genres,
+          genres, // ✅ Ya es un array de strings
           media_type: type,
           vote_average: data.vote_average || '',
           production_companies: data.production_companies || [],
