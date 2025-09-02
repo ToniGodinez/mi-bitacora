@@ -102,6 +102,106 @@
   cursor: not-allowed;
 }
 
+/* ✅ ESTILOS PARA LA SECCIÓN DE BÚSQUEDA POR ID */
+.tmdb-id-section {
+  padding: 1rem 1.5rem;
+  background: rgba(255, 165, 0, 0.05);
+  border-top: 1px solid rgba(255, 165, 0, 0.2);
+  border-bottom: 1px solid rgba(255, 165, 0, 0.2);
+}
+
+.tmdb-id-header {
+  margin-bottom: 1rem;
+}
+
+.tmdb-id-header h4 {
+  margin: 0 0 0.5rem 0;
+  color: #ffa500;
+  font-size: 1rem;
+}
+
+.tmdb-id-header p {
+  margin: 0;
+  color: var(--muted-color, #ccc);
+  font-size: 0.9rem;
+}
+
+.tmdb-id-search {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.tmdb-id-search input {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid rgba(255, 165, 0, 0.3);
+  border-radius: 6px;
+  background: rgba(255, 165, 0, 0.1);
+  color: var(--text-color, #fff);
+  font-size: 1rem;
+}
+
+.tmdb-id-search input:focus {
+  outline: none;
+  border-color: #ffa500;
+  box-shadow: 0 0 0 2px rgba(255, 165, 0, 0.2);
+}
+
+.tmdb-id-search button {
+  padding: 0.75rem 1.5rem;
+  background: #ffa500;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.tmdb-id-search button:hover {
+  background: #ff8c00;
+}
+
+.tmdb-id-search button:disabled {
+  background: #666;
+  cursor: not-allowed;
+}
+
+.tmdb-id-error {
+  color: var(--accent-red, #ff4444);
+  text-align: center;
+  padding: 0.5rem;
+  background: rgba(255, 68, 68, 0.1);
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+.tmdb-id-result {
+  margin-top: 1rem;
+}
+
+.tmdb-id-result h5 {
+  margin: 0 0 1rem 0;
+  color: #90ee90;
+  font-size: 1rem;
+}
+
+/* ✅ SEPARADOR VISUAL */
+.tmdb-separator {
+  text-align: center;
+  margin: 1rem 0;
+  padding: 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tmdb-separator span {
+  color: var(--accent-color, #00c8c8);
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
 .tmdb-modal-body {
   padding: 1rem;
   max-height: 60vh;
