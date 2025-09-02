@@ -59,7 +59,7 @@ export default function TMDBSearchModal({ isOpen, onClose, searchQuery, onSelect
     setIdResult(null);
     
     try {
-      const url = `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${TMDB_API_KEY}&language=es-ES&append_to_response=credits`;
+      const url = `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${TMDB_API_KEY}&language=es-MX&append_to_response=credits`;
       const res = await fetch(url);
       
       if (!res.ok) {
@@ -88,7 +88,7 @@ export default function TMDBSearchModal({ isOpen, onClose, searchQuery, onSelect
       
       // Si no tenemos credits, hacer fetch completo
       if (!movie.credits) {
-        const detailUrl = `https://api.themoviedb.org/3/movie/${movie.id}?api_key=${TMDB_API_KEY}&language=es-ES&append_to_response=credits`;
+        const detailUrl = `https://api.themoviedb.org/3/movie/${movie.id}?api_key=${TMDB_API_KEY}&language=es-MX&append_to_response=credits`;
         const res = await fetch(detailUrl);
         if (!res.ok) throw new Error('Error obteniendo detalles');
         data = await res.json();
