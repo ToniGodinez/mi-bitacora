@@ -74,11 +74,13 @@ export default function TMDBSearchModal({ isOpen, onClose, searchQuery, onSelect
     
     try {
       const endpoints = [
-        { type: 'movie', label: 'Película', url: `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${TMDB_API_KEY}&language=es-MX&append_to_response=credits` },
-        { type: 'tv', label: 'Serie de TV', url: `https://api.themoviedb.org/3/tv/${tmdbId}?api_key=${TMDB_API_KEY}&language=es-MX&append_to_response=credits` }
+        { type: 'tv', label: 'Serie de TV', url: `https://api.themoviedb.org/3/tv/${tmdbId}?api_key=${TMDB_API_KEY}&language=es-MX&append_to_response=credits` },
+        { type: 'movie', label: 'Película', url: `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${TMDB_API_KEY}&language=es-MX&append_to_response=credits` }
       ];
       
-      // ✅ INTENTAR CADA TIPO DE CONTENIDO
+      let foundResults = [];
+      
+      // ✅ INTENTAR AMBOS TIPOS Y RECOPILAR RESULTADOS
       for (const endpoint of endpoints) {
         try {
           const res = await fetch(endpoint.url);
@@ -92,18 +94,25 @@ export default function TMDBSearchModal({ isOpen, onClose, searchQuery, onSelect
             }
             
             data.media_type = endpoint.label; // Asignar tipo legible
-            setIdResult(data);
-            console.log(`🎯 ${endpoint.label} encontrada por ID:`, data);
-            return; // ✅ Salir cuando encontremos algo
+            foundResults.push(data);
+            console.log(`🎯 ${endpoint.label} encontrada con ID ${tmdbId}:`, data.title || data.name);
           }
         } catch (endpointErr) {
           console.log(`No se encontró como ${endpoint.label}:`, endpointErr.message);
-          continue; // ✅ Continuar con el siguiente tipo
+          continue;
         }
       }
       
-      // ✅ Si llegamos aquí, no se encontró nada
-      throw new Error('No se encontró ningún contenido (película, serie, etc.) con ese ID en TMDB');
+      if (foundResults.length === 0) {
+        throw new Error('No se encontró ningún contenido (película, serie, etc.) con ese ID en TMDB');
+      }
+      
+      // ✅ Si encontramos múltiples resultados, priorizar series de TV
+      // ✅ Si solo encontramos uno, usar ese
+      const finalResult = foundResults.find(r => r.media_type === 'Serie de TV') || foundResults[0];
+      
+      setIdResult(finalResult);
+      console.log(`🎯 Resultado final seleccionado:`, finalResult);
       
     } catch (err) {
       console.error('Error buscando por ID:', err);

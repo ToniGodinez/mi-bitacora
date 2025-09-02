@@ -358,7 +358,7 @@ const UpdateMovie = () => {
                         newMovies[index].title = e.target.value;
                         setMovies(newMovies);
                       }}
-                      placeholder="Título de la película"
+                      placeholder="🎬 Introduce el Título de la Película"
                       className="title-input"
                     />
                     <div className="card-actions">
@@ -384,7 +384,6 @@ const UpdateMovie = () => {
                   
                   {/* Línea 2: Etiquetas rápidas */}
                   <div className="movie-meta">
-                    <span className="movie-year">🗓️ {movie.year || 'Sin año'}</span>
                     <span className="movie-status">📋 {movie.status || 'Pendiente'}</span>
                     <span className="movie-rating">⭐ {movie.rating || 0}/5</span>
                   </div>
