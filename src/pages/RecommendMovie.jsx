@@ -40,43 +40,160 @@ const RecommendMovie = () => {
     return text && text.length > 200;
   };
 
-  // Función para obtener información detallada de TMDB
+  // 🎯 FUNCIÓN 1: DETECTOR INTELIGENTE DE TIPO DE CONTENIDO
+  const detectContentType = (localMediaType, tmdbData) => {
+    console.log('🔍 Detectando tipo de contenido:', { localMediaType, tmdbData: !!tmdbData });
+    
+    // 1. Si TMDB devuelve datos específicos de serie
+    if (tmdbData?.first_air_date || tmdbData?.number_of_seasons || tmdbData?.episode_run_time) {
+      console.log('✅ Detectado como TV por datos TMDB');
+      return 'tv';
+    }
+    
+    // 2. Si TMDB devuelve datos específicos de película
+    if (tmdbData?.release_date || (tmdbData?.runtime && tmdbData.runtime > 0)) {
+      console.log('✅ Detectado como MOVIE por datos TMDB');
+      return 'movie';
+    }
+    
+    // 3. Mapeo desde base de datos local
+    const typeMap = {
+      'Serie': 'tv',
+      'Película': 'movie',
+      'Documental': 'movie', // Documentales suelen ser películas en TMDB
+      'TV': 'tv',
+      'Film': 'movie',
+      'Miniserie': 'tv'
+    };
+    
+    const detectedType = typeMap[localMediaType] || 'movie';
+    console.log('📋 Detectado por mapeo local:', detectedType);
+    return detectedType;
+  };
+
+  // 🎯 FUNCIÓN 2: CONSTRUCTOR DE URLs DINÁMICAS
+  const buildApiUrls = (tmdbId, contentType) => {
+    const baseType = contentType === 'tv' ? 'tv' : 'movie';
+    console.log('🔗 Construyendo URLs para:', { tmdbId, contentType, baseType });
+    
+    return {
+      details: `https://api.themoviedb.org/3/${baseType}/${tmdbId}?api_key=${TMDB_API_KEY}&language=es-ES`,
+      credits: `https://api.themoviedb.org/3/${baseType}/${tmdbId}/credits?api_key=${TMDB_API_KEY}`,
+      videos: `https://api.themoviedb.org/3/${baseType}/${tmdbId}/videos?api_key=${TMDB_API_KEY}&language=es-ES`,
+      images: `https://api.themoviedb.org/3/${baseType}/${tmdbId}/images?api_key=${TMDB_API_KEY}`,
+      watchProviders: `https://api.themoviedb.org/3/${baseType}/${tmdbId}/watch/providers?api_key=${TMDB_API_KEY}`
+    };
+  };
+
+  // 🎯 FUNCIÓN 3: FETCH CON FALLBACK AUTOMÁTICO
+  const fetchWithFallback = async (tmdbId, initialType) => {
+    console.log('🔄 Intentando fetch con tipo:', initialType);
+    
+    try {
+      const urls = buildApiUrls(tmdbId, initialType);
+      const [detailsRes, creditsRes, videosRes, imagesRes, watchProvidersRes] = await Promise.allSettled([
+        fetch(urls.details),
+        fetch(urls.credits),
+        fetch(urls.videos),
+        fetch(urls.images),
+        fetch(urls.watchProviders)
+      ]);
+
+      // Si el endpoint principal funciona, usar estos resultados
+      if (detailsRes.status === 'fulfilled' && detailsRes.value.ok) {
+        console.log('✅ Fetch exitoso con tipo:', initialType);
+        return {
+          details: await detailsRes.value.json(),
+          credits: creditsRes.status === 'fulfilled' && creditsRes.value.ok ? await creditsRes.value.json() : null,
+          videos: videosRes.status === 'fulfilled' && videosRes.value.ok ? await videosRes.value.json() : null,
+          images: imagesRes.status === 'fulfilled' && imagesRes.value.ok ? await imagesRes.value.json() : null,
+          watchProviders: watchProvidersRes.status === 'fulfilled' && watchProvidersRes.value.ok ? await watchProvidersRes.value.json() : null
+        };
+      }
+    } catch (error) {
+      console.warn('⚠️ Error en fetch principal:', error.message);
+    }
+
+    // FALLBACK: Intentar con el tipo alternativo
+    console.log('🔄 Intentando fallback...');
+    const fallbackType = initialType === 'tv' ? 'movie' : 'tv';
+    
+    try {
+      const urls = buildApiUrls(tmdbId, fallbackType);
+      const [detailsRes, creditsRes, videosRes, imagesRes, watchProvidersRes] = await Promise.allSettled([
+        fetch(urls.details),
+        fetch(urls.credits),
+        fetch(urls.videos),
+        fetch(urls.images),
+        fetch(urls.watchProviders)
+      ]);
+
+      if (detailsRes.status === 'fulfilled' && detailsRes.value.ok) {
+        console.log('✅ Fallback exitoso con tipo:', fallbackType);
+        return {
+          details: await detailsRes.value.json(),
+          credits: creditsRes.status === 'fulfilled' && creditsRes.value.ok ? await creditsRes.value.json() : null,
+          videos: videosRes.status === 'fulfilled' && videosRes.value.ok ? await videosRes.value.json() : null,
+          images: imagesRes.status === 'fulfilled' && imagesRes.value.ok ? await imagesRes.value.json() : null,
+          watchProviders: watchProvidersRes.status === 'fulfilled' && watchProvidersRes.value.ok ? await watchProvidersRes.value.json() : null
+        };
+      }
+    } catch (error) {
+      console.warn('⚠️ Error en fallback:', error.message);
+    }
+
+    // Si ambos fallan, retornar null
+    console.error('❌ Ambos endpoints fallaron para TMDB ID:', tmdbId);
+    return null;
+  };
+
+  // 🎯 FUNCIÓN PRINCIPAL MEJORADA: fetchTMDBData con detección inteligente
   const fetchTMDBData = async (tmdbId) => {
     if (!tmdbId) return;
     
     setTmdbData(prev => ({ ...prev, loading: true, error: null }));
     
     try {
-      const [detailsRes, creditsRes, videosRes, imagesRes, watchProvidersRes] = await Promise.allSettled([
-        fetch(`https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${TMDB_API_KEY}&language=es-ES`),
-        fetch(`https://api.themoviedb.org/3/movie/${tmdbId}/credits?api_key=${TMDB_API_KEY}`),
-        fetch(`https://api.themoviedb.org/3/movie/${tmdbId}/videos?api_key=${TMDB_API_KEY}&language=es-ES`),
-        fetch(`https://api.themoviedb.org/3/movie/${tmdbId}/images?api_key=${TMDB_API_KEY}`),
-        fetch(`https://api.themoviedb.org/3/movie/${tmdbId}/watch/providers?api_key=${TMDB_API_KEY}`)
-      ]);
-
-      const details = detailsRes.status === 'fulfilled' && detailsRes.value.ok 
-        ? await detailsRes.value.json() : null;
-      const credits = creditsRes.status === 'fulfilled' && creditsRes.value.ok 
-        ? await creditsRes.value.json() : null;
-      const videos = videosRes.status === 'fulfilled' && videosRes.value.ok 
-        ? await videosRes.value.json() : null;
-      const images = imagesRes.status === 'fulfilled' && imagesRes.value.ok 
-        ? await imagesRes.value.json() : null;
-      const watchProviders = watchProvidersRes.status === 'fulfilled' && watchProvidersRes.value.ok 
-        ? await watchProvidersRes.value.json() : null;
-
-      setTmdbData({
-        details,
-        credits,
-        videos,
-        images,
-        watchProviders,
-        loading: false,
-        error: null
-      });
+      console.log('🚀 Iniciando fetch TMDB para ID:', tmdbId);
+      
+      // PASO 1: Detectar tipo inicial basado en BD local
+      const initialType = detectContentType(recommendedMovie?.media_type, null);
+      
+      // PASO 2: Fetch con sistema de fallback
+      const fetchResult = await fetchWithFallback(tmdbId, initialType);
+      
+      if (fetchResult) {
+        // PASO 3: Re-detectar tipo con datos reales de TMDB
+        const finalType = detectContentType(recommendedMovie?.media_type, fetchResult.details);
+        console.log('🎯 Tipo final detectado:', finalType);
+        
+        // PASO 4: Si el tipo cambió, hacer fetch correcto
+        if (finalType !== initialType) {
+          console.log('🔄 Tipo cambió, refetch con tipo correcto...');
+          const correctedResult = await fetchWithFallback(tmdbId, finalType);
+          if (correctedResult) {
+            setTmdbData({
+              ...correctedResult,
+              detectedType: finalType,
+              loading: false,
+              error: null
+            });
+            return;
+          }
+        }
+        
+        // PASO 5: Usar resultado exitoso
+        setTmdbData({
+          ...fetchResult,
+          detectedType: finalType,
+          loading: false,
+          error: null
+        });
+      } else {
+        throw new Error('No se pudieron obtener datos de TMDB');
+      }
     } catch (error) {
-      console.error('Error fetching TMDB data:', error);
+      console.error('❌ Error fetching TMDB data:', error);
       setTmdbData(prev => ({ 
         ...prev, 
         loading: false, 
@@ -163,7 +280,13 @@ const RecommendMovie = () => {
       );
     }
 
-    const { details, credits, videos, images, watchProviders } = tmdbData;
+    const { details, credits, videos, images, watchProviders, detectedType } = tmdbData;
+    
+    // 🎯 Usar tipo detectado para renderizado inteligente
+    const isMovie = detectedType === 'movie';
+    const isTv = detectedType === 'tv';
+    
+    console.log('🎨 Renderizando con tipo:', detectedType, { isMovie, isTv });
 
     switch (activeTab) {
       case 'general':
@@ -180,39 +303,41 @@ const RecommendMovie = () => {
                   <span className="info-value">{details.vote_average.toFixed(1)}/10</span>
                 </div>
               )}
-              {/* Para películas */}
-              {recommendedMovie.media_type === 'Película' && details?.runtime && details.runtime > 0 && (
+              {/* INFORMACIÓN ESPECÍFICA PARA PELÍCULAS */}
+              {isMovie && details?.runtime && details.runtime > 0 && (
                 <div className="info-item">
                   <span className="info-label">⏱️ Duración:</span>
                   <span className="info-value">{formatRuntime(details.runtime)}</span>
                 </div>
               )}
-              {/* Para series */}
-              {recommendedMovie.media_type === 'Serie' && details?.episode_run_time && details.episode_run_time.length > 0 && (
+              {/* INFORMACIÓN ESPECÍFICA PARA SERIES/TV */}
+              {isTv && details?.episode_run_time && details.episode_run_time.length > 0 && (
                 <div className="info-item">
                   <span className="info-label">⏱️ Duración episodio:</span>
                   <span className="info-value">{formatRuntime(details.episode_run_time[0])}</span>
                 </div>
               )}
-              {/* Número de temporadas para series */}
-              {recommendedMovie.media_type === 'Serie' && details?.number_of_seasons && (
+              {isTv && details?.number_of_seasons && (
                 <div className="info-item">
                   <span className="info-label">📺 Temporadas:</span>
                   <span className="info-value">{details.number_of_seasons}</span>
                 </div>
               )}
-              {/* Número de episodios para series */}
-              {recommendedMovie.media_type === 'Serie' && details?.number_of_episodes && (
+              {isTv && details?.number_of_episodes && (
                 <div className="info-item">
                   <span className="info-label">🎬 Episodios:</span>
                   <span className="info-value">{details.number_of_episodes}</span>
                 </div>
               )}
-              {/* Estado de la serie */}
-              {recommendedMovie.media_type === 'Serie' && details?.status && (
+              {isTv && details?.status && (
                 <div className="info-item">
                   <span className="info-label">📡 Estado serie:</span>
-                  <span className="info-value">{details.status === 'Ended' ? 'Finalizada' : details.status === 'Returning Series' ? 'En emisión' : details.status}</span>
+                  <span className="info-value">
+                    {details.status === 'Ended' ? 'Finalizada' : 
+                     details.status === 'Returning Series' ? 'En emisión' : 
+                     details.status === 'In Production' ? 'En producción' :
+                     details.status}
+                  </span>
                 </div>
               )}
               {details?.release_dates?.results?.find(r => r.iso_3166_1 === 'US')?.release_dates?.[0]?.certification && (
