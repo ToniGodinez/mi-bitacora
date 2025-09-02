@@ -433,8 +433,12 @@ html, body {
 /* Estilos para la tabla de vista previa */
 .table-controls {
   display: flex;
+  flex-wrap: wrap;
   gap: 1rem;
   margin-bottom: 1rem;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
 }
 
 .btn-add,
@@ -757,7 +761,14 @@ tr:last-child td {
   cursor: pointer;
   transition: all 0.2s ease;
   text-decoration: none;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  min-width: 150px;
+  height: 44px;
+  white-space: nowrap;
 }
 
 .btn-upload:hover,
@@ -790,6 +801,7 @@ tr:last-child td {
   font-size: 1rem;
   line-height: 1;
   transition: all 0.2s ease;
+  font-family: "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
 }
 
 .btn-update:hover:not(:disabled) {
@@ -882,7 +894,7 @@ tr:last-child td {
 
 .cards-container {
   display: grid !important;
-  grid-template-columns: repeat(auto-fit, minmax(600px, 1fr)) !important;
+  grid-template-columns: repeat(auto-fit, minmax(1000px, 1fr)) !important;
   gap: 2rem !important;
   margin: 0.5rem 0 !important;
   max-height: none !important;
@@ -916,6 +928,7 @@ tr:last-child td {
   display: flex !important;
   flex-direction: column !important;
   width: 100% !important;
+  max-width: none !important;
   min-height: 400px !important;
   font-size: 0.9rem !important;
   padding: 0 !important;
@@ -972,30 +985,14 @@ tr:last-child td {
   font-weight: normal;
 }
 
-/* Etiquetas rápidas en su propia línea */
-.movie-meta {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-}
-
-.movie-year,
-.movie-status,
-.movie-rating {
+/* Estilos para el año de la película */
+.movie-year {
   background: rgba(255,255,255,0.1);
   padding: 0.2rem 0.5rem;
   border-radius: 12px;
   font-size: 0.7rem;
   font-weight: 500;
   color: var(--text);
-}
-
-.movie-rating {
-  background: rgba(255,193,7,0.2);
-  color: #ffc107;
-  font-weight: 600;
 }
 
 .card-actions {
@@ -1008,23 +1005,23 @@ tr:last-child td {
   padding: 1rem;
   display: flex;
   flex-direction: row;
-  gap: 1.5rem;
+  gap: 2rem;
   flex: 1;
 }
 
 .poster-section {
   display: flex !important;
   flex-direction: column !important;
-  gap: 0.5rem !important;
+  gap: 0.8rem !important;
   align-items: center !important;
   flex-shrink: 0 !important;
-  width: 140px !important;
+  width: 220px !important;
 }
 
 .poster-image {
   width: 100%;
-  max-width: 140px;
-  height: 200px;
+  max-width: 220px;
+  height: 300px;
   object-fit: cover;
   border-radius: 8px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.3);
@@ -1037,8 +1034,8 @@ tr:last-child td {
 
 .poster-placeholder {
   width: 100%;
-  max-width: 140px;
-  height: 200px;
+  max-width: 220px;
+  height: 300px;
   background: rgba(255,255,255,0.05);
   border: 2px dashed rgba(255,255,255,0.2);
   border-radius: 8px;
@@ -1047,12 +1044,12 @@ tr:last-child td {
   align-items: center;
   justify-content: center;
   color: var(--muted);
-  font-size: 1.5rem;
-  gap: 0.2rem;
+  font-size: 2rem;
+  gap: 0.3rem;
 }
 
 .poster-placeholder span {
-  font-size: 0.9rem;
+  font-size: 1rem;
   font-weight: 500;
 }
 
@@ -1092,7 +1089,8 @@ tr:last-child td {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
+  padding-left: 1rem;
 }
 
 .basic-info {
@@ -1103,9 +1101,9 @@ tr:last-child td {
 
 .info-grid {
   display: grid !important;
-  grid-template-columns: repeat(2, 1fr) !important;
-  gap: 1rem 1.5rem !important;
-  margin-bottom: 0.8rem !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 1.2rem 1.8rem !important;
+  margin-bottom: 1.2rem !important;
   padding: 0 !important;
   width: 100% !important;
 }
@@ -1113,8 +1111,8 @@ tr:last-child td {
 .field-group {
   display: flex !important;
   flex-direction: column !important;
-  gap: 0.3rem !important;
-  margin-bottom: 0.4rem !important;
+  gap: 0.5rem !important;
+  margin-bottom: 0.6rem !important;
   padding-bottom: 0 !important;
   width: 100% !important;
 }
@@ -1140,17 +1138,41 @@ tr:last-child td {
   background: rgba(255,255,255,0.06);
   border: 1px solid rgba(255,255,255,0.12);
   border-radius: 6px;
-  padding: 0.2rem;
+  padding: 0.5rem;
   color: var(--text);
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   transition: all 0.3s ease;
   resize: none;
   font-family: inherit;
   width: 100%;
 }
 
+/* Estilos específicos para select con tema oscuro */
+.field-group select {
+  background: var(--panel) !important;
+  color: var(--text) !important;
+  border: 1px solid rgba(0, 229, 255, 0.2) !important;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2300e5ff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e") !important;
+  background-position: right 0.5rem center !important;
+  background-repeat: no-repeat !important;
+  background-size: 1.5em 1.5em !important;
+  padding-right: 2.5rem !important;
+  cursor: pointer;
+}
+
+/* Estilos para las opciones del select */
+.field-group select option {
+  background: var(--panel) !important;
+  color: var(--text) !important;
+  border: none !important;
+  padding: 0.5rem !important;
+}
+
 .field-group textarea {
-  min-height: 20px;
+  min-height: 60px;
   height: auto;
   overflow: hidden;
   resize: none;
@@ -1166,6 +1188,13 @@ tr:last-child td {
   transform: translateY(-1px);
 }
 
+/* Focus específico para select */
+.field-group select:focus {
+  background: var(--panel) !important;
+  border-color: var(--accent-cyan) !important;
+  box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.3) !important;
+}
+
 .field-group input::placeholder,
 .field-group textarea::placeholder {
   color: var(--muted);
@@ -1174,6 +1203,50 @@ tr:last-child td {
 
 .status-select {
   cursor: pointer;
+}
+
+/* ✅ ESTILOS PARA BOTONES DE INPUT NUMBER */
+/* Webkit browsers (Chrome, Safari, Edge) */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--panel);
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  border-radius: 4px;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  position: relative;
+  margin: 0;
+  opacity: 1;
+  display: block;
+}
+
+/* Firefox */
+input[type="number"] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+/* Contenedor personalizado para los botones en Firefox */
+.field-group input[type="number"] {
+  position: relative;
+}
+
+/* Estilos hover para los spin buttons */
+input[type="number"]::-webkit-outer-spin-button:hover,
+input[type="number"]::-webkit-inner-spin-button:hover {
+  background: var(--accent-cyan);
+  border-color: var(--accent-cyan);
+  color: var(--bg);
+}
+
+/* Estilos activos para los spin buttons */
+input[type="number"]::-webkit-outer-spin-button:active,
+input[type="number"]::-webkit-inner-spin-button:active {
+  background: var(--accent-cyan-dark);
+  transform: scale(0.95);
 }
 
 .card-detailed-info {
@@ -1205,23 +1278,31 @@ tr:last-child td {
   border-color: rgba(255,193,7,0.2);
 }
 
-/* Responsive para cards - Ancho controlado y bonito */
+/* Responsive para cards - Progresión gradual desde 1000px */
 @media (max-width: 1200px) {
   .cards-container {
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)) !important;
+    grid-template-columns: repeat(auto-fit, minmax(800px, 1fr)) !important;
     gap: 1.5rem !important;
     padding: 1.5rem !important;
   }
   
   .info-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.8rem;
+    gap: 1rem 1.2rem;
+  }
+}
+
+@media (max-width: 1000px) {
+  .cards-container {
+    grid-template-columns: repeat(auto-fit, minmax(700px, 1fr)) !important;
+    gap: 1.5rem !important;
+    padding: 1.5rem !important;
   }
 }
 
 @media (max-width: 900px) {
   .cards-container {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: repeat(auto-fit, minmax(600px, 1fr)) !important;
     gap: 1.5rem !important;
     padding: 1rem !important;
   }
@@ -1242,8 +1323,17 @@ tr:last-child td {
   }
 }
 
+@media (max-width: 800px) {
+  .cards-container {
+    grid-template-columns: repeat(auto-fit, minmax(500px, 1fr)) !important;
+    gap: 1.2rem !important;
+    padding: 1rem !important;
+  }
+}
+
 @media (max-width: 768px) {
   .cards-container {
+    grid-template-columns: 1fr !important;
     padding: 1rem !important;
     gap: 1rem !important;
   }
@@ -1276,18 +1366,13 @@ tr:last-child td {
   
   .poster-image,
   .poster-placeholder {
-    max-width: 160px !important;
-    height: 220px !important;
+    max-width: 200px !important;
+    height: 280px !important;
   }
   
   .info-grid {
     grid-template-columns: 1fr !important;
     gap: 0.8rem !important;
-  }
-  
-  .movie-meta {
-    justify-content: center !important;
-    flex-wrap: wrap !important;
   }
   
   .title-input {
@@ -1322,13 +1407,11 @@ tr:last-child td {
   
   .poster-image,
   .poster-placeholder {
-    max-width: 140px !important;
-    height: 190px !important;
+    max-width: 180px !important;
+    height: 250px !important;
   }
   
-  .movie-year,
-  .movie-status,
-  .movie-rating {
+  .movie-year {
     font-size: 0.65rem !important;
     padding: 0.15rem 0.4rem !important;
   }
@@ -1498,5 +1581,99 @@ tr:last-child td {
   .update-container {
     max-width: 100vw !important;
     overflow-x: hidden !important;
+  }
+  
+  /* Botones responsivos centrados en móviles */
+  .table-controls {
+    flex-direction: column;
+    gap: 0.8rem;
+    padding: 0.8rem;
+  }
+  
+  .btn-upload {
+    width: 100%;
+    max-width: 280px;
+    font-size: 0.9rem;
+    padding: 0.9rem 1rem;
+    text-align: center;
+    min-width: unset;
+    height: 48px;
+  }
+}
+
+/* Media query para tabletas */
+@media (max-width: 768px) {
+  .table-controls {
+    flex-direction: row;
+    justify-content: center;
+    gap: 0.8rem;
+  }
+  
+  .btn-upload {
+    flex: 1;
+    max-width: 200px;
+    font-size: 0.85rem;
+    height: 44px;
+    min-width: 140px;
+  }
+}
+
+/* Media query para móviles muy pequeños */
+@media (max-width: 480px) {
+  .table-controls {
+    flex-direction: column;
+    gap: 0.6rem;
+    padding: 0.5rem;
+  }
+  
+  .btn-upload {
+    width: 100%;
+    max-width: 250px;
+    font-size: 0.8rem;
+    padding: 0.8rem;
+    height: 46px;
+    min-width: unset;
+  }
+}
+
+/* Estilización de inputs tipo number con flechas visibles */
+input[type="number"] {
+  -webkit-appearance: textfield;
+  -moz-appearance: textfield;
+  appearance: textfield;
+  position: relative;
+  padding-right: 40px !important;
+}
+
+/* Mostrar flechas webkit (Chrome, Safari, Edge) */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: inner-spin-button !important;
+  opacity: 1 !important;
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 30px;
+  cursor: pointer;
+  background: var(--panel);
+  border-left: 1px solid var(--accent-cyan);
+  border-radius: 0 4px 4px 0;
+}
+
+input[type="number"]::-webkit-inner-spin-button:hover {
+  background: var(--accent-cyan);
+}
+
+/* Para Firefox - forzar mostrar flechas */
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+@-moz-document url-prefix() {
+  input[type="number"] {
+    -moz-appearance: spinner-textfield !important;
+    appearance: auto !important;
   }
 }

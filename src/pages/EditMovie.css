@@ -1,11 +1,12 @@
-/* --- Tarjeta de edición elegante y centrada --- */
+/* --- Tarjeta de edición elegante y responsiva --- */
 .edit-page {
   min-height: 100vh;
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   background: #07090b;
-  padding: 0;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 .edit-card {
   background: linear-gradient(135deg, #10151a 80%, #0f222f 100%);
@@ -13,21 +14,79 @@
   box-shadow: 0 12px 40px rgba(0,229,255,0.13), 0 2px 16px rgba(0,0,0,0.22);
   border: 2px solid var(--accent-cyan);
   padding: 2.8rem 2.2rem 2.2rem 2.2rem;
-  max-width: 700px;
   width: 100%;
-  margin: 3.2rem auto 2.2rem auto;
+  max-width: none; /* Sin límite de ancho */
+  margin: 2rem auto;
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* Por defecto columna (móvil) */
   align-items: center;
   gap: 2.2rem;
+  transition: flex-direction 0.3s ease; /* Transición suave */
 }
+/* LAYOUT WIREFRAME ESPECÍFICO */
+
+/* Contenedor principal horizontal para poster + info básica */
 .edit-header {
   width: 100%;
   display: flex;
+  flex-direction: row; /* Horizontal por defecto para desktop */
+  align-items: flex-start;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+/* Info básica al lado del poster */
+.movie-info {
+  flex: 1;
+  display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
+  min-width: 0;
+}
+
+/* Campos completos de ancho total debajo del header */
+.form-fields-full {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Sección final con estado, rating y opinión */
+.form-section-final {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+/* Fila horizontal para estado y rating */
+.form-row-horizontal {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-end;
+}
+
+/* Ajustes para labels en mayúsculas como el wireframe */
+.form-label {
+  color: var(--accent-cyan);
+  font-weight: 800;
+  margin-bottom: 0.5em;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  letter-spacing: 0.02em;
+}
+
+.meta-info-editable strong {
+  display: block;
   margin-bottom: 0.5rem;
+  color: rgba(255,255,255,0.7);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 .movie-poster {
   display: block;
@@ -576,5 +635,238 @@
   .btn-save {
     width: 100%;
     margin-top: 1.5rem;
+  }
+}
+
+/* Estilo minimalista limpio - como formulario moderno */
+.meta-info-editable {
+  margin-bottom: 1.5rem;
+}
+
+.meta-info-editable strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: rgba(255,255,255,0.7);
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.meta-inline-input {
+  background: rgba(255,255,255,0.05) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  border-radius: 8px !important;
+  color: var(--text) !important;
+  padding: 0.75rem 1rem !important;
+  font-size: 0.95rem !important;
+  width: 100% !important;
+  outline: none !important;
+  transition: all 0.2s ease !important;
+  font-family: inherit !important;
+}
+
+.meta-inline-input:focus {
+  background: rgba(255,255,255,0.08) !important;
+  border-color: rgba(255,255,255,0.2) !important;
+  box-shadow: none !important;
+}
+
+.meta-inline-input:hover {
+  background: rgba(255,255,255,0.07) !important;
+  border-color: rgba(255,255,255,0.15) !important;
+}
+
+.synopsis-inline-edit {
+  background: rgba(255,255,255,0.05) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  border-radius: 8px !important;
+  color: var(--text) !important;
+  padding: 0.75rem 1rem !important;
+  font-size: 0.95rem !important;
+  width: 100% !important;
+  outline: none !important;
+  transition: all 0.2s ease !important;
+  font-family: inherit !important;
+  resize: vertical !important;
+  min-height: 100px !important;
+  margin-top: 0.5rem !important;
+}
+
+.synopsis-inline-edit:focus {
+  background: rgba(255,255,255,0.08) !important;
+  border-color: rgba(255,255,255,0.2) !important;
+  box-shadow: none !important;
+}
+
+.synopsis-inline-edit:hover {
+  background: rgba(255,255,255,0.07) !important;
+  border-color: rgba(255,255,255,0.15) !important;
+}
+
+/* Estilo para título y año más limpio */
+.movie-title-editable input, 
+.movie-year-editable input {
+  background: rgba(255,255,255,0.05) !important;
+  border: 1px solid rgba(255,255,255,0.1) !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+}
+
+.movie-title-editable input:focus,
+.movie-year-editable input:focus {
+  background: rgba(255,255,255,0.08) !important;
+  border-color: rgba(255,255,255,0.2) !important;
+  box-shadow: none !important;
+}
+
+.movie-title-editable input:hover,
+.movie-year-editable input:hover {
+  background: rgba(255,255,255,0.07) !important;
+  border-color: rgba(255,255,255,0.15) !important;
+}
+
+/* Responsividad para diferentes tamaños de pantalla */
+
+/* MÓVILES - Poster arriba, todo en columna única */
+@media (max-width: 768px) {
+  .edit-page {
+    padding: 0.5rem;
+    align-items: flex-start;
+  }
+  
+  .edit-card {
+    padding: 1.5rem 1rem;
+    margin: 1rem auto;
+    border-radius: 12px;
+    gap: 1.5rem;
+    flex-direction: column; /* Todo en columna */
+  }
+  
+  .edit-header {
+    flex-direction: column; /* Poster arriba en móvil */
+    gap: 1rem;
+    align-items: center; /* Centrar poster */
+    width: 100%;
+  }
+  
+  .movie-poster {
+    width: 180px;
+    height: 270px;
+    margin-bottom: 1rem;
+    align-self: center;
+  }
+  
+  .movie-info {
+    width: 100%;
+    text-align: left;
+  }
+  
+  .form-fields-full {
+    width: 100%;
+  }
+  
+  .form-row-horizontal {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  
+  .form-group {
+    width: 100%;
+  }
+}
+
+/* MÓVILES PEQUEÑOS - Ajustes adicionales */
+@media (max-width: 480px) {
+  .edit-page {
+    padding: 0.25rem;
+  }
+  
+  .edit-card {
+    padding: 1rem 0.75rem;
+    margin: 0.5rem auto;
+    border-radius: 8px;
+    gap: 1rem;
+  }
+  
+  .movie-poster {
+    width: 150px;
+    height: 225px;
+  }
+  
+  .movie-details {
+    padding: 0.75rem;
+    margin: 0.75rem 0;
+  }
+  
+  .meta-section {
+    padding: 0.75rem;
+  }
+  
+  .meta-info-editable {
+    margin-bottom: 1rem;
+  }
+}
+
+/* PANTALLAS GRANDES - Layout de wireframe exacto */
+@media (min-width: 1200px) {
+  .edit-page {
+    padding: 2rem;
+  }
+  
+  .edit-card {
+    padding: 3rem 2.5rem;
+    gap: 2rem;
+    flex-direction: column; /* Mantener layout vertical general */
+    align-items: stretch;
+  }
+  
+  .edit-header {
+    flex-direction: row; /* Poster izquierda, campos derecha */
+    align-items: flex-start;
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .movie-poster {
+    flex-shrink: 0;
+    width: 240px;
+    height: 360px;
+    align-self: flex-start;
+  }
+  
+  .movie-info {
+    flex: 1;
+    text-align: left;
+    max-width: 400px; /* Limitar ancho de campos básicos */
+  }
+  
+  .form-fields-full {
+    width: 100%; /* Campos completos ocupan todo el ancho */
+  }
+  
+  .form-row-horizontal {
+    flex-direction: row;
+    gap: 3rem;
+    align-items: flex-end;
+    max-width: 600px; /* Limitar ancho del row horizontal */
+  }
+}
+
+/* PANTALLAS MUY GRANDES - Más espacio y mejor proporción */
+@media (min-width: 1400px) {
+  .edit-card {
+    padding: 3.5rem 3rem;
+    gap: 3rem;
+  }
+  
+  .movie-poster {
+    width: 280px;
+    height: 420px;
+  }
+  
+  .edit-header {
+    margin-right: 3rem;
   }
 }

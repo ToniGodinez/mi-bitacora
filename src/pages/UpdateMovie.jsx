@@ -339,7 +339,7 @@ const UpdateMovie = () => {
               genres: ''
             }])}
           >
-            + Agregar Película
+            🎬 Agregar Película
           </button>
         </div>
 
@@ -369,7 +369,7 @@ const UpdateMovie = () => {
                         disabled={updating[index] || !movie.title.trim()}
                         title="🔍 Buscar y seleccionar película en TMDB"
                       >
-                        {updating[index] ? '⏳' : '�'}
+                        🔍
                       </button>
                       <button
                         type="button"
@@ -380,12 +380,6 @@ const UpdateMovie = () => {
                         ❌
                       </button>
                     </div>
-                  </div>
-                  
-                  {/* Línea 2: Etiquetas rápidas */}
-                  <div className="movie-meta">
-                    <span className="movie-status">📋 {movie.status || 'Pendiente'}</span>
-                    <span className="movie-rating">⭐ {movie.rating || 0}/5</span>
                   </div>
                 </div>
 
@@ -444,14 +438,14 @@ const UpdateMovie = () => {
                           type="number"
                           min="0"
                           max="5"
-                          step="0.1"
+                          step="1"
                           value={movie.rating}
                           onChange={e => {
                             const newMovies = [...movies];
                             newMovies[index].rating = Number(e.target.value);
                             setMovies(newMovies);
                           }}
-                          placeholder="4.5"
+                          placeholder="3"
                         />
                       </div>
 

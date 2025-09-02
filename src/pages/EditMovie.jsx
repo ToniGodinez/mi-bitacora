@@ -20,6 +20,7 @@ const EditMovie = () => {
   const [comment, setComment] = useState('');
   const navigate = useNavigate();
 
+  // Estados editables originales
   const [directorName, setDirectorName] = useState('');
   const [castNames, setCastNames] = useState('');
   const [countryName, setCountryName] = useState('');
@@ -30,6 +31,12 @@ const EditMovie = () => {
   const [runtime, setRuntime] = useState('');
   const [releaseDate, setReleaseDate] = useState('');
   const [productionCompanies, setProductionCompanies] = useState([]);
+  
+  // Nuevos estados editables
+  const [editableTitle, setEditableTitle] = useState('');
+  const [editableYear, setEditableYear] = useState('');
+  const [editableGenres, setEditableGenres] = useState('');
+  const [isEditMode, setIsEditMode] = useState(false);
   const isDbRecord = !!movieFromState?._isDb;
 
   useEffect(() => {
@@ -140,6 +147,12 @@ const EditMovie = () => {
             : (m.year ? m.year : '')
         );
         setProductionCompanies(m.production_companies || []);
+        
+        // Inicializar campos editables
+        setEditableTitle(m.title || m.name || '');
+        setEditableYear(m.release_date ? new Date(m.release_date).getFullYear() : (m.year || ''));
+        setEditableGenres(genresArr.join(', '));
+        
         return;
       }
       // Si no, haz el fetch como antes
@@ -170,6 +183,11 @@ const EditMovie = () => {
           : 'Desconocido'
       );
       setOverviewText(data.overview || 'Sin descripción disponible.');
+      
+      // Inicializar campos editables para datos de TMDB
+      setEditableTitle(data.title || '');
+      setEditableYear(data.release_date ? new Date(data.release_date).getFullYear() : '');
+      setEditableGenres((data.genres || []).map(g => genresES[g.name] || g.name).join(', '));
     };
 
     if (movie) fetchDetails();
@@ -201,8 +219,8 @@ const EditMovie = () => {
       (movie?.id && Number(movie.id) > 1000) ? 'movie.id' : 'ninguno'
     );
     const fullMovieData = {
-      title: details.title,
-      year: details.release_date?.split('-')[0] || '',
+      title: editableTitle || details.title,
+      year: editableYear || details.release_date?.split('-')[0] || '',
       poster_url: details.poster_path ? `${IMAGE_BASE_URL}${details.poster_path}` : (details.poster_url || ''),
       rating: Number(rating),
       comment,
@@ -211,44 +229,52 @@ const EditMovie = () => {
       actors: castNames,
       country: countryName,
       overview: overviewText,
-      genres: genres, // ✅ Enviar array de géneros
+      genres: editableGenres ? editableGenres.split(',').map(g => g.trim()) : genres, // ✅ Usar campos editables
       tmdbId: tmdbIdFinal
     };
 
-    console.log('📦 Géneros a enviar:', genres);
+    console.log('📦 Géneros a enviar:', editableGenres ? editableGenres.split(',').map(g => g.trim()) : genres);
     console.log('📦 TMDB ID a enviar:', tmdbIdFinal);
     console.log('📦 Enviando a backend (full):', fullMovieData);
 
-    // For updating an existing DB record, only change rating/comment/status
-    const editableOnly = {
+    // For updating an existing DB record, ahora incluye TODOS los campos editables
+    const editableData = {
+      title: editableTitle,
+      year: editableYear,
       rating: Number(rating),
       comment,
-      status
+      status,
+      director: directorName,
+      actors: castNames,
+      country: countryName,
+      overview: overviewText,
+      genres: editableGenres ? editableGenres.split(',').map(g => g.trim()) : genres
     };
 
-    console.log('📦 Enviando a backend (editableOnly):', editableOnly);
+    console.log('📦 Enviando a backend (editableData):', editableData);
 
     try {
-      // If editing DB record, PUT only editable fields
+      // If editing DB record, PUT with ALL editable fields
       if (isDbRecord && movieFromState?.id) {
         const id = movieFromState.id;
         const updateResp = await fetch(`${API_URL}/api/movies/${id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            // keep original fields unchanged on server by sending the same values for immutable fields
-            title: movieFromState.title,
-            year: movieFromState.year,
-            poster_url: movieFromState.poster_url,
-            director: movieFromState.director,
-            actors: movieFromState.actors,
-            country: movieFromState.country,
-            overview: movieFromState.overview,
+            // Ahora todos los campos son editables
+            title: editableTitle || movieFromState.title,
+            year: editableYear || movieFromState.year,
+            poster_url: movieFromState.poster_url, // mantener poster original
+            director: directorName,
+            actors: castNames,
+            country: countryName,
+            overview: overviewText,
+            genres: editableGenres ? editableGenres.split(',').map(g => g.trim()) : (movieFromState.genres || []),
             tmdbId: typeof movieFromState.tmdbId === 'number' ? movieFromState.tmdbId : (typeof movieFromState.id === 'number' ? movieFromState.id : null),
-            // editable
-            rating: editableOnly.rating,
-            comment: editableOnly.comment,
-            status: editableOnly.status
+            // campos de estado
+            rating: Number(rating),
+            comment: comment,
+            status: status
           })
         });
 
@@ -329,6 +355,7 @@ const EditMovie = () => {
   return (
     <div className="edit-page">
       <div className="edit-card">
+        {/* SECCIÓN SUPERIOR: POSTER + CAMPOS BÁSICOS */}
         <div className="edit-header">
           <img 
             className="movie-poster"
@@ -336,102 +363,154 @@ const EditMovie = () => {
             alt={details.title} 
           />
           <div className="movie-info">
-            <h1 className="movie-title">{details.title}</h1>
-            <div className="movie-date" style={{ color: '#00e5ff', fontWeight: 700, fontSize: '1.05em', marginBottom: '0.5em' }}>
-              {releaseDate || (details.release_date?.split('-')[0])}
+            {/* TÍTULO */}
+            <div className="meta-info-editable">
+              <strong>TITULO</strong>
+              <input
+                type="text"
+                className="meta-inline-input"
+                value={editableTitle}
+                onChange={e => setEditableTitle(e.target.value)}
+                placeholder="Título de la película"
+              />
             </div>
-            <div className="movie-details">
-              <div className="details-grid">
-                <div className="meta-info">
-                  <strong>Tipo</strong>
-                  <div className="meta-value">{mediaType || 'Película'}</div>
-                </div>
-                <div className="meta-info">
-                  <strong>País</strong>
-                  <div className="meta-value">{countryName || '—'}</div>
-                </div>
-              </div>
-              <div className="meta-section">
-                <div className="meta-info">
-                  <strong>Director</strong>
-                  <div className="meta-value">{directorName || 'Desconocido'}</div>
-                </div>
-                <div className="meta-info">
-                  <strong>Reparto</strong>
-                  <div className="meta-value">{castNames || '—'}</div>
-                </div>
-                <div className="meta-info">
-                  <strong>Géneros</strong>
-                  <div className="meta-value">
-                    {genres.length > 0 ? genres.join(', ') : 'Sin información'}
-                  </div>
-                </div>
-                {productionCompanies.length > 0 && (
-                  <div className="meta-info">
-                    <strong>Producción</strong>
-                    <div className="meta-value">
-                      {productionCompanies.map(c => c.name).join(' • ')}
-                    </div>
-                  </div>
-                )}
-              </div>
-              <div className="meta-section">
-                <div className="meta-info">
-                  <strong>Sinopsis</strong>
-                </div>
-                <div className={`synopsis ${isExpanded ? 'expanded' : ''}`}>
-                  {overviewText || 'Sin descripción disponible.'}
-                </div>
-                {overviewText && (
-                  <button 
-                    className="btn-more" 
-                    onClick={() => setIsExpanded(!isExpanded)}
-                  >
-                    {isExpanded ? 'Mostrar menos' : 'Mostrar más'}
-                  </button>
-                )}
-              </div>
+            
+            {/* AÑO */}
+            <div className="meta-info-editable">
+              <strong>AÑO</strong>
+              <input
+                type="text"
+                className="meta-inline-input"
+                value={editableYear}
+                onChange={e => setEditableYear(e.target.value)}
+                placeholder="2024"
+              />
             </div>
-            <div className="form-section">
-              <div className="form-group">
-                <label className="form-label">Estado</label>
-                <select 
-                  className="form-select"
-                  value={status} 
-                  onChange={e => setStatus(e.target.value)}
-                >
-                  <option value="pendiente">Pendiente</option>
-                  <option value="en proceso">En Proceso</option>
-                  <option value="vista">Vista</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label className="form-label">Calificación</label>
-                <div className="stars-input">
-                  {[1,2,3,4,5].map(star => (
-                    <span 
-                      key={star}
-                      onClick={() => setRating(star)}
-                    >
-                      {star <= rating ? '★' : '☆'}
-                    </span>
-                  ))}
-                </div>
-              </div>
-              <div className="form-group">
-                <label className="form-label">Tu opinión</label>
-                <textarea
-                  className="form-textarea"
-                  value={comment}
-                  onChange={e => setComment(e.target.value)}
-                  placeholder="Escribe tu opinión sobre la película..."
-                />
-              </div>
-              <button className="btn-save" onClick={guardarPelicula}>
-                Guardar
-              </button>
+            
+            {/* PAÍS */}
+            <div className="meta-info-editable">
+              <strong>PAIS</strong>
+              <input
+                type="text"
+                className="meta-inline-input"
+                value={countryName}
+                onChange={e => setCountryName(e.target.value)}
+                placeholder="País de origen"
+              />
+            </div>
+            
+            {/* TIPO */}
+            <div className="meta-info-editable">
+              <strong>TIPO</strong>
+              <input
+                type="text"
+                className="meta-inline-input"
+                value={mediaType}
+                onChange={e => setMediaType(e.target.value)}
+                placeholder="Película, Serie, etc."
+              />
             </div>
           </div>
+        </div>
+
+        {/* SECCIÓN INFERIOR: CAMPOS COMPLETOS */}
+        <div className="form-fields-full">
+          {/* DIRECTOR */}
+          <div className="meta-info-editable">
+            <strong>DIRECTOR</strong>
+            <input
+              type="text"
+              className="meta-inline-input"
+              value={directorName}
+              onChange={e => setDirectorName(e.target.value)}
+              placeholder="Nombre del director"
+            />
+          </div>
+          
+          {/* REPARTO */}
+          <div className="meta-info-editable">
+            <strong>REPARTO</strong>
+            <input
+              type="text"
+              className="meta-inline-input"
+              value={castNames}
+              onChange={e => setCastNames(e.target.value)}
+              placeholder="Actores principales"
+            />
+          </div>
+          
+          {/* GÉNEROS */}
+          <div className="meta-info-editable">
+            <strong>GENEROS</strong>
+            <input
+              type="text"
+              className="meta-inline-input"
+              value={editableGenres}
+              onChange={e => setEditableGenres(e.target.value)}
+              placeholder="Acción, Drama, Comedia (separados por comas)"
+            />
+          </div>
+          
+          {/* SINOPSIS */}
+          <div className="meta-info-editable">
+            <strong>SINOPSIS</strong>
+            <textarea
+              className="synopsis-inline-edit"
+              value={overviewText}
+              onChange={e => setOverviewText(e.target.value)}
+              placeholder="Descripción de la película..."
+              rows={4}
+            />
+          </div>
+        </div>
+
+        {/* SECCIÓN FINAL: ESTADO, RATING, OPINIÓN */}
+        <div className="form-section-final">
+          <div className="form-row-horizontal">
+            <div className="form-group">
+              <label className="form-label">ESTADO</label>
+              <select 
+                className="form-select"
+                value={status} 
+                onChange={e => setStatus(e.target.value)}
+              >
+                <option value="pendiente">Pendiente</option>
+                <option value="en proceso">En Proceso</option>
+                <option value="vista">Vista</option>
+              </select>
+            </div>
+            
+            <div className="form-group">
+              <label className="form-label">RATING</label>
+              <div className="stars-input">
+                {[1,2,3,4,5].map(star => (
+                  <span 
+                    key={star}
+                    onClick={() => setRating(star)}
+                  >
+                    {star <= rating ? '★' : '☆'}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+          
+          {/* TU OPINIÓN */}
+          <div className="form-group">
+            <label className="form-label">TU OPINION</label>
+            <textarea
+              className="form-textarea"
+              value={comment}
+              onChange={e => setComment(e.target.value)}
+              placeholder="Escribe tu opinión sobre la película..."
+              rows={4}
+            />
+          </div>
+          
+          {/* BOTÓN GUARDAR */}
+          <button className="btn-save" onClick={guardarPelicula}>
+            GUARDAR
+          </button>
         </div>
       </div>
     </div>
