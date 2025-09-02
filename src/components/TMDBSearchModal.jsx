@@ -47,7 +47,7 @@ export default function TMDBSearchModal({ isOpen, onClose, searchQuery, onSelect
     }
   };
 
-  // ✅ NUEVA FUNCIÓN PARA BUSCAR POR ID
+  // ✅ NUEVA FUNCIÓN PARA BUSCAR POR ID (PELÍCULAS Y SERIES)
   const handleSearchById = async (tmdbId) => {
     if (!tmdbId.trim() || isNaN(tmdbId)) {
       setIdError('Por favor ingresa un ID válido (solo números)');
@@ -59,22 +59,39 @@ export default function TMDBSearchModal({ isOpen, onClose, searchQuery, onSelect
     setIdResult(null);
     
     try {
-      const url = `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${TMDB_API_KEY}&language=es-MX&append_to_response=credits`;
-      const res = await fetch(url);
+      // Primero intentar como película
+      let url = `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${TMDB_API_KEY}&language=es-MX&append_to_response=credits`;
+      let res = await fetch(url);
       
-      if (!res.ok) {
-        if (res.status === 404) {
-          throw new Error('No se encontró ninguna película con ese ID en TMDB');
-        }
-        throw new Error('Error al buscar en TMDB');
+      if (res.ok) {
+        const data = await res.json();
+        data.media_type = 'Película'; // Marcar como película
+        setIdResult(data);
+        console.log('🎯 Película encontrada por ID:', data);
+        return;
       }
       
-      const data = await res.json();
-      setIdResult(data);
-      console.log('🎯 Película encontrada por ID:', data);
+      // Si no es película, intentar como serie de TV
+      url = `https://api.themoviedb.org/3/tv/${tmdbId}?api_key=${TMDB_API_KEY}&language=es-MX&append_to_response=credits`;
+      res = await fetch(url);
+      
+      if (res.ok) {
+        const data = await res.json();
+        // Mapear campos de TV a formato de película para compatibilidad
+        data.title = data.name; // Las series usan 'name' en lugar de 'title'
+        data.release_date = data.first_air_date; // Usar fecha de estreno
+        data.media_type = 'Serie de TV'; // Marcar como serie
+        setIdResult(data);
+        console.log('🎯 Serie de TV encontrada por ID:', data);
+        return;
+      }
+      
+      // Si no se encuentra ni como película ni como serie
+      throw new Error('No se encontró ninguna película o serie con ese ID en TMDB');
+      
     } catch (err) {
       console.error('Error buscando por ID:', err);
-      setIdError(err.message);
+      setIdError(err.message || 'Error al buscar en TMDB');
     } finally {
       setIdLoading(false);
     }
@@ -113,7 +130,7 @@ export default function TMDBSearchModal({ isOpen, onClose, searchQuery, onSelect
         actors: cast || currentMovie.actors,
         country: country || currentMovie.country,
         genres: genres || currentMovie.genres,
-        media_type: 'Película'
+        media_type: data.media_type || 'Película' // ✅ Usar el tipo correcto
       };
 
       console.log('🎯 Película seleccionada desde TMDB:', completeMovieData);
@@ -154,7 +171,7 @@ export default function TMDBSearchModal({ isOpen, onClose, searchQuery, onSelect
         <div className="tmdb-id-section">
           <div className="tmdb-id-header">
             <h4>🆔 ¿No encuentras la película? Búscala por ID de TMDB</h4>
-            <p>Si tienes el ID exacto de TMDB, ingrésalo aquí para obtener la película directamente</p>
+            <p>Si tienes el ID exacto de TMDB, ingrésalo aquí para obtener la película o serie directamente</p>
           </div>
           <div className="tmdb-id-search">
             <input
@@ -178,7 +195,7 @@ export default function TMDBSearchModal({ isOpen, onClose, searchQuery, onSelect
           {/* ✅ MOSTRAR RESULTADO DE BÚSQUEDA POR ID */}
           {idResult && (
             <div className="tmdb-id-result">
-              <h5>✅ Película encontrada:</h5>
+              <h5>✅ {idResult.media_type} encontrada:</h5>
               <div className="tmdb-result-card">
                 <img 
                   src={idResult.poster_path ? `${IMAGE_BASE_URL}${idResult.poster_path}` : FALLBACK}
@@ -196,14 +213,15 @@ export default function TMDBSearchModal({ isOpen, onClose, searchQuery, onSelect
                   <div className="tmdb-result-meta">
                     <span>⭐ {idResult.vote_average?.toFixed(1) || 'N/A'}</span>
                     <span>🆔 {idResult.id}</span>
-                    <span>🎬 {idResult.credits?.crew?.find(p => p.job === 'Director')?.name || 'Director desconocido'}</span>
+                    <span>🎬 {idResult.credits?.crew?.find(p => p.job === 'Director')?.name || (idResult.media_type === 'Serie de TV' ? 'Creador desconocido' : 'Director desconocido')}</span>
+                    <span>📺 {idResult.media_type}</span>
                   </div>
                   <button 
                     className="tmdb-select-btn"
                     onClick={() => handleSelectMovie(idResult)}
                     disabled={loading}
                   >
-                    ✅ Seleccionar Esta Película
+                    ✅ Seleccionar Esta {idResult.media_type}
                   </button>
                 </div>
               </div>
