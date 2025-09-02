@@ -34,20 +34,34 @@ export default function TMDBSearchModal({ isOpen, onClose, searchQuery, onSelect
     setLoading(true);
     setError(null);
     try {
-      const url = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(searchTerm)}&language=es-MX&page=1`;
+      // ✅ USAR BÚSQUEDA MULTI (películas, series, personas, etc.)
+      const url = `https://api.themoviedb.org/3/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(searchTerm)}&language=es-MX&page=1`;
       const res = await fetch(url);
       if (!res.ok) throw new Error('Error en TMDB API');
       const data = await res.json();
-      setResults(data.results || []);
+      
+      // ✅ FILTRAR SOLO PELÍCULAS Y SERIES (excluir personas)
+      const filteredResults = (data.results || []).filter(item => 
+        item.media_type === 'movie' || item.media_type === 'tv'
+      ).map(item => {
+        // ✅ NORMALIZAR CAMPOS PARA COMPATIBILIDAD
+        if (item.media_type === 'tv') {
+          item.title = item.name; // Series usan 'name'
+          item.release_date = item.first_air_date; // Series usan 'first_air_date'
+        }
+        return item;
+      });
+      
+      setResults(filteredResults);
     } catch (err) {
       console.error('Error buscando en TMDB:', err);
-      setError('Error al buscar películas');
+      setError('Error al buscar películas y series');
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ NUEVA FUNCIÓN PARA BUSCAR POR ID (PELÍCULAS Y SERIES)
+  // ✅ FUNCIÓN PARA BUSCAR POR ID (MULTI-TIPO: PELÍCULAS, SERIES, ETC.)
   const handleSearchById = async (tmdbId) => {
     if (!tmdbId.trim() || isNaN(tmdbId)) {
       setIdError('Por favor ingresa un ID válido (solo números)');
@@ -59,35 +73,37 @@ export default function TMDBSearchModal({ isOpen, onClose, searchQuery, onSelect
     setIdResult(null);
     
     try {
-      // Primero intentar como película
-      let url = `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${TMDB_API_KEY}&language=es-MX&append_to_response=credits`;
-      let res = await fetch(url);
+      const endpoints = [
+        { type: 'movie', label: 'Película', url: `https://api.themoviedb.org/3/movie/${tmdbId}?api_key=${TMDB_API_KEY}&language=es-MX&append_to_response=credits` },
+        { type: 'tv', label: 'Serie de TV', url: `https://api.themoviedb.org/3/tv/${tmdbId}?api_key=${TMDB_API_KEY}&language=es-MX&append_to_response=credits` }
+      ];
       
-      if (res.ok) {
-        const data = await res.json();
-        data.media_type = 'Película'; // Marcar como película
-        setIdResult(data);
-        console.log('🎯 Película encontrada por ID:', data);
-        return;
+      // ✅ INTENTAR CADA TIPO DE CONTENIDO
+      for (const endpoint of endpoints) {
+        try {
+          const res = await fetch(endpoint.url);
+          if (res.ok) {
+            const data = await res.json();
+            
+            // ✅ NORMALIZAR CAMPOS SEGÚN EL TIPO
+            if (endpoint.type === 'tv') {
+              data.title = data.name; // Series usan 'name'
+              data.release_date = data.first_air_date; // Series usan 'first_air_date'
+            }
+            
+            data.media_type = endpoint.label; // Asignar tipo legible
+            setIdResult(data);
+            console.log(`🎯 ${endpoint.label} encontrada por ID:`, data);
+            return; // ✅ Salir cuando encontremos algo
+          }
+        } catch (endpointErr) {
+          console.log(`No se encontró como ${endpoint.label}:`, endpointErr.message);
+          continue; // ✅ Continuar con el siguiente tipo
+        }
       }
       
-      // Si no es película, intentar como serie de TV
-      url = `https://api.themoviedb.org/3/tv/${tmdbId}?api_key=${TMDB_API_KEY}&language=es-MX&append_to_response=credits`;
-      res = await fetch(url);
-      
-      if (res.ok) {
-        const data = await res.json();
-        // Mapear campos de TV a formato de película para compatibilidad
-        data.title = data.name; // Las series usan 'name' en lugar de 'title'
-        data.release_date = data.first_air_date; // Usar fecha de estreno
-        data.media_type = 'Serie de TV'; // Marcar como serie
-        setIdResult(data);
-        console.log('🎯 Serie de TV encontrada por ID:', data);
-        return;
-      }
-      
-      // Si no se encuentra ni como película ni como serie
-      throw new Error('No se encontró ninguna película o serie con ese ID en TMDB');
+      // ✅ Si llegamos aquí, no se encontró nada
+      throw new Error('No se encontró ningún contenido (película, serie, etc.) con ese ID en TMDB');
       
     } catch (err) {
       console.error('Error buscando por ID:', err);
@@ -130,7 +146,7 @@ export default function TMDBSearchModal({ isOpen, onClose, searchQuery, onSelect
         actors: cast || currentMovie.actors,
         country: country || currentMovie.country,
         genres: genres || currentMovie.genres,
-        media_type: data.media_type || 'Película' // ✅ Usar el tipo correcto
+        media_type: data.media_type || (data.media_type === 'tv' ? 'Serie de TV' : 'Película') // ✅ Usar el tipo correcto
       };
 
       console.log('🎯 Película seleccionada desde TMDB:', completeMovieData);
@@ -160,7 +176,7 @@ export default function TMDBSearchModal({ isOpen, onClose, searchQuery, onSelect
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSearch(query)}
-            placeholder="Modificar búsqueda si es necesario..."
+            placeholder="Buscar películas, series, documentales..."
           />
           <button onClick={() => handleSearch(query)} disabled={loading}>
             🔍 Buscar
@@ -170,8 +186,8 @@ export default function TMDBSearchModal({ isOpen, onClose, searchQuery, onSelect
         {/* ✅ NUEVA SECCIÓN PARA BÚSQUEDA POR ID */}
         <div className="tmdb-id-section">
           <div className="tmdb-id-header">
-            <h4>🆔 ¿No encuentras la película? Búscala por ID de TMDB</h4>
-            <p>Si tienes el ID exacto de TMDB, ingrésalo aquí para obtener la película o serie directamente</p>
+            <h4>🆔 ¿No encuentras el contenido? Búscalo por ID de TMDB</h4>
+            <p>Si tienes el ID exacto de TMDB, ingrésalo aquí para obtener películas, series, documentales, etc. directamente</p>
           </div>
           <div className="tmdb-id-search">
             <input
@@ -179,7 +195,7 @@ export default function TMDBSearchModal({ isOpen, onClose, searchQuery, onSelect
               value={manualId}
               onChange={(e) => setManualId(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handleSearchById(manualId)}
-              placeholder="Ej: 550 (Fight Club)"
+              placeholder="Ej: 79410 (After Life), 550 (Fight Club)"
               min="1"
             />
             <button 
@@ -232,7 +248,7 @@ export default function TMDBSearchModal({ isOpen, onClose, searchQuery, onSelect
         <div className="tmdb-modal-body">
           {/* ✅ SEPARADOR VISUAL */}
           <div className="tmdb-separator">
-            <span>📋 Resultados de búsqueda por título</span>
+            <span>📋 Resultados de búsqueda (películas, series, documentales, etc.)</span>
           </div>
           
           {loading && <div className="tmdb-loading">🔄 Buscando en TMDB...</div>}
@@ -261,6 +277,7 @@ export default function TMDBSearchModal({ isOpen, onClose, searchQuery, onSelect
                   <div className="tmdb-result-meta">
                     <span>⭐ {movie.vote_average?.toFixed(1) || 'N/A'}</span>
                     <span>🆔 {movie.id}</span>
+                    <span>📺 {movie.media_type === 'movie' ? 'Película' : movie.media_type === 'tv' ? 'Serie de TV' : 'Otro'}</span>
                   </div>
                   <button 
                     className="tmdb-select-btn"
