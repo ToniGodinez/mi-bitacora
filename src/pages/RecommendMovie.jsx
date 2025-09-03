@@ -527,12 +527,6 @@ const RecommendMovie = () => {
                   <span className="info-value">{recommendedMovie.country}</span>
                 </div>
               )}
-              {details?.budget && isValidNumber(details.budget) && (
-                <div className="info-item">
-                  <span className="info-label">💰 Presupuesto:</span>
-                  <span className="info-value">{formatBudget(details.budget)}</span>
-                </div>
-              )}
               {details?.revenue && isValidNumber(details.revenue) && (
                 <div className="info-item">
                   <span className="info-label">💵 Recaudación:</span>
