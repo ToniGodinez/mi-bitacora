@@ -40,69 +40,161 @@ const RecommendMovie = () => {
     return text && text.length > 200;
   };
 
-  // 🛡️ FUNCIÓN DE VALIDACIÓN UNIVERSAL PARA NÚMEROS
+  // 🛡️ FUNCIÓN DE VALIDACIÓN UNIVERSAL MEJORADA PARA NÚMEROS
   const isValidNumber = (value, minValue = 0) => {
-    return value !== null && value !== undefined && 
+    return value !== null && 
+           value !== undefined && 
+           value !== 0 &&                    // ❌ Eliminar TODOS los ceros
            typeof value === 'number' && 
            !isNaN(value) && 
-           value > minValue;
+           value > minValue &&
+           isFinite(value);                  // 🛡️ Asegurar que es finito
   };
 
-  // 🛡️ FUNCIÓN DE VALIDACIÓN PARA ARRAYS CON NÚMEROS
+  // 🛡️ FUNCIÓN DE VALIDACIÓN MEJORADA PARA ARRAYS
   const isValidArray = (array, minLength = 1) => {
     return Array.isArray(array) && 
            array.length >= minLength && 
            array[0] !== null && 
            array[0] !== undefined && 
-           array[0] > 0;
+           array[0] !== 0 &&                 // ❌ Eliminar elementos con valor 0
+           (typeof array[0] === 'string' ? array[0].trim() !== '' : array[0] > 0);
   };
 
-  // 🎯 FUNCIÓN 1: DETECTOR INTELIGENTE DE TIPO DE CONTENIDO
+  // 🛡️ FUNCIÓN DE VALIDACIÓN PARA STRINGS
+  const isValidString = (str) => {
+    return str !== null && 
+           str !== undefined && 
+           typeof str === 'string' && 
+           str.trim() !== '' &&
+           str.trim() !== '0' &&             // ❌ Eliminar strings que sean "0"
+           str.length > 0;
+  };
+
+  // 🛡️ FUNCIÓN DE VALIDACIÓN PARA FECHAS
+  const isValidDate = (date) => {
+    return date !== null && 
+           date !== undefined && 
+           date !== '' && 
+           date !== '0000-00-00' &&          // ❌ Eliminar fechas inválidas
+           new Date(date).getFullYear() > 1900;
+  };
+
+  // 🎯 FUNCIÓN 1: DETECTOR INTELIGENTE MEJORADO DE TIPO DE CONTENIDO
   const detectContentType = (localMediaType, tmdbData) => {
     console.log('🔍 Detectando tipo de contenido:', { localMediaType, tmdbData: !!tmdbData });
     
-    // 1. Si TMDB devuelve datos específicos de serie
-    if (tmdbData?.first_air_date || tmdbData?.number_of_seasons || tmdbData?.episode_run_time) {
-      console.log('✅ Detectado como TV por datos TMDB');
-      return 'tv';
+    // 1. DETECCIÓN ESPECÍFICA POR DATOS TMDB (más confiable)
+    if (tmdbData) {
+      // 📺 SEÑALES FUERTES DE SERIE/TV
+      if (tmdbData.first_air_date || 
+          tmdbData.last_air_date || 
+          tmdbData.number_of_seasons || 
+          tmdbData.number_of_episodes ||
+          tmdbData.episode_run_time || 
+          tmdbData.created_by ||
+          tmdbData.networks ||
+          tmdbData.seasons ||
+          tmdbData.type === 'Scripted' ||
+          tmdbData.type === 'Documentary' ||
+          tmdbData.type === 'Reality') {
+        console.log('✅ CONFIRMADO como TV por datos TMDB');
+        return 'tv';
+      }
+      
+      // 🎬 SEÑALES FUERTES DE PELÍCULA
+      if (tmdbData.release_date || 
+          (tmdbData.runtime && tmdbData.runtime > 0) ||
+          tmdbData.budget ||
+          tmdbData.revenue ||
+          tmdbData.belongs_to_collection) {
+        console.log('✅ CONFIRMADO como MOVIE por datos TMDB');
+        return 'movie';
+      }
     }
     
-    // 2. Si TMDB devuelve datos específicos de película
-    if (tmdbData?.release_date || (tmdbData?.runtime && tmdbData.runtime > 0)) {
-      console.log('✅ Detectado como MOVIE por datos TMDB');
-      return 'movie';
-    }
-    
-    // 3. Mapeo desde base de datos local
+    // 2. MAPEO MEJORADO DESDE BASE DE DATOS LOCAL
     const typeMap = {
+      // 📺 SERIES Y TV
       'Serie': 'tv',
-      'Película': 'movie',
-      'Documental': 'movie', // Documentales suelen ser películas en TMDB
+      'series': 'tv',
+      'Series': 'tv',
       'TV': 'tv',
+      'tv': 'tv',
+      'Show': 'tv',
+      'Miniserie': 'tv',
+      'miniserie': 'tv',
+      'Docuserie': 'tv',
+      'docuserie': 'tv',
+      'Reality': 'tv',
+      'reality': 'tv',
+      'Anime Series': 'tv',
+      'anime series': 'tv',
+      
+      // 🎬 PELÍCULAS Y DOCUMENTALES
+      'Película': 'movie',
+      'pelicula': 'movie',
+      'película': 'movie',
+      'Movie': 'movie',
+      'movie': 'movie',
       'Film': 'movie',
-      'Miniserie': 'tv'
+      'film': 'movie',
+      'Documental': 'movie',
+      'documental': 'movie',
+      'Documentary': 'movie',
+      'documentary': 'movie',
+      'Anime Movie': 'movie',
+      'anime movie': 'movie'
     };
     
-    const detectedType = typeMap[localMediaType] || 'movie';
-    console.log('📋 Detectado por mapeo local:', detectedType);
-    return detectedType;
+    // 3. BÚSQUEDA FLEXIBLE EN EL TIPO LOCAL
+    if (localMediaType) {
+      const lowerType = localMediaType.toLowerCase().trim();
+      
+      // Búsqueda exacta
+      if (typeMap[localMediaType] || typeMap[lowerType]) {
+        const detectedType = typeMap[localMediaType] || typeMap[lowerType];
+        console.log('📋 Detectado por mapeo exacto:', detectedType);
+        return detectedType;
+      }
+      
+      // Búsqueda por palabras clave
+      if (lowerType.includes('serie') || lowerType.includes('tv') || lowerType.includes('show')) {
+        console.log('📋 Detectado como TV por palabras clave');
+        return 'tv';
+      }
+      
+      if (lowerType.includes('película') || lowerType.includes('pelicula') || lowerType.includes('movie') || lowerType.includes('film')) {
+        console.log('📋 Detectado como MOVIE por palabras clave');
+        return 'movie';
+      }
+    }
+    
+    // 4. FALLBACK INTELIGENTE: Primero probar TV (mejor para contenido no definido)
+    console.log('🔄 Usando fallback: probando TV primero');
+    return 'tv';
   };
 
-  // 🎯 FUNCIÓN 2: CONSTRUCTOR DE URLs DINÁMICAS
+  // 🎯 FUNCIÓN 2: CONSTRUCTOR DE URLs DINÁMICAS CON MÁXIMA INFORMACIÓN
   const buildApiUrls = (tmdbId, contentType) => {
     const baseType = contentType === 'tv' ? 'tv' : 'movie';
     console.log('🔗 Construyendo URLs para:', { tmdbId, contentType, baseType });
     
+    // 📊 APPEND MÁXIMO: Obtener TODA la información disponible
     const appendToResponse = contentType === 'tv' 
-      ? 'content_ratings,external_ids' 
-      : 'release_dates,external_ids';
+      ? 'content_ratings,external_ids,keywords,recommendations,similar,aggregate_credits,alternative_titles,translations' 
+      : 'release_dates,external_ids,keywords,recommendations,similar,alternative_titles,translations';
     
     return {
       details: `https://api.themoviedb.org/3/${baseType}/${tmdbId}?api_key=${TMDB_API_KEY}&language=es-ES&append_to_response=${appendToResponse}`,
       credits: `https://api.themoviedb.org/3/${baseType}/${tmdbId}/credits?api_key=${TMDB_API_KEY}`,
       videos: `https://api.themoviedb.org/3/${baseType}/${tmdbId}/videos?api_key=${TMDB_API_KEY}&language=es-ES`,
       images: `https://api.themoviedb.org/3/${baseType}/${tmdbId}/images?api_key=${TMDB_API_KEY}`,
-      watchProviders: `https://api.themoviedb.org/3/${baseType}/${tmdbId}/watch/providers?api_key=${TMDB_API_KEY}`
+      watchProviders: `https://api.themoviedb.org/3/${baseType}/${tmdbId}/watch/providers?api_key=${TMDB_API_KEY}`,
+      // 🆕 SEASON DETAILS para series (información completa de temporadas)
+      ...(contentType === 'tv' && {
+        seasons: `https://api.themoviedb.org/3/tv/${tmdbId}?api_key=${TMDB_API_KEY}&append_to_response=season/1,season/2,season/3`
+      })
     };
   };
 
@@ -314,24 +406,63 @@ const RecommendMovie = () => {
         return (
           <div className="tab-content">
             <div className="info-grid">
+              {/* 📅 INFORMACIÓN DE FECHAS */}
               <div className="info-item">
                 <span className="info-label">📅 Año:</span>
                 <span className="info-value">{recommendedMovie.year}</span>
               </div>
+              
+              {/* 📅 FECHAS ESPECÍFICAS PARA SERIES */}
+              {isTv && details?.first_air_date && isValidDate(details.first_air_date) && (
+                <div className="info-item">
+                  <span className="info-label">📅 Primera emisión:</span>
+                  <span className="info-value">{new Date(details.first_air_date).toLocaleDateString('es-ES')}</span>
+                </div>
+              )}
+              {isTv && details?.last_air_date && isValidDate(details.last_air_date) && (
+                <div className="info-item">
+                  <span className="info-label">🏁 Última emisión:</span>
+                  <span className="info-value">{new Date(details.last_air_date).toLocaleDateString('es-ES')}</span>
+                </div>
+              )}
+              
+              {/* 📅 FECHA ESPECÍFICA PARA PELÍCULAS */}
+              {isMovie && details?.release_date && isValidDate(details.release_date) && (
+                <div className="info-item">
+                  <span className="info-label">🎬 Estreno:</span>
+                  <span className="info-value">{new Date(details.release_date).toLocaleDateString('es-ES')}</span>
+                </div>
+              )}
+
+              {/* ⭐ PUNTUACIONES Y RATINGS */}
               {details?.vote_average && isValidNumber(details.vote_average) && (
                 <div className="info-item">
                   <span className="info-label">⭐ Puntuación TMDB:</span>
                   <span className="info-value">{details.vote_average.toFixed(1)}/10</span>
                 </div>
               )}
-              {/* INFORMACIÓN ESPECÍFICA PARA PELÍCULAS */}
+              {details?.vote_count && isValidNumber(details.vote_count) && (
+                <div className="info-item">
+                  <span className="info-label">🗳️ Votos:</span>
+                  <span className="info-value">{details.vote_count.toLocaleString('es-ES')}</span>
+                </div>
+              )}
+              {details?.popularity && isValidNumber(details.popularity) && (
+                <div className="info-item">
+                  <span className="info-label">📈 Popularidad:</span>
+                  <span className="info-value">{Math.round(details.popularity)}</span>
+                </div>
+              )}
+
+              {/* ⏱️ DURACIÓN - INFORMACIÓN ESPECÍFICA PARA PELÍCULAS */}
               {isMovie && details?.runtime && isValidNumber(details.runtime) && (
                 <div className="info-item">
                   <span className="info-label">⏱️ Duración:</span>
                   <span className="info-value">{formatRuntime(details.runtime)}</span>
                 </div>
               )}
-              {/* INFORMACIÓN ESPECÍFICA PARA SERIES/TV */}
+
+              {/* 📺 INFORMACIÓN ESPECÍFICA PARA SERIES/TV */}
               {isTv && details?.episode_run_time && isValidArray(details.episode_run_time) && (
                 <div className="info-item">
                   <span className="info-label">⏱️ Duración episodio:</span>
@@ -346,11 +477,11 @@ const RecommendMovie = () => {
               )}
               {isTv && details?.number_of_episodes && isValidNumber(details.number_of_episodes) && (
                 <div className="info-item">
-                  <span className="info-label">🎬 Episodios:</span>
+                  <span className="info-label">🎬 Episodios totales:</span>
                   <span className="info-value">{details.number_of_episodes}</span>
                 </div>
               )}
-              {isTv && details?.status && (
+              {isTv && details?.status && isValidString(details.status) && (
                 <div className="info-item">
                   <span className="info-label">📡 Estado serie:</span>
                   <span className="info-value">
@@ -358,27 +489,27 @@ const RecommendMovie = () => {
                      details.status === 'Returning Series' ? 'En emisión' : 
                      details.status === 'In Production' ? 'En producción' :
                      details.status === 'Canceled' ? 'Cancelada' :
+                     details.status === 'Cancelled' ? 'Cancelada' :
                      details.status === 'Pilot' ? 'Piloto' :
                      details.status}
                   </span>
                 </div>
               )}
-              
-              {/* FECHAS ESPECÍFICAS PARA SERIES */}
-              {isTv && details?.first_air_date && (
+              {isTv && details?.type && isValidString(details.type) && (
                 <div className="info-item">
-                  <span className="info-label">📅 Primera emisión:</span>
-                  <span className="info-value">{new Date(details.first_air_date).getFullYear()}</span>
+                  <span className="info-label">🎭 Tipo de serie:</span>
+                  <span className="info-value">
+                    {details.type === 'Scripted' ? 'Guionizada' :
+                     details.type === 'Documentary' ? 'Documental' :
+                     details.type === 'Reality' ? 'Reality Show' :
+                     details.type === 'Talk Show' ? 'Talk Show' :
+                     details.type === 'News' ? 'Noticias' :
+                     details.type}
+                  </span>
                 </div>
               )}
-              {isTv && details?.last_air_date && details.status === 'Ended' && (
-                <div className="info-item">
-                  <span className="info-label">🏁 Última emisión:</span>
-                  <span className="info-value">{new Date(details.last_air_date).getFullYear()}</span>
-                </div>
-              )}
-              
-              {/* CLASIFICACIONES */}
+
+              {/* 🔞 CLASIFICACIONES */}
               {isMovie && details?.release_dates?.results?.find(r => r.iso_3166_1 === 'US')?.release_dates?.[0]?.certification && (
                 <div className="info-item">
                   <span className="info-label">🔞 Clasificación:</span>
@@ -395,21 +526,44 @@ const RecommendMovie = () => {
                   </span>
                 </div>
               )}
-              {recommendedMovie.media_type && (
+
+              {/* 🌍 INFORMACIÓN REGIONAL */}
+              {details?.original_language && isValidString(details.original_language) && (
                 <div className="info-item">
-                  <span className="info-label">🎬 Tipo:</span>
+                  <span className="info-label">🗣️ Idioma original:</span>
+                  <span className="info-value">{details.original_language.toUpperCase()}</span>
+                </div>
+              )}
+              {details?.origin_country && isValidArray(details.origin_country) && (
+                <div className="info-item">
+                  <span className="info-label">🌍 País origen:</span>
+                  <span className="info-value">{details.origin_country.join(', ')}</span>
+                </div>
+              )}
+              {recommendedMovie.country && isValidString(recommendedMovie.country) && (
+                <div className="info-item">
+                  <span className="info-label">🌍 País (BD):</span>
+                  <span className="info-value">{recommendedMovie.country}</span>
+                </div>
+              )}
+
+              {/* 📊 INFORMACIÓN DE ESTADO */}
+              {recommendedMovie.media_type && isValidString(recommendedMovie.media_type) && (
+                <div className="info-item">
+                  <span className="info-label">🎬 Tipo (BD):</span>
                   <span className="info-value">{recommendedMovie.media_type}</span>
                 </div>
               )}
-              {recommendedMovie.status && (
+              {recommendedMovie.status && isValidString(recommendedMovie.status) && (
                 <div className="info-item">
-                  <span className="info-label">📋 Estado:</span>
+                  <span className="info-label">📋 Estado (BD):</span>
                   <span className="info-value">{recommendedMovie.status}</span>
                 </div>
               )}
             </div>
-            
-            {recommendedMovie.overview && (
+
+            {/* 📖 SINOPSIS */}
+            {recommendedMovie.overview && isValidString(recommendedMovie.overview) && (
               <div className="synopsis-section">
                 <h4 className="section-title">📖 Sinopsis</h4>
                 <div className={`synopsis-content ${isSynopsisExpanded ? 'expanded' : ''}`}>
@@ -422,7 +576,16 @@ const RecommendMovie = () => {
                 )}
               </div>
             )}
-            
+
+            {/* 💭 TAGLINE/SLOGAN */}
+            {details?.tagline && isValidString(details.tagline) && (
+              <div className="tagline-section">
+                <h4 className="section-title">💭 Slogan</h4>
+                <p className="tagline-text">"{details.tagline}"</p>
+              </div>
+            )}
+
+            {/* 🎭 GÉNEROS */}
             {recommendedMovie.genres && (
               <div className="genres-section">
                 <h4 className="section-title">🎭 Géneros</h4>
@@ -435,6 +598,18 @@ const RecommendMovie = () => {
                         <span key={index} className="genre-tag">{genre.trim()}</span>
                       ))
                   }
+                </div>
+              </div>
+            )}
+
+            {/* 🎭 GÉNEROS DE TMDB (si están disponibles) */}
+            {details?.genres && details.genres.length > 0 && (
+              <div className="genres-section">
+                <h4 className="section-title">🎭 Géneros TMDB</h4>
+                <div className="genres-list">
+                  {details.genres.map((genre) => (
+                    <span key={genre.id} className="genre-tag">{genre.name}</span>
+                  ))}
                 </div>
               </div>
             )}
@@ -515,25 +690,22 @@ const RecommendMovie = () => {
         return (
           <div className="tab-content">
             <div className="info-grid">
-              {details?.original_language && (
+              {/* 💰 INFORMACIÓN FINANCIERA (SOLO PELÍCULAS) */}
+              {isMovie && details?.revenue && isValidNumber(details.revenue) && (
                 <div className="info-item">
-                  <span className="info-label">🗣️ Idioma original:</span>
-                  <span className="info-value">{details.original_language.toUpperCase()}</span>
-                </div>
-              )}
-              {recommendedMovie.country && (
-                <div className="info-item">
-                  <span className="info-label">🌍 País:</span>
-                  <span className="info-value">{recommendedMovie.country}</span>
-                </div>
-              )}
-              {details?.revenue && isValidNumber(details.revenue) && (
-                <div className="info-item">
-                  <span className="info-label">💵 Recaudación:</span>
+                  <span className="info-label">� Recaudación:</span>
                   <span className="info-value">{formatBudget(details.revenue)}</span>
                 </div>
               )}
-              {details?.imdb_id && (
+              {isMovie && details?.budget && isValidNumber(details.budget) && (
+                <div className="info-item">
+                  <span className="info-label">💰 Presupuesto:</span>
+                  <span className="info-value">{formatBudget(details.budget)}</span>
+                </div>
+              )}
+
+              {/* 🔗 ENLACES EXTERNOS */}
+              {details?.imdb_id && isValidString(details.imdb_id) && (
                 <div className="info-item">
                   <span className="info-label">🎬 IMDB:</span>
                   <span className="info-value">
@@ -548,38 +720,152 @@ const RecommendMovie = () => {
                   </span>
                 </div>
               )}
-              {details?.tagline && (
+              {details?.homepage && isValidString(details.homepage) && (
                 <div className="info-item">
-                  <span className="info-label">💭 Slogan:</span>
-                  <span className="info-value">"{details.tagline}"</span>
+                  <span className="info-label">� Sitio oficial:</span>
+                  <span className="info-value">
+                    <a 
+                      href={details.homepage}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{color: 'var(--accent-cyan)', textDecoration: 'none'}}
+                    >
+                      Visitar sitio
+                    </a>
+                  </span>
                 </div>
               )}
-              {details?.status && (
-                <div className="info-item">
-                  <span className="info-label">📊 Estado:</span>
-                  <span className="info-value">{details.status}</span>
-                </div>
-              )}
+
+              {/* 📊 ESTADÍSTICAS AVANZADAS */}
               {details?.popularity && isValidNumber(details.popularity) && (
                 <div className="info-item">
-                  <span className="info-label">📈 Popularidad:</span>
-                  <span className="info-value">{details.popularity.toFixed(1)}</span>
+                  <span className="info-label">📈 Popularidad TMDB:</span>
+                  <span className="info-value">{Math.round(details.popularity)}</span>
                 </div>
               )}
               {details?.vote_count && isValidNumber(details.vote_count) && (
                 <div className="info-item">
-                  <span className="info-label">🗳️ Votos:</span>
-                  <span className="info-value">{details.vote_count.toLocaleString()}</span>
+                  <span className="info-label">�️ Total de votos:</span>
+                  <span className="info-value">{details.vote_count.toLocaleString('es-ES')}</span>
+                </div>
+              )}
+
+              {/* 📊 ESTADO Y TIPO */}
+              {details?.status && isValidString(details.status) && (
+                <div className="info-item">
+                  <span className="info-label">📊 Estado TMDB:</span>
+                  <span className="info-value">
+                    {isMovie ? (
+                      details.status === 'Released' ? 'Estrenada' :
+                      details.status === 'Post Production' ? 'Post-producción' :
+                      details.status === 'In Production' ? 'En producción' :
+                      details.status === 'Planned' ? 'Planeada' :
+                      details.status === 'Rumored' ? 'Rumoreada' :
+                      details.status
+                    ) : (
+                      details.status === 'Ended' ? 'Finalizada' :
+                      details.status === 'Returning Series' ? 'En emisión' :
+                      details.status === 'In Production' ? 'En producción' :
+                      details.status === 'Canceled' ? 'Cancelada' :
+                      details.status === 'Cancelled' ? 'Cancelada' :
+                      details.status === 'Pilot' ? 'Piloto' :
+                      details.status
+                    )}
+                  </span>
+                </div>
+              )}
+
+              {/* 🌍 INFORMACIÓN REGIONAL DETALLADA */}
+              {details?.spoken_languages && isValidArray(details.spoken_languages) && (
+                <div className="info-item">
+                  <span className="info-label">�️ Idiomas hablados:</span>
+                  <span className="info-value">
+                    {details.spoken_languages.map(lang => lang.english_name || lang.name).join(', ')}
+                  </span>
+                </div>
+              )}
+              {details?.production_countries && isValidArray(details.production_countries) && (
+                <div className="info-item">
+                  <span className="info-label">🌍 Países de producción:</span>
+                  <span className="info-value">
+                    {details.production_countries.map(country => country.name).join(', ')}
+                  </span>
+                </div>
+              )}
+
+              {/* 🎬 INFORMACIÓN ESPECÍFICA DE PELÍCULAS */}
+              {isMovie && details?.belongs_to_collection && (
+                <div className="info-item">
+                  <span className="info-label">� Forma parte de:</span>
+                  <span className="info-value">{details.belongs_to_collection.name}</span>
+                </div>
+              )}
+
+              {/* 📺 INFORMACIÓN AVANZADA DE SERIES */}
+              {isTv && details?.in_production !== undefined && (
+                <div className="info-item">
+                  <span className="info-label">🎬 En producción:</span>
+                  <span className="info-value">{details.in_production ? 'Sí' : 'No'}</span>
+                </div>
+              )}
+              {isTv && details?.next_episode_to_air && (
+                <div className="info-item">
+                  <span className="info-label">📺 Próximo episodio:</span>
+                  <span className="info-value">
+                    {new Date(details.next_episode_to_air.air_date).toLocaleDateString('es-ES')}
+                  </span>
+                </div>
+              )}
+
+              {/* 🔍 INFORMACIÓN ADICIONAL */}
+              {details?.adult !== undefined && (
+                <div className="info-item">
+                  <span className="info-label">🔞 Contenido adulto:</span>
+                  <span className="info-value">{details.adult ? 'Sí' : 'No'}</span>
                 </div>
               )}
             </div>
-            
+
+            {/* 🏢 COMPAÑÍAS PRODUCTORAS */}
             {details?.production_companies && details.production_companies.length > 0 && (
               <div className="companies-section">
                 <h4 className="section-title">🏢 Productoras</h4>
                 <div className="companies-list">
                   {details.production_companies.map((company) => (
-                    <span key={company.id} className="company-tag">{company.name}</span>
+                    <span key={company.id} className="company-tag">
+                      {company.name}
+                      {company.origin_country && ` (${company.origin_country})`}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 🏷️ PALABRAS CLAVE/KEYWORDS */}
+            {details?.keywords && ((details.keywords.keywords && details.keywords.keywords.length > 0) || 
+              (details.keywords.results && details.keywords.results.length > 0)) && (
+              <div className="keywords-section">
+                <h4 className="section-title">🏷️ Palabras clave</h4>
+                <div className="keywords-list">
+                  {(details.keywords.keywords || details.keywords.results).slice(0, 10).map((keyword) => (
+                    <span key={keyword.id} className="keyword-tag">{keyword.name}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* 🌐 TÍTULOS ALTERNATIVOS */}
+            {details?.alternative_titles && ((details.alternative_titles.titles && details.alternative_titles.titles.length > 0) ||
+              (details.alternative_titles.results && details.alternative_titles.results.length > 0)) && (
+              <div className="alt-titles-section">
+                <h4 className="section-title">🌐 Títulos alternativos</h4>
+                <div className="alt-titles-list">
+                  {(details.alternative_titles.titles || details.alternative_titles.results).slice(0, 5).map((title, index) => (
+                    <div key={index} className="alt-title-item">
+                      <strong>{title.title}</strong>
+                      {title.iso_3166_1 && <span> ({title.iso_3166_1})</span>}
+                      {title.type && <span> - {title.type}</span>}
+                    </div>
                   ))}
                 </div>
               </div>
