@@ -385,6 +385,7 @@ app.get('/api/movies/search', async (req, res) => {
       status, 
       alpha, 
       genre,
+      rating,
       page = 1, 
       limit = 20 
     } = req.query;
@@ -423,6 +424,23 @@ app.get('/api/movies/search', async (req, res) => {
       whereConditions.push(`$${paramIndex} = ANY(genres)`);
       queryParams.push(genre.trim());
       paramIndex++;
+    }
+
+    // 🆕 Filtro por rating
+    if (rating !== undefined && rating !== '') {
+      const ratingValue = parseInt(rating);
+      if (ratingValue === 0) {
+        // Sin rating
+        whereConditions.push(`(rating = 0 OR rating IS NULL)`);
+      } else if (ratingValue >= 1 && ratingValue <= 5) {
+        // Soportar BD con 0–10 (legacy) y 0–5 (nuevo)
+        const min10 = 2 * ratingValue - 1; // semiabierto [min10, max10)
+        const max10 = 2 * ratingValue + 1;
+        // Condición: (legacy bucket) OR (exacto en escala 0–5)
+        whereConditions.push(`((rating >= $${paramIndex} AND rating < $${paramIndex + 1}) OR rating = $${paramIndex + 2})`);
+        queryParams.push(min10, max10, ratingValue);
+        paramIndex += 3;
+      }
     }
 
     const whereClause = whereConditions.length > 0 

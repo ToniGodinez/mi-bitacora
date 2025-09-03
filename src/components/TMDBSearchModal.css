@@ -204,7 +204,7 @@
 
 .tmdb-modal-body {
   padding: 1rem;
-  max-height: 60vh;
+  max-height: 70vh; /* +10vh to allow taller result cards */
   overflow-y: auto;
 }
 
@@ -234,9 +234,11 @@
   gap: 1rem;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
-  padding: 1rem;
+  padding: 1.1rem; /* slightly larger for readability */
   border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 0.2s;
+  align-items: flex-start;
+  min-height: 170px; /* make cards taller to show more info */
 }
 
 .tmdb-result-card:hover {
@@ -244,9 +246,16 @@
   border-color: var(--accent-color, #00c8c8);
 }
 
+/* Highlight series in yellow */
+.tmdb-result-card.series {
+  border-color: #ffd54f;
+  background: rgba(255, 213, 79, 0.06);
+  box-shadow: 0 0 0 1px rgba(255, 213, 79, 0.25) inset;
+}
+
 .tmdb-result-poster {
-  width: 80px;
-  height: 120px;
+  width: 100px; /* larger poster for taller card */
+  height: 150px;
   object-fit: cover;
   border-radius: 6px;
   flex-shrink: 0;
@@ -262,30 +271,41 @@
 .tmdb-result-info h4 {
   margin: 0 0 0.5rem 0;
   color: var(--text-color, #fff);
-  font-size: 1rem;
-  line-height: 1.2;
+  font-size: 1.15rem; /* bigger title */
+  line-height: 1.25;
 }
 
 .tmdb-result-year {
   margin: 0 0 0.5rem 0;
-  color: var(--accent-color, #00c8c8);
+  color: var(--text-color, #fff); /* year in white as requested */
   font-weight: bold;
-  font-size: 0.9rem;
+  font-size: 1rem;
 }
 
 .tmdb-result-overview {
   margin: 0 0 0.5rem 0;
   color: var(--muted-color, #ccc);
-  font-size: 0.85rem;
+  font-size: 0.95rem; /* bigger body text */
   flex: 1;
-  line-height: 1.3;
+  line-height: 1.45;
 }
 
 .tmdb-result-meta {
   display: flex;
   gap: 1rem;
   margin: 0.5rem 0;
-  font-size: 0.8rem;
+  font-size: 0.9rem; /* larger meta text */
+  color: var(--muted-color, #aaa);
+}
+
+/* Type badge styling and yellow color for series */
+.tmdb-type {
+  font-weight: 700;
+}
+.tmdb-type.series {
+  color: #ffd54f;
+}
+.tmdb-type.movie {
   color: var(--muted-color, #aaa);
 }
 
@@ -296,7 +316,7 @@
   padding: 0.6rem 1rem;
   border-radius: 6px;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 1rem; /* slightly larger button text */
   font-weight: bold;
   align-self: flex-start;
   margin-top: 0.5rem;

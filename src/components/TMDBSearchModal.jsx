@@ -221,7 +221,7 @@ export default function TMDBSearchModal({ isOpen, onClose, searchQuery, onSelect
           {idResult && (
             <div className="tmdb-id-result">
               <h5>✅ {idResult.media_type} encontrada:</h5>
-              <div className="tmdb-result-card">
+              <div className={`tmdb-result-card ${idResult.media_type === 'Serie de TV' ? 'series' : ''}`}>
                 <img 
                   src={idResult.poster_path ? `${IMAGE_BASE_URL}${idResult.poster_path}` : FALLBACK}
                   alt={idResult.title}
@@ -233,13 +233,15 @@ export default function TMDBSearchModal({ isOpen, onClose, searchQuery, onSelect
                     📅 {idResult.release_date ? new Date(idResult.release_date).getFullYear() : 'Sin fecha'}
                   </p>
                   <p className="tmdb-result-overview">
-                    {idResult.overview ? (idResult.overview.length > 100 ? idResult.overview.slice(0, 100) + '...' : idResult.overview) : 'Sin sinopsis disponible'}
+                    {idResult.overview ? (idResult.overview.length > 180 ? idResult.overview.slice(0, 180) + '...' : idResult.overview) : 'Sin sinopsis disponible'}
                   </p>
                   <div className="tmdb-result-meta">
                     <span>⭐ {idResult.vote_average?.toFixed(1) || 'N/A'}</span>
                     <span>🆔 {idResult.id}</span>
                     <span>🎬 {idResult.credits?.crew?.find(p => p.job === 'Director')?.name || (idResult.media_type === 'Serie de TV' ? 'Creador desconocido' : 'Director desconocido')}</span>
-                    <span>📺 {idResult.media_type}</span>
+                    <span className={`tmdb-type ${idResult.media_type === 'Serie de TV' ? 'series' : 'movie'}`}>
+                      📺 {idResult.media_type}
+                    </span>
                   </div>
                   <button 
                     className="tmdb-select-btn"
@@ -269,7 +271,7 @@ export default function TMDBSearchModal({ isOpen, onClose, searchQuery, onSelect
 
           <div className="tmdb-results-grid">
             {results.map(movie => (
-              <div key={movie.id} className="tmdb-result-card">
+              <div key={movie.id} className={`tmdb-result-card ${movie.media_type === 'tv' ? 'series' : ''}`}>
                 <img 
                   src={movie.poster_path ? `${IMAGE_BASE_URL}${movie.poster_path}` : FALLBACK}
                   alt={movie.title}
@@ -281,12 +283,14 @@ export default function TMDBSearchModal({ isOpen, onClose, searchQuery, onSelect
                     📅 {movie.release_date ? new Date(movie.release_date).getFullYear() : 'Sin fecha'}
                   </p>
                   <p className="tmdb-result-overview">
-                    {movie.overview ? (movie.overview.length > 100 ? movie.overview.slice(0, 100) + '...' : movie.overview) : 'Sin sinopsis disponible'}
+                    {movie.overview ? (movie.overview.length > 180 ? movie.overview.slice(0, 180) + '...' : movie.overview) : 'Sin sinopsis disponible'}
                   </p>
                   <div className="tmdb-result-meta">
                     <span>⭐ {movie.vote_average?.toFixed(1) || 'N/A'}</span>
                     <span>🆔 {movie.id}</span>
-                    <span>📺 {movie.media_type === 'movie' ? 'Película' : movie.media_type === 'tv' ? 'Serie de TV' : 'Otro'}</span>
+                    <span className={`tmdb-type ${movie.media_type === 'tv' ? 'series' : 'movie'}`}>
+                      📺 {movie.media_type === 'movie' ? 'Película' : movie.media_type === 'tv' ? 'Serie de TV' : 'Otro'}
+                    </span>
                   </div>
                   <button 
                     className="tmdb-select-btn"

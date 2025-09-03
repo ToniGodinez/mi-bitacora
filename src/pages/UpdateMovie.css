@@ -1205,48 +1205,26 @@ tr:last-child td {
   cursor: pointer;
 }
 
-/* ✅ ESTILOS PARA BOTONES DE INPUT NUMBER */
+/* ✅ OCULTAR SPIN BUTTONS DE INPUT NUMBER */
 /* Webkit browsers (Chrome, Safari, Edge) */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;
   appearance: none;
-  background: var(--panel);
-  border: 1px solid rgba(0, 229, 255, 0.3);
-  border-radius: 4px;
-  width: 20px;
-  height: 20px;
-  cursor: pointer;
-  position: relative;
   margin: 0;
-  opacity: 1;
-  display: block;
+  display: none;
 }
 
 /* Firefox */
 input[type="number"] {
-  appearance: textfield;
+  -webkit-appearance: textfield;
   -moz-appearance: textfield;
+  appearance: textfield;
 }
 
-/* Contenedor personalizado para los botones en Firefox */
+/* Contenedor para input number */
 .field-group input[type="number"] {
   position: relative;
-}
-
-/* Estilos hover para los spin buttons */
-input[type="number"]::-webkit-outer-spin-button:hover,
-input[type="number"]::-webkit-inner-spin-button:hover {
-  background: var(--accent-cyan);
-  border-color: var(--accent-cyan);
-  color: var(--bg);
-}
-
-/* Estilos activos para los spin buttons */
-input[type="number"]::-webkit-outer-spin-button:active,
-input[type="number"]::-webkit-inner-spin-button:active {
-  background: var(--accent-cyan-dark);
-  transform: scale(0.95);
 }
 
 .card-detailed-info {
@@ -1636,44 +1614,4 @@ input[type="number"]::-webkit-inner-spin-button:active {
   }
 }
 
-/* Estilización de inputs tipo number con flechas visibles */
-input[type="number"] {
-  -webkit-appearance: textfield;
-  -moz-appearance: textfield;
-  appearance: textfield;
-  position: relative;
-  padding-right: 40px !important;
-}
-
-/* Mostrar flechas webkit (Chrome, Safari, Edge) */
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
-  -webkit-appearance: inner-spin-button !important;
-  opacity: 1 !important;
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 30px;
-  cursor: pointer;
-  background: var(--panel);
-  border-left: 1px solid var(--accent-cyan);
-  border-radius: 0 4px 4px 0;
-}
-
-input[type="number"]::-webkit-inner-spin-button:hover {
-  background: var(--accent-cyan);
-}
-
-/* Para Firefox - forzar mostrar flechas */
-input[type="number"] {
-  -moz-appearance: textfield;
-  appearance: textfield;
-}
-
-@-moz-document url-prefix() {
-  input[type="number"] {
-    -moz-appearance: spinner-textfield !important;
-    appearance: auto !important;
-  }
-}
+/* Input number sin spin buttons - campo limpio */

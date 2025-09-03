@@ -482,16 +482,18 @@ const EditMovie = () => {
             
             <div className="form-group">
               <label className="form-label">RATING</label>
-              <div className="stars-input">
-                {[1,2,3,4,5].map(star => (
-                  <span 
-                    key={star}
-                    onClick={() => setRating(star)}
-                  >
-                    {star <= rating ? '★' : '☆'}
-                  </span>
-                ))}
-              </div>
+              <select 
+                className="form-select"
+                value={rating} 
+                onChange={e => setRating(Number(e.target.value))}
+              >
+                <option value={0}>Sin rating</option>
+                <option value={1}>★ (1 estrella)</option>
+                <option value={2}>★★ (2 estrellas)</option>
+                <option value={3}>★★★ (3 estrellas)</option>
+                <option value={4}>★★★★ (4 estrellas)</option>
+                <option value={5}>★★★★★ (5 estrellas)</option>
+              </select>
             </div>
           </div>
           

@@ -8,7 +8,10 @@ const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || '';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 const Stars = ({ value = 0 }) => {
-  const full = Math.max(0, Math.min(5, Math.round(Number(value) || 0)));
+  // Admit both scales seamlessly: if value > 5, treat as 0–10; else 0–5
+  const numeric = Number(value) || 0;
+  const normalized = numeric > 5 ? numeric / 2 : numeric; // 0–5
+  const full = Math.max(0, Math.min(5, Math.round(normalized)));
   return <div className="stars">{'★'.repeat(full)}{'☆'.repeat(Math.max(0, 5 - full))}</div>;
 };
 
@@ -23,6 +26,8 @@ const Home = () => {
   const [dbAlpha, setDbAlpha] = useState('');
   // 🆕 Nuevo estado para filtro por género
   const [genreFilter, setGenreFilter] = useState('');
+  // 🆕 Nuevo estado para filtro por rating
+  const [ratingFilter, setRatingFilter] = useState('');
   // 🆕 Nuevos estados para estadísticas globales
   const [globalStats, setGlobalStats] = useState({
     total: 0,
@@ -71,7 +76,7 @@ const Home = () => {
   // 🆕 Función para búsqueda/filtrado global
   const loadFilteredMovies = useCallback(async () => {
     // Si hay búsqueda o filtro alfabético, usar el endpoint de búsqueda
-    if (dbSearch.trim() || dbAlpha || statusFilter !== 'all' || genreFilter) {
+    if (dbSearch.trim() || dbAlpha || statusFilter !== 'all' || genreFilter || ratingFilter) {
       setIsSearching(true);
       try {
         const params = new URLSearchParams({
@@ -83,8 +88,7 @@ const Home = () => {
         if (statusFilter !== 'all') params.set('status', statusFilter);
         if (dbAlpha) params.set('alpha', dbAlpha);
         if (genreFilter) params.set('genre', genreFilter);
-
-        const res = await fetch(`${API_URL}/api/movies/search?${params}`);
+        if (ratingFilter) params.set('rating', ratingFilter);        const res = await fetch(`${API_URL}/api/movies/search?${params}`);
         if (res.ok) {
           const data = await res.json();
           setDbMovies(data.rows || []);
@@ -103,7 +107,7 @@ const Home = () => {
       // Sin filtros, usar el endpoint normal
       loadDb();
     }
-  }, [page, limit, dbSearch, dbAlpha, statusFilter, genreFilter]);
+  }, [page, limit, dbSearch, dbAlpha, statusFilter, genreFilter, ratingFilter]);
 
   const loadDb = useCallback(async () => {
     try {
@@ -254,10 +258,35 @@ const Home = () => {
                   <option key={genre} value={genre}>{genre}</option>
                 ))}
               </select>
+            </div>
+            
+            <div className="filter-separator">|</div>
+            
+            <div className="rating-filters">
+              <span className="filter-label">Filtrar por rating:</span>
+              <select 
+                className="rating-select" 
+                value={ratingFilter} 
+                onChange={(e) => setRatingFilter(e.target.value)}
+              >
+                <option value="">Todos los ratings</option>
+                <option value="5">★★★★★ (5 estrellas)</option>
+                <option value="4">★★★★☆ (4 estrellas)</option>
+                <option value="3">★★★☆☆ (3 estrellas)</option>
+                <option value="2">★★☆☆☆ (2 estrellas)</option>
+                <option value="1">★☆☆☆☆ (1 estrella)</option>
+                <option value="0">Sin rating</option>
+              </select>
+            </div>
+            
+            <div className="filter-separator">|</div>
+            
+            <div className="clear-filters">
               <button 
                 className="genre-clear-btn" 
                 onClick={() => {
                   setGenreFilter('');
+                  setRatingFilter('');
                   setStatusFilter('all');
                   setDbSearch('');
                   setDbAlpha('');
@@ -269,9 +298,6 @@ const Home = () => {
             </div>
           </div>
         </div>
-
-        {/* Separador horizontal */}
-        <div className="horizontal-separator"></div>
       </div>
 
       <div className="db-search-box">
@@ -284,9 +310,6 @@ const Home = () => {
             onChange={e => setDbSearch(e.target.value)}
           />
         </div>
-
-        {/* subtle divider between search input and alphabet */}
-        <div className="db-divider" />
 
         <div className="db-alpha-filter">
           <button type="button" className="db-alpha-clear" title="Limpiar selección" onClick={() => setDbAlpha('')}>Limpiar</button>

@@ -8,6 +8,12 @@ import UpdateMovie from './pages/UpdateMovie.jsx';
 import Layout from './components/Layout.jsx';
 
 const App = () => {
+  //  Función para cerrar sesión
+  const logout = () => {
+    localStorage.removeItem('authenticated');
+    localStorage.removeItem('loginTime');
+    window.location.href = '/login.html';
+  };
   // 🚀 Keep-alive opcional: solo ejecutar si VITE_ENABLE_KEEP_ALIVE === 'true'
   useEffect(() => {
     const ENABLE_KEEP_ALIVE = import.meta.env.VITE_ENABLE_KEEP_ALIVE === 'true';
@@ -29,6 +35,39 @@ const App = () => {
 
   return (
     <main style={{ padding: '2rem', backgroundColor: '#07090b', minHeight: '100vh' }}>
+      {/* 🚪 Botón de logout */}
+      <button 
+        onClick={logout}
+        style={{
+          position: 'fixed',
+          top: '20px',
+          right: '20px',
+          padding: '0.8rem 1.5rem',
+          background: 'linear-gradient(45deg, #003366, #006699)',
+          color: '#00ffff',
+          border: '2px solid #00ffff',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          fontFamily: 'Roboto, sans-serif',
+          fontWeight: 'bold',
+          textTransform: 'uppercase',
+          letterSpacing: '1px',
+          boxShadow: '0 0 20px rgba(0, 255, 255, 0.3)',
+          transition: 'all 0.3s ease',
+          zIndex: 10000
+        }}
+        onMouseOver={(e) => {
+          e.target.style.boxShadow = '0 0 30px rgba(0, 255, 255, 0.6)';
+          e.target.style.textShadow = '0 0 10px rgba(0, 255, 255, 0.8)';
+        }}
+        onMouseOut={(e) => {
+          e.target.style.boxShadow = '0 0 20px rgba(0, 255, 255, 0.3)';
+          e.target.style.textShadow = 'none';
+        }}
+      >
+        🚪 Salir
+      </button>
+
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
