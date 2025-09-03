@@ -20,56 +20,7 @@
     </script>
   </head>
   <body>
-    <script>
-      // Verificar autenticación ANTES de cargar React
-      function checkAuth() {
-        const isAuthenticated = localStorage.getItem('authenticated');
-        const loginTime = localStorage.getItem('loginTime');
-        const currentTime = Date.now();
-        const sessionDuration = 24 * 60 * 60 * 1000; // 24 horas
-        
-        if (!isAuthenticated || (currentTime - loginTime > sessionDuration)) {
-          localStorage.removeItem('authenticated');
-          localStorage.removeItem('loginTime');
-          // Redirigir al login
-          window.location.href = '/login.html';
-          return false;
-        }
-        return true;
-      }
-
-      // Solo cargar React si está autenticado
-      if (checkAuth()) {
-        // Usuario autenticado, cargar la app React
-        const script = document.createElement('script');
-        script.type = 'module';
-        script.src = '/src/main.jsx';
-        document.body.appendChild(script);
-      } else {
-        // No autenticado, mostrar mensaje de redirección
-        document.body.innerHTML = `
-          <div style="
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            height: 100vh; 
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
-            color: #00ffff; 
-            font-family: 'Roboto', sans-serif;
-            font-size: 1.2rem;
-            text-align: center;
-          ">
-            <div>
-              🔐 Redirigiendo al login...<br>
-              <small style="opacity: 0.7; margin-top: 10px; display: block;">
-                Si no se redirige automáticamente, <a href="/login.html" style="color: #00ffff;">haz clic aquí</a>
-              </small>
-            </div>
-          </div>
-        `;
-      }
-    </script>
-    
     <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
