@@ -611,3 +611,62 @@
     max-width: 200px;
   }
 }
+
+/* ===== ESTILOS ADICIONALES PARA NUEVO MODAL ===== */
+.tabs-navigation {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-bottom: 1px solid rgba(0, 229, 255, 0.2);
+}
+
+.tabs-content {
+  padding: 1.5rem;
+  color: #e0e6ed;
+}
+
+.tab-content h3 {
+  color: #00e5ff;
+  margin-bottom: 1rem;
+}
+
+.info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.info-item {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.info-item strong {
+  color: #00e5ff;
+  margin-right: 0.5rem;
+}
+
+.streaming-link {
+  color: #00e5ff;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border: 1px solid #00e5ff;
+  border-radius: 4px;
+  display: inline-block;
+  transition: all 0.3s ease;
+}
+
+.streaming-link:hover {
+  background: #00e5ff;
+  color: #0f1417;
+}
+
+.poster-container {
+  text-align: center;
+}
+
+.modal-poster {
+  max-width: 300px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}

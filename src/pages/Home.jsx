@@ -231,10 +231,14 @@ const Home = () => {
   const titleCase = s => { if (!s) return '—'; return String(s).split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '); };
 
   // 🆕 Función para abrir el modal de información
-  const openInfoModal = (movie) => {
-    console.log('Abriendo modal para película:', movie);
+  const openInfoModal = (event, movie) => {
+    event.preventDefault();
+    event.stopPropagation();
+    console.log('🚀 Abriendo modal para película:', movie?.title);
+    console.log('🚀 Estado antes:', { isInfoModalOpen, selectedMovie: selectedMovie?.title });
     setSelectedMovie(movie);
     setIsInfoModalOpen(true);
+    console.log('🚀 Estado después (debería cambiar):', { isInfoModalOpen: true, selectedMovie: movie?.title });
   };
 
   // 🆕 Función para cerrar el modal de información
@@ -413,7 +417,14 @@ const Home = () => {
                 </div>
                 <div className="opinion">"{m.comment ? String(m.comment) : 'Sin opinión'}"</div>
                 <div style={{ marginTop: '0.6rem', display: 'flex', gap: '0.5rem' }}>
-                  <button className="btn" title="Información" onClick={() => openInfoModal(m)}>❗ Info</button>
+                  <button 
+                    className="btn" 
+                    title="Información" 
+                    onClick={(e) => openInfoModal(e, m)}
+                    type="button"
+                  >
+                    ❗ Info
+                  </button>
                   <button className="btn" onClick={() => navigate('/edit', { state: { movie: { ...m, _isDb: true } } })}>✏️ Editar</button>
                   {m.ver_online && (
                     <a
