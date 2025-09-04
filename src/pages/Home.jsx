@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import SearchBar from '../components/SearchBar.jsx';
+import MovieInfoModal from '../components/MovieInfoModal.jsx';
 import { useNavigate } from 'react-router-dom';
 import './Home.css';
 
@@ -38,6 +39,9 @@ const Home = () => {
   const [isSearching, setIsSearching] = useState(false);
   // 🆕 Estado para géneros disponibles
   const [availableGenres, setAvailableGenres] = useState([]);
+  // 🆕 Estados para el modal de información
+  const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
+  const [selectedMovie, setSelectedMovie] = useState(null);
   const navigate = useNavigate();
 
   // ya no usamos onResults en SearchBar (sin autocompletado)
@@ -226,6 +230,19 @@ const Home = () => {
 
   const titleCase = s => { if (!s) return '—'; return String(s).split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '); };
 
+  // 🆕 Función para abrir el modal de información
+  const openInfoModal = (movie) => {
+    console.log('Abriendo modal para película:', movie);
+    setSelectedMovie(movie);
+    setIsInfoModalOpen(true);
+  };
+
+  // 🆕 Función para cerrar el modal de información
+  const closeInfoModal = () => {
+    setIsInfoModalOpen(false);
+    setSelectedMovie(null);
+  };
+
   // 🆕 Ya no necesitamos filtrar localmente porque el backend hace el filtrado
   const displayMovies = dbMovies;
 
@@ -396,7 +413,7 @@ const Home = () => {
                 </div>
                 <div className="opinion">"{m.comment ? String(m.comment) : 'Sin opinión'}"</div>
                 <div style={{ marginTop: '0.6rem', display: 'flex', gap: '0.5rem' }}>
-                  <button className="btn" title="Información">❗ Info</button>
+                  <button className="btn" title="Información" onClick={() => openInfoModal(m)}>❗ Info</button>
                   <button className="btn" onClick={() => navigate('/edit', { state: { movie: { ...m, _isDb: true } } })}>✏️ Editar</button>
                   {m.ver_online && (
                     <a
@@ -437,6 +454,13 @@ const Home = () => {
           ))}
         </div>
       )}
+
+      {/* Modal de información de película */}
+      <MovieInfoModal 
+        isOpen={isInfoModalOpen}
+        onClose={closeInfoModal}
+        movie={selectedMovie}
+      />
     </div>
   );
 };
