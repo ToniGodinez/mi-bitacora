@@ -11,6 +11,8 @@ const MovieInfoModal = ({ isOpen, onClose, movie }) => {
 
   const [activeTab, setActiveTab] = useState('general');
   const [synopsisExpanded, setSynopsisExpanded] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [imageModalOpen, setImageModalOpen] = useState(false);
   const [tmdbData, setTmdbData] = useState({
     details: null,
     credits: null,
@@ -70,6 +72,17 @@ const MovieInfoModal = ({ isOpen, onClose, movie }) => {
   const shouldShowExpandButton = () => {
     const synopsis = details?.overview || movie?.overview_es || movie?.overview || movie?.sinopsis || '';
     return synopsis.split(' ').length > 25;
+  };
+
+  // 🖼️ FUNCIONES PARA EL MODAL DE IMAGEN
+  const openImageModal = (imagePath, altText) => {
+    setSelectedImage({ path: imagePath, alt: altText });
+    setImageModalOpen(true);
+  };
+
+  const closeImageModal = () => {
+    setImageModalOpen(false);
+    setSelectedImage(null);
   };
 
   // 🎯 DETECCIÓN INTELIGENTE DE TIPO DE CONTENIDO
@@ -391,7 +404,7 @@ const MovieInfoModal = ({ isOpen, onClose, movie }) => {
                     backgroundColor: '#00e5ff',
                     color: '#0f1417',
                     border: 'none',
-                    padding: '0.5rem 1rem',
+                    padding: '0.5rem 1rem', // Tamaño original
                     borderRadius: '8px',
                     cursor: 'pointer',
                     fontWeight: '600'
@@ -734,29 +747,63 @@ const MovieInfoModal = ({ isOpen, onClose, movie }) => {
               </div>
             )}
 
-            {/* GALERÍA DE IMÁGENES ADICIONALES */}
+            {/* GALERÍA DE IMÁGENES ADICIONALES - CARRUSEL */}
             {images?.backdrops && images.backdrops.length > 0 && (
               <div className="images-gallery-section">
                 <h4 className="section-title">🖼️ Galería ({images.backdrops.length + (images.posters?.length || 0)})</h4>
-                <div className="images-grid">
-                  {images.backdrops.slice(0, 6).map((image, index) => (
-                    <div key={`backdrop-${index}`} className="gallery-item">
-                      <img 
-                        src={`https://image.tmdb.org/t/p/w500${image.file_path}`}
-                        alt={`Backdrop ${index + 1}`}
-                        className="gallery-image"
-                      />
-                    </div>
-                  ))}
-                  {images.posters && images.posters.slice(0, 3).map((image, index) => (
-                    <div key={`poster-${index}`} className="gallery-item">
-                      <img 
-                        src={`https://image.tmdb.org/t/p/w500${image.file_path}`}
-                        alt={`Póster alternativo ${index + 1}`}
-                        className="gallery-image"
-                      />
-                    </div>
-                  ))}
+                <div className="carousel-container">
+                  <div className="carousel-track" id="gallery-carousel">
+                    {/* Backdrops */}
+                    {images.backdrops.map((image, index) => (
+                      <div key={`backdrop-${index}`} className="carousel-item">
+                        <img 
+                          src={`https://image.tmdb.org/t/p/w500${image.file_path}`}
+                          alt={`Backdrop ${index + 1}`}
+                          className="carousel-image"
+                          loading="lazy"
+                          onClick={() => openImageModal(image.file_path, `Backdrop ${index + 1}`)}
+                        />
+                      </div>
+                    ))}
+                    {/* Pósters */}
+                    {images.posters && images.posters.map((image, index) => (
+                      <div key={`poster-${index}`} className="carousel-item">
+                        <img 
+                          src={`https://image.tmdb.org/t/p/w500${image.file_path}`}
+                          alt={`Póster alternativo ${index + 1}`}
+                          className="carousel-image"
+                          loading="lazy"
+                          onClick={() => openImageModal(image.file_path, `Póster alternativo ${index + 1}`)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  
+                  {/* Controles del carrusel */}
+                  <button 
+                    className="carousel-btn carousel-prev" 
+                    onClick={() => {
+                      const track = document.getElementById('gallery-carousel');
+                      if (track) {
+                        track.scrollBy({ left: -320, behavior: 'smooth' });
+                      }
+                    }}
+                    aria-label="Imagen anterior"
+                  >
+                    ‹
+                  </button>
+                  <button 
+                    className="carousel-btn carousel-next" 
+                    onClick={() => {
+                      const track = document.getElementById('gallery-carousel');
+                      if (track) {
+                        track.scrollBy({ left: 320, behavior: 'smooth' });
+                      }
+                    }}
+                    aria-label="Imagen siguiente"
+                  >
+                    ›
+                  </button>
                 </div>
               </div>
             )}
@@ -855,6 +902,29 @@ const MovieInfoModal = ({ isOpen, onClose, movie }) => {
           {renderTabContent()}
         </div>
       </div>
+
+      {/* MODAL DE IMAGEN EN TAMAÑO COMPLETO */}
+      {imageModalOpen && selectedImage && (
+        <div className="image-modal-overlay" onClick={closeImageModal}>
+          <div className="image-modal-content" onClick={(e) => e.stopPropagation()}>
+            <button 
+              className="image-modal-close" 
+              onClick={closeImageModal}
+              aria-label="Cerrar imagen"
+            >
+              ×
+            </button>
+            <img 
+              src={`https://image.tmdb.org/t/p/original${selectedImage.path}`}
+              alt={selectedImage.alt}
+              className="image-modal-img"
+            />
+            <div className="image-modal-caption">
+              {selectedImage.alt}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
