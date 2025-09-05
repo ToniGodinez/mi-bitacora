@@ -27,10 +27,14 @@ echo    ▶️ Start Command: cd backend ^&^& npm start
 echo    🌍 Environment: Node
 echo.
 echo    🔧 Variables de entorno (IMPORTANTE):
-echo    DATABASE_URL=postgresql://neondb_owner:npg_9TcH0ExpkdWX@ep-red-cherry-aerqtahe-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require^&channel_binding=require
+echo    DATABASE_URL=postgresql://neondb_owner:TU_NUEVA_PASSWORD@ep-red-cherry-aerqtahe-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require^&channel_binding=require
+echo.
+echo    ⚠️  IMPORTANTE: Cambia TU_NUEVA_PASSWORD por tu contraseña real de Neon
 echo    NODE_ENV=production
-echo    VITE_TMDB_API_KEY=5f9a774c4ea58c1d35759ac3a48088d4
-echo    TMDB_API_KEY=5f9a774c4ea58c1d35759ac3a48088d4
+echo    VITE_TMDB_API_KEY=TU_TMDB_API_KEY_AQUI
+echo    TMDB_API_KEY=TU_TMDB_API_KEY_AQUI
+echo.
+echo    ⚠️  IMPORTANTE: Reemplaza TU_TMDB_API_KEY_AQUI con tu API key real de TMDB
 echo    PORT=10000
 echo.
 

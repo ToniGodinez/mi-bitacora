@@ -891,8 +891,8 @@
 
 .image-modal-content {
   position: relative;
-  max-width: 95vw;
-  max-height: 95vh;
+  max-width: 70vw;
+  max-height: 80vh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -927,7 +927,7 @@
 
 .image-modal-img {
   max-width: 100%;
-  max-height: calc(95vh - 60px);
+  max-height: calc(75vh - 60px);
   object-fit: contain;
   border-radius: 8px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
@@ -935,7 +935,7 @@
 }
 
 .image-modal-img:hover {
-  transform: scale(1.02);
+  transform: scale(1.01);
 }
 
 .image-modal-caption {
@@ -965,7 +965,7 @@
   }
   
   .image-modal-img {
-    max-height: calc(95vh - 40px);
+    max-height: calc(75vh - 40px);
   }
   
   .image-modal-caption {

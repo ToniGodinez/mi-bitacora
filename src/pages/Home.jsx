@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import './Home.css';
 
 const FALLBACK = 'https://placehold.co/154x231/222/fff?text=Sin+Imagen';
-const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || '';
+const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 const Stars = ({ value = 0 }) => {
@@ -29,7 +29,9 @@ const Home = () => {
   const [genreFilter, setGenreFilter] = useState('');
   // 🆕 Nuevo estado para filtro por rating
   const [ratingFilter, setRatingFilter] = useState('');
-  // 🆕 Nuevos estados para estadísticas globales
+  // 🆕 Nuevo estado para filtro por actor
+  const [actorFilter, setActorFilter] = useState('');
+  // 🆕 Estados para estadísticas globales
   const [globalStats, setGlobalStats] = useState({
     total: 0,
     pendientes: 0,
@@ -39,6 +41,8 @@ const Home = () => {
   const [isSearching, setIsSearching] = useState(false);
   // 🆕 Estado para géneros disponibles
   const [availableGenres, setAvailableGenres] = useState([]);
+  // 🆕 Estado para actores disponibles
+  const [availableActors, setAvailableActors] = useState([]);
   // 🆕 Estados para el modal de información
   const [isInfoModalOpen, setIsInfoModalOpen] = useState(false);
   const [selectedMovie, setSelectedMovie] = useState(null);
@@ -77,10 +81,62 @@ const Home = () => {
     }
   }, []);
 
+  // 🆕 Función para cargar actores disponibles desde el endpoint específico
+  const loadAvailableActors = useCallback(async () => {
+    try {
+      const res = await fetch(`${API_URL}/api/movies/actors`);
+      if (res.ok) {
+        const actors = await res.json();
+        setAvailableActors(actors || []);
+        console.log('🎭 Actores cargados desde base de datos:', actors);
+      } else {
+        console.error('Error al cargar actores:', res.status);
+        // 🚀 TEMPORAL: Datos de ejemplo mientras se resuelve la BD
+        setAvailableActors([
+          'Aaron Paul',
+          'Brad Pitt', 
+          'Leonardo DiCaprio',
+          'Jennifer Lawrence',
+          'Ryan Gosling',
+          'Emma Stone',
+          'Tom Hanks',
+          'Meryl Streep',
+          'Robert Downey Jr.',
+          'Scarlett Johansson',
+          'Will Smith',
+          'Margot Robbie',
+          'Chris Evans',
+          'Anne Hathaway',
+          'Matthew McConaughey'
+        ]);
+      }
+    } catch (e) {
+      console.error('Error cargando actores', e);
+      // 🚀 TEMPORAL: Datos de ejemplo mientras se resuelve la BD
+      setAvailableActors([
+        'Aaron Paul',
+        'Brad Pitt', 
+        'Leonardo DiCaprio',
+        'Jennifer Lawrence',
+        'Ryan Gosling',
+        'Emma Stone',
+        'Tom Hanks',
+        'Meryl Streep',
+        'Robert Downey Jr.',
+        'Scarlett Johansson',
+        'Will Smith',
+        'Margot Robbie',
+        'Chris Evans',
+        'Anne Hathaway',
+        'Matthew McConaughey'
+      ]);
+    }
+  }, []);
+
   // 🆕 Función para búsqueda/filtrado global
   const loadFilteredMovies = useCallback(async () => {
     // Si hay búsqueda o filtro alfabético, usar el endpoint de búsqueda
-    if (dbSearch.trim() || dbAlpha || statusFilter !== 'all' || genreFilter || ratingFilter) {
+    if (dbSearch.trim() || dbAlpha || statusFilter !== 'all' || genreFilter || ratingFilter || actorFilter) {
       setIsSearching(true);
       try {
         const params = new URLSearchParams({
@@ -92,7 +148,8 @@ const Home = () => {
         if (statusFilter !== 'all') params.set('status', statusFilter);
         if (dbAlpha) params.set('alpha', dbAlpha);
         if (genreFilter) params.set('genre', genreFilter);
-        if (ratingFilter) params.set('rating', ratingFilter);        const res = await fetch(`${API_URL}/api/movies/search?${params}`);
+        if (ratingFilter) params.set('rating', ratingFilter);
+        if (actorFilter) params.set('actor', actorFilter);        const res = await fetch(`${API_URL}/api/movies/search?${params}`);
         if (res.ok) {
           const data = await res.json();
           setDbMovies(data.rows || []);
@@ -111,7 +168,7 @@ const Home = () => {
       // Sin filtros, usar el endpoint normal
       loadDb();
     }
-  }, [page, limit, dbSearch, dbAlpha, statusFilter, genreFilter, ratingFilter]);
+  }, [page, limit, dbSearch, dbAlpha, statusFilter, genreFilter, ratingFilter, actorFilter]);
 
   const loadDb = useCallback(async () => {
     try {
@@ -157,12 +214,18 @@ const Home = () => {
     loadAvailableGenres();
   }, [loadAvailableGenres]);
 
+  // 🆕 Cargar actores disponibles al iniciar
+  useEffect(() => {
+    loadAvailableActors();
+  }, [loadAvailableActors]);
+
   // 🆕 Recargar estadísticas cuando se elimina una película
   const refreshAfterDelete = useCallback(() => {
     loadGlobalStats();
     loadFilteredMovies();
     loadAvailableGenres(); // 🆕 También recargar géneros
-  }, [loadGlobalStats, loadFilteredMovies, loadAvailableGenres]);
+    loadAvailableActors(); // 🆕 También recargar actores
+  }, [loadGlobalStats, loadFilteredMovies, loadAvailableGenres, loadAvailableActors]);
 
   async function fetchSpanishOverviewById(id, type = 'movie') {
     try {
@@ -302,12 +365,29 @@ const Home = () => {
             
             <div className="filter-separator">|</div>
             
+            <div className="actor-filters">
+              <span className="filter-label">Filtrar por actor:</span>
+              <select 
+                className="actor-select" 
+                value={actorFilter} 
+                onChange={(e) => setActorFilter(e.target.value)}
+              >
+                <option value="">Todos los actores</option>
+                {availableActors.map(actor => (
+                  <option key={actor} value={actor}>{actor}</option>
+                ))}
+              </select>
+            </div>
+            
+            <div className="filter-separator">|</div>
+            
             <div className="clear-filters">
               <button 
                 className="genre-clear-btn" 
                 onClick={() => {
                   setGenreFilter('');
                   setRatingFilter('');
+                  setActorFilter('');
                   setStatusFilter('all');
                   setDbSearch('');
                   setDbAlpha('');

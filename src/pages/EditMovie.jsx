@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import './EditMovie.css';
 
-const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || '5f9a774c4ea58c1d35759ac3a48088d4';
+const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w300';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 

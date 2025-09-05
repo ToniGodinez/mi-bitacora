@@ -15,8 +15,8 @@ services:
       - key: DATABASE_URL
         sync: false  # Configurar manualmente en Render Dashboard
       - key: VITE_TMDB_API_KEY
-        value: 5f9a774c4ea58c1d35759ac3a48088d4
+        value: TU_TMDB_API_KEY_AQUI
       - key: TMDB_API_KEY
-        value: 5f9a774c4ea58c1d35759ac3a48088d4
+        value: TU_TMDB_API_KEY_AQUI
       - key: PORT
         value: 10000

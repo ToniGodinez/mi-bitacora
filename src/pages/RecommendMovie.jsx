@@ -6,7 +6,7 @@ const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w300';
 const IMAGE_BASE_URL_LARGE = 'https://image.tmdb.org/t/p/w500';
 const BACKDROP_BASE_URL = 'https://image.tmdb.org/t/p/w1280';
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || '8265bd1679663a7ea12ac168da84d2e8';
+const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
 const RecommendMovie = () => {
   const [recommendedMovie, setRecommendedMovie] = useState(null);
@@ -598,18 +598,6 @@ const RecommendMovie = () => {
                         <span key={index} className="genre-tag">{genre.trim()}</span>
                       ))
                   }
-                </div>
-              </div>
-            )}
-
-            {/* 🎭 GÉNEROS DE TMDB (si están disponibles) */}
-            {details?.genres && details.genres.length > 0 && (
-              <div className="genres-section">
-                <h4 className="section-title">🎭 Géneros TMDB</h4>
-                <div className="genres-list">
-                  {details.genres.map((genre) => (
-                    <span key={genre.id} className="genre-tag">{genre.name}</span>
-                  ))}
                 </div>
               </div>
             )}

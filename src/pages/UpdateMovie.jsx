@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import TMDBSearchModal from '../components/TMDBSearchModal'; // ✅ IMPORTAR MODAL
 import './UpdateMovie.css';
 
-const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || '5f9a774c4ea58c1d35759ac3a48088d4';
+const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
 const UpdateMovie = () => {
@@ -287,12 +287,34 @@ const UpdateMovie = () => {
     setModalOpen(true);
   };
 
-  // ✅ NUEVA FUNCIÓN PARA MANEJAR SELECCIÓN DE PELÍCULA
-  const handleMovieSelection = (updatedMovieData) => {
+  // ✅ FUNCIÓN PARA MANEJAR SELECCIÓN DE PELÍCULA(S)
+  const handleMovieSelection = (movieData) => {
     const newMovies = [...movies];
-    newMovies[selectedMovieIndex] = updatedMovieData;
-    setMovies(newMovies);
-    console.log(`✅ Película "${updatedMovieData.title}" actualizada con TMDB ID: ${updatedMovieData.tmdbid}`);
+    
+    // Si es un array (selección múltiple)
+    if (Array.isArray(movieData)) {
+      // Reemplazar la película actual con la primera y agregar las demás
+      if (movieData.length > 0) {
+        // Actualizar la película en el índice actual
+        newMovies[selectedMovieIndex] = movieData[0];
+        
+        // Agregar las películas adicionales al final
+        for (let i = 1; i < movieData.length; i++) {
+          newMovies.push({
+            id: generateUniqueId(),
+            ...movieData[i]
+          });
+        }
+        
+        setMovies(newMovies);
+        console.log(`✅ ${movieData.length} películas agregadas desde TMDB`);
+      }
+    } else {
+      // Selección individual (comportamiento original)
+      newMovies[selectedMovieIndex] = movieData;
+      setMovies(newMovies);
+      console.log(`✅ Película "${movieData.title}" actualizada con TMDB ID: ${movieData.tmdbid}`);
+    }
   };
 
   // ✅ FUNCIÓN ORIGINAL COMO FALLBACK (por si acaso)

@@ -3,7 +3,7 @@ import './MovieInfoModal.css';
 
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w300';
 const IMAGE_BASE_URL_LARGE = 'https://image.tmdb.org/t/p/w500';
-const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY || '8265bd1679663a7ea12ac168da84d2e8';
+const TMDB_API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
 const MovieInfoModal = ({ isOpen, onClose, movie }) => {
   // ✅ VALIDACIÓN CRÍTICA: No renderizar si no está abierto

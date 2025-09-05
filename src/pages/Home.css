@@ -1437,7 +1437,8 @@
 }
 
 .genre-filters,
-.rating-filters {
+.rating-filters,
+.actor-filters {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -1459,7 +1460,8 @@
 }
 
 .genre-select,
-.rating-select {
+.rating-select,
+.actor-select {
   background: rgba(0, 229, 255, 0.08);
   border: 1px solid rgba(0, 229, 255, 0.3);
   border-radius: 6px;
@@ -1473,14 +1475,16 @@
 }
 
 .genre-select:focus,
-.rating-select:focus {
+.rating-select:focus,
+.actor-select:focus {
   outline: none;
   border-color: var(--accent-cyan);
   box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.15);
 }
 
 .genre-select option,
-.rating-select option {
+.rating-select option,
+.actor-select option {
   background: var(--panel);
   color: var(--text);
 }
@@ -1526,7 +1530,8 @@
   }
   
   .genre-select,
-  .rating-select {
+  .rating-select,
+  .actor-select {
     min-width: 120px;
     max-width: 150px;
     font-size: 0.8rem;
@@ -1559,7 +1564,8 @@
   }
   
   .genre-filters,
-  .rating-filters {
+  .rating-filters,
+  .actor-filters {
     justify-content: space-between;
   }
   

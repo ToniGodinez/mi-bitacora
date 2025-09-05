@@ -30,10 +30,18 @@ npm install -g vercel
 Ve a tu dashboard de Vercel y agrega estas variables:
 
 ```env
-DATABASE_URL=postgresql://neondb_owner:npg_9TcH0ExpkdWX@ep-red-cherry-aerqtahe-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+```
+DATABASE_URL=postgresql://neondb_owner:TU_NUEVA_PASSWORD@ep-red-cherry-aerqtahe-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+```
 
-VITE_TMDB_API_KEY=5f9a774c4ea58c1d35759ac3a48088d4
-TMDB_API_KEY=5f9a774c4ea58c1d35759ac3a48088d4
+**⚠️ IMPORTANTE: No copies esta URL directamente. Ve a Neon y regenera una nueva contraseña.**
+
+```
+VITE_TMDB_API_KEY=TU_TMDB_API_KEY_AQUI
+TMDB_API_KEY=TU_TMDB_API_KEY_AQUI
+```
+
+**⚠️ IMPORTANTE: Reemplaza TU_TMDB_API_KEY_AQUI con tu API key real de TMDB**
 NODE_ENV=production
 ```
 

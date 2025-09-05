@@ -3,16 +3,52 @@ import cors from 'cors';
 import { Pool } from 'pg';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import dotenv from 'dotenv';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+
+// Cargar variables de entorno desde .env
+dotenv.config({ path: path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '.env') });
 
 // Para ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+
+// 🛡️ CONFIGURACIÓN DE SEGURIDAD
+// Helmet: Configura headers de seguridad
+app.use(helmet({
+  contentSecurityPolicy: false, // Deshabilitado para desarrollo, habilitar en producción
+  crossOriginEmbedderPolicy: false
+}));
+
+// Rate Limiting: Previene ataques de fuerza bruta y spam
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 100, // máximo 100 requests por IP por ventana de tiempo
+  message: {
+    error: 'Demasiadas peticiones desde esta IP, intenta de nuevo en 15 minutos.'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use(limiter);
+
+// Rate limiting más estricto para operaciones críticas
+const strictLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 20, // máximo 20 requests por IP
+  message: {
+    error: 'Demasiadas operaciones de escritura, intenta de nuevo más tarde.'
+  }
+});
+
+// CORS y otros middlewares
 const allowedOrigin = process.env.FRONTEND_URL || '*';
 app.use(cors({ origin: allowedOrigin }));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' })); // Limitar tamaño de JSON
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // 🌐 Servir archivos estáticos del frontend (para producción)
 if (process.env.NODE_ENV === 'production') {
@@ -69,13 +105,19 @@ const validateMovieInput = (req, res, next) => {
   next();
 };
 
-// �🔗 Tu connection string de Neon - usar variable de entorno en production
+// 🔗 Configuración de base de datos - usando variables de entorno
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_9TcH0ExpkdWX@ep-red-cherry-aerqtahe-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
+  connectionString: process.env.DATABASE_URL
 });
 
-// 🧠 Ruta para guardar película
-app.post('/api/movies', validateMovieInput, async (req, res) => {
+// Verificar que la variable de entorno esté configurada
+if (!process.env.DATABASE_URL) {
+  console.error('❌ ERROR: DATABASE_URL no está configurada en las variables de entorno');
+  process.exit(1);
+}
+
+// 🧠 Ruta para guardar película (con rate limiting estricto)
+app.post('/api/movies', strictLimiter, validateMovieInput, async (req, res) => {
   // 🚀 OPTIMIZADO: Solo logs detallados en desarrollo
   if (process.env.NODE_ENV !== 'production') {
     console.log('Body recibido:', req.body);
@@ -227,7 +269,7 @@ app.post('/api/movies', validateMovieInput, async (req, res) => {
 });
 
 // Ruta para actualizar película por id
-app.put('/api/movies/:id', validateMovieInput, async (req, res) => {
+app.put('/api/movies/:id', strictLimiter, validateMovieInput, async (req, res) => {
   const { id } = req.params;
   const {
     title,
@@ -377,6 +419,41 @@ app.get('/api/movies/genres', async (req, res) => {
   }
 });
 
+// 🆕 Nuevo endpoint para obtener actores únicos de todas las películas
+app.get('/api/movies/actors', async (req, res) => {
+  console.log('🎭 Endpoint /api/movies/actors llamado');
+  try {
+    console.log('🎭 Ejecutando query para obtener actores...');
+    const result = await pool.query(`
+      SELECT actors 
+      FROM movies 
+      WHERE actors IS NOT NULL AND TRIM(actors) != ''
+      ORDER BY actors
+    `);
+    
+    console.log('🎭 Query ejecutada, filas encontradas:', result.rows.length);
+    
+    // Extraer actores únicos de strings separados por comas
+    const actorsSet = new Set();
+    result.rows.forEach(row => {
+      if (row.actors && row.actors.trim()) {
+        const actorsList = row.actors.split(',')
+          .map(actor => actor.trim())
+          .filter(actor => actor.length > 0);
+        actorsList.forEach(actor => actorsSet.add(actor));
+      }
+    });
+    
+    const actors = Array.from(actorsSet).sort();
+    
+    console.log('🎭 Actores únicos procesados:', actors.length);
+    res.json(actors);
+  } catch (err) {
+    console.error('❌ Error al obtener actores:', err);
+    res.status(500).json({ error: 'Error al obtener actores' });
+  }
+});
+
 // 🆕 Nuevo endpoint para búsqueda global con filtros
 app.get('/api/movies/search', async (req, res) => {
   try {
@@ -386,6 +463,7 @@ app.get('/api/movies/search', async (req, res) => {
       alpha, 
       genre,
       rating,
+      actor,
       page = 1, 
       limit = 20 
     } = req.query;
@@ -430,17 +508,23 @@ app.get('/api/movies/search', async (req, res) => {
     if (rating !== undefined && rating !== '') {
       const ratingValue = parseInt(rating);
       if (ratingValue === 0) {
-        // Sin rating
-        whereConditions.push(`(rating = 0 OR rating IS NULL)`);
+        // Sin rating - buscar rating = '0' (que representa sin calificación)
+        whereConditions.push(`rating = $${paramIndex}`);
+        queryParams.push('0');
+        paramIndex += 1;
       } else if (ratingValue >= 1 && ratingValue <= 5) {
-        // Soportar BD con 0–10 (legacy) y 0–5 (nuevo)
-        const min10 = 2 * ratingValue - 1; // semiabierto [min10, max10)
-        const max10 = 2 * ratingValue + 1;
-        // Condición: (legacy bucket) OR (exacto en escala 0–5)
-        whereConditions.push(`((rating >= $${paramIndex} AND rating < $${paramIndex + 1}) OR rating = $${paramIndex + 2})`);
-        queryParams.push(min10, max10, ratingValue);
-        paramIndex += 3;
+        // Coincidencia exacta para cada estrella
+        whereConditions.push(`rating = $${paramIndex}`);
+        queryParams.push(ratingValue.toString());
+        paramIndex += 1;
       }
+    }
+
+    // 🆕 Filtro por actor
+    if (actor && actor.trim()) {
+      whereConditions.push(`actors ILIKE $${paramIndex}`);
+      queryParams.push(`%${actor.trim()}%`);
+      paramIndex++;
     }
 
     const whereClause = whereConditions.length > 0 
@@ -577,7 +661,7 @@ async function delCachedTmdb(key) {
 app.get('/api/tmdb/overview/:tmdbId', async (req, res) => {
   const { tmdbId } = req.params;
   const { nocache } = req.query;
-  const apiKey = process.env.VITE_TMDB_API_KEY || process.env.TMDB_API_KEY || '5f9a774c4ea58c1d35759ac3a48088d4';
+  const apiKey = process.env.VITE_TMDB_API_KEY || process.env.TMDB_API_KEY;
   if (!tmdbId || !apiKey) {
     return res.status(400).json({ error: 'Falta tmdbId o apiKey' });
   }
@@ -699,7 +783,7 @@ app.delete('/api/cache/clear', async (req, res) => {
   }
 });
 
-app.delete('/api/movies/:id', async (req, res) => {
+app.delete('/api/movies/:id', strictLimiter, async (req, res) => {
   const { id } = req.params;
   if (!id) return res.status(400).json({ error: 'Missing id parameter' });
   try {
