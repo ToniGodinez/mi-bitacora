@@ -807,6 +807,146 @@ app.delete('/api/movies/:id', strictLimiter, async (req, res) => {
 // 🚀 Server startup
 const PORT = process.env.PORT || 3000;
 // Ruta raíz para mostrar mensaje amigable
+// 📅 ENDPOINT: Actualizar fecha programada de una película
+app.put('/api/movies/:id/schedule', strictLimiter, async (req, res) => {
+  const { id } = req.params;
+  const { scheduled_date } = req.body;
+
+  try {
+    // Validar que la película existe
+    const existingRes = await pool.query('SELECT * FROM movies WHERE id = $1 LIMIT 1', [id]);
+    if (existingRes.rows.length === 0) {
+      return res.status(404).json({ error: 'Película no encontrada' });
+    }
+
+    // Actualizar la fecha programada (puede ser null para quitar la fecha)
+    const result = await pool.query(
+      'UPDATE movies SET scheduled_date = $1 WHERE id = $2 RETURNING *',
+      [scheduled_date || null, id]
+    );
+
+    console.log(`📅 Fecha programada actualizada para película ID ${id}: ${scheduled_date || 'sin fecha'}`);
+    res.json(result.rows[0]);
+
+  } catch (error) {
+    console.error('❌ Error al actualizar fecha programada:', error);
+    res.status(500).json({ 
+      error: 'Error interno del servidor al actualizar fecha',
+      details: error.message 
+    });
+  }
+});
+
+// 📅 ENDPOINT: Obtener películas por fecha programada
+app.get('/api/movies/scheduled/:date', async (req, res) => {
+  const { date } = req.params;
+
+  try {
+    const result = await pool.query(
+      'SELECT * FROM movies WHERE scheduled_date = $1 ORDER BY title',
+      [date]
+    );
+
+    console.log(`📅 Películas encontradas para ${date}: ${result.rows.length}`);
+    res.json(result.rows);
+
+  } catch (error) {
+    console.error('❌ Error al obtener películas programadas:', error);
+    res.status(500).json({ 
+      error: 'Error interno del servidor',
+      details: error.message 
+    });
+  }
+});
+
+// 📅 ENDPOINT: Obtener todas las películas programadas con detalles completos
+app.get('/api/movies/scheduled-detailed', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT * FROM movies 
+      WHERE scheduled_date IS NOT NULL 
+      ORDER BY scheduled_date, title
+    `);
+
+    // Agrupar por fecha
+    const moviesByDate = {};
+    result.rows.forEach(movie => {
+      const date = movie.scheduled_date;
+      // Convertir la fecha a formato YYYY-MM-DD para consistencia
+      const dateString = new Date(date).toISOString().split('T')[0];
+      if (!moviesByDate[dateString]) {
+        moviesByDate[dateString] = [];
+      }
+      moviesByDate[dateString].push(movie);
+    });
+
+    console.log(`📅 Fechas con películas programadas: ${Object.keys(moviesByDate).length}`);
+    res.json(moviesByDate);
+
+  } catch (error) {
+    console.error('❌ Error al obtener películas programadas detalladas:', error);
+    res.status(500).json({ 
+      error: 'Error interno del servidor',
+      details: error.message 
+    });
+  }
+});
+
+// 📅 ENDPOINT: Eliminar fecha programada de una película
+app.delete('/api/movies/:id/schedule', strictLimiter, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Validar que la película existe
+    const existingRes = await pool.query('SELECT * FROM movies WHERE id = $1 LIMIT 1', [id]);
+    if (existingRes.rows.length === 0) {
+      return res.status(404).json({ error: 'Película no encontrada' });
+    }
+
+    // Eliminar la fecha programada
+    const result = await pool.query(
+      'UPDATE movies SET scheduled_date = NULL WHERE id = $1 RETURNING *',
+      [id]
+    );
+
+    console.log(`🗑️ Fecha programada eliminada para película ID ${id}`);
+    res.json(result.rows[0]);
+
+  } catch (error) {
+    console.error('❌ Error al eliminar fecha programada:', error);
+    res.status(500).json({ 
+      error: 'Error interno del servidor al eliminar fecha',
+      details: error.message 
+    });
+  }
+});
+
+// 📅 ENDPOINT: Obtener todas las fechas con películas programadas
+app.get('/api/movies/scheduled', async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        scheduled_date,
+        COUNT(*) as movie_count,
+        array_agg(title ORDER BY title) as titles
+      FROM movies 
+      WHERE scheduled_date IS NOT NULL 
+      GROUP BY scheduled_date 
+      ORDER BY scheduled_date
+    `);
+
+    console.log(`📅 Fechas programadas encontradas: ${result.rows.length}`);
+    res.json(result.rows);
+
+  } catch (error) {
+    console.error('❌ Error al obtener fechas programadas:', error);
+    res.status(500).json({ 
+      error: 'Error interno del servidor',
+      details: error.message 
+    });
+  }
+});
+
 app.get('/', (req, res) => {
   res.send('¡Backend funcionando correctamente! 🚀');
 });

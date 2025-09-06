@@ -9,16 +9,32 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 const EditMovie = () => {
   const { state } = useLocation();
   const params = useParams();
+  const navigate = useNavigate();
+  
+  // DEBUG: Logging para diagnosticar
+  console.log(`🔍 === EditMovie CARGADO ===`);
+  console.log(`🔍 params:`, params);
+  console.log(`🔍 params.id:`, params.id);
+  console.log(`🔍 URL search params:`, new URLSearchParams(window.location.search).get('type'));
+  console.log(`🔍 state:`, state);
+  console.log(`🔍 state?.movie:`, state?.movie);
+  
   // Detecta tipo y datos
   const movieFromState = state?.movie;
   const movieIdParam = params.id;
+  const typeParam = new URLSearchParams(window.location.search).get('type');
   const movie = movieFromState || (movieIdParam ? { id: movieIdParam } : null);
+  
+  console.log(`🔍 movieFromState:`, movieFromState);
+  console.log(`🔍 movieIdParam:`, movieIdParam);
+  console.log(`🔍 typeParam:`, typeParam);
+  console.log(`🔍 movie final:`, movie);
 
   const [details, setDetails] = useState(null);
   const [status, setStatus] = useState('pendiente');
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
-  const navigate = useNavigate();
+  // const navigate = useNavigate(); // Ya declarado arriba
 
   // Estados editables originales
   const [directorName, setDirectorName] = useState('');

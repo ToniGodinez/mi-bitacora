@@ -25,6 +25,7 @@ const Layout = () => {
             <button className="nav-link" onClick={() => navigate('/')}>Inicio</button>
             <button className="nav-link" onClick={() => navigate('/recomendacion')}>Recomendación</button>
             <button className="nav-link" onClick={() => navigate('/actualizacion')}>Actualización</button>
+            <button className="nav-link" onClick={() => navigate('/calendario')}>📅 Calendario</button>
           </nav>
 
           <button className="mobile-menu-btn" onClick={toggleMobileMenu} aria-label="Abrir menú">
@@ -47,6 +48,7 @@ const Layout = () => {
               <button className="sidebar-link" onClick={() => navigateToPage('/')}>Inicio</button>
               <button className="sidebar-link" onClick={() => navigateToPage('/recomendacion')}>Recomendación</button>
               <button className="sidebar-link" onClick={() => navigateToPage('/actualizacion')}>Actualización</button>
+              <button className="sidebar-link" onClick={() => navigateToPage('/calendario')}>📅 Calendario</button>
             </nav>
           </div>
         </>

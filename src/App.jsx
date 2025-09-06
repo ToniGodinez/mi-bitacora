@@ -5,6 +5,7 @@ import EditMovie from './pages/EditMovie.jsx';
 import SearchResults from './pages/SearchResults.jsx';
 import RecommendMovie from './pages/RecommendMovie.jsx';
 import UpdateMovie from './pages/UpdateMovie.jsx';
+import Calendar from './pages/Calendar.jsx';
 import Layout from './components/Layout.jsx';
 import Login from './components/Login.jsx';
 
@@ -131,6 +132,7 @@ const App = () => {
           <Route path="/edit/:id" element={<EditMovie />} />
           <Route path="/recomendacion" element={<RecommendMovie />} />
           <Route path="/actualizacion" element={<UpdateMovie />} />
+          <Route path="/calendario" element={<Calendar />} />
         </Route>
       </Routes>
     </main>
