@@ -159,6 +159,21 @@ const Calendar = () => {
   // Estados para el modal de calificación
   const [selectedMovieForRating, setSelectedMovieForRating] = useState(null);
   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
+  
+  // Estados para filtros del sidebar
+  const [searchTerm, setSearchTerm] = useState('');
+  const [genreFilter, setGenreFilter] = useState('');
+  const [actorFilter, setActorFilter] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [filteredMovies, setFilteredMovies] = useState([]);
+  
+  // Estados para opciones de los dropdowns
+  const [availableGenres, setAvailableGenres] = useState([]);
+  const [availableActors, setAvailableActors] = useState([]);
+  const [availableStatuses, setAvailableStatuses] = useState([]);
+  
+  // Estado para debug expandido/contraído
+  const [isDebugExpanded, setIsDebugExpanded] = useState(false);
 
   // 📅 Cargar películas disponibles y fechas programadas
   useEffect(() => {
@@ -172,6 +187,10 @@ const Calendar = () => {
           const moviesData = await moviesResponse.json();
           const moviesList = Array.isArray(moviesData) ? moviesData : moviesData.rows || [];
           setMovies(moviesList);
+          setFilteredMovies(moviesList); // Inicializar movies filtradas
+          
+          // Extraer opciones únicas para los dropdowns
+          extractFilterOptions(moviesList);
         }
 
         // Cargar películas programadas con detalles completos
@@ -186,6 +205,104 @@ const Calendar = () => {
 
     loadData();
   }, []);
+
+  // 📊 Extraer opciones únicas para los dropdowns
+  const extractFilterOptions = (moviesList) => {
+    // Extraer géneros únicos
+    const genresSet = new Set();
+    moviesList.forEach(movie => {
+      if (Array.isArray(movie.genres)) {
+        movie.genres.forEach(genre => {
+          if (genre && genre.trim()) {
+            genresSet.add(genre.trim());
+          }
+        });
+      }
+    });
+    setAvailableGenres([...genresSet].sort());
+
+    // Extraer actores únicos (primeros actores de cada película)
+    const actorsSet = new Set();
+    moviesList.forEach(movie => {
+      if (movie.actors && typeof movie.actors === 'string') {
+        // Dividir por comas y tomar los primeros actores
+        const actorsList = movie.actors.split(',').slice(0, 3); // Primeros 3 actores
+        actorsList.forEach(actor => {
+          const cleanActor = actor.trim();
+          if (cleanActor) {
+            actorsSet.add(cleanActor);
+          }
+        });
+      }
+    });
+    setAvailableActors([...actorsSet].sort());
+
+    // Extraer estados únicos
+    const statusesSet = new Set();
+    moviesList.forEach(movie => {
+      if (movie.status && movie.status.trim()) {
+        statusesSet.add(movie.status.trim());
+      }
+    });
+    setAvailableStatuses([...statusesSet].sort());
+  };
+
+  // 🔍 Efecto para filtrar películas
+  useEffect(() => {
+    filterMovies();
+  }, [searchTerm, genreFilter, actorFilter, statusFilter, movies]);
+
+  // 🔍 Función para filtrar películas
+  const filterMovies = () => {
+    let filtered = [...movies];
+
+    // Filtro por búsqueda de nombre
+    if (searchTerm.trim()) {
+      filtered = filtered.filter(movie => 
+        movie.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        movie.name?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Filtro por género (búsqueda exacta)
+    if (genreFilter) {
+      filtered = filtered.filter(movie => {
+        const genres = Array.isArray(movie.genres) ? movie.genres : [];
+        return genres.some(genre => genre === genreFilter);
+      });
+    }
+
+    // Filtro por actor (búsqueda exacta)
+    if (actorFilter) {
+      filtered = filtered.filter(movie => {
+        if (!movie.actors) return false;
+        const actorsList = movie.actors.split(',').map(actor => actor.trim());
+        return actorsList.includes(actorFilter);
+      });
+    }
+
+    // Filtro por estado (búsqueda exacta)
+    if (statusFilter) {
+      filtered = filtered.filter(movie => 
+        movie.status === statusFilter
+      );
+    }
+
+    setFilteredMovies(filtered);
+  };
+
+  // 🔍 Función para buscar películas
+  const handleSearch = () => {
+    filterMovies(); // La búsqueda ya se ejecuta automáticamente en useEffect
+  };
+
+  // 🔍 Función para limpiar filtros
+  const clearFilters = () => {
+    setSearchTerm('');
+    setGenreFilter('');
+    setActorFilter('');
+    setStatusFilter('');
+  };
 
   // 📅 Cargar películas programadas con detalles completos
   const loadScheduledMovies = async () => {
@@ -375,35 +492,132 @@ const Calendar = () => {
       <div className="calendar-page">
         <div className="calendar-container">
           {/* Panel izquierdo - Lista de películas */}
-          <div className="calendar-sidebar">
-            <div className="sidebar-header">
-              <h3>📚 Películas Disponibles</h3>
-              <p className="sidebar-subtitle">{movies.length} películas en tu bitácora</p>
-              <p style={{ fontSize: '0.8rem', color: '#9aa8b0', marginTop: '0.5rem' }}>
-                🖱️ Arrastra una película al calendario
-              </p>
+          <div className="sidebar-container">
+            <div className="sidebar-title">
+              🎬 Películas Disponibles
+            </div>
+            <div className="sidebar-count">
+              {movies.length} películas en tu bitácora
+            </div>
+            <div className="calendar-sidebar">
+            
+            {/* Sección de búsqueda */}
+            <div className="search-section">
+              <div className="search-container">
+                <input
+                  type="text"
+                  placeholder="Buscar por nombre..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="search-input"
+                />
+                <button onClick={handleSearch} className="search-button">
+                  🔍
+                </button>
+              </div>
+            </div>
+
+            {/* Sección de filtros */}
+            <div className="filters-section">
+              <h4 className="filters-title">FILTROS:</h4>
+              
+              <div className="filter-group">
+                <label className="filter-label">GÉNERO:</label>
+                <select
+                  value={genreFilter}
+                  onChange={(e) => setGenreFilter(e.target.value)}
+                  className="filter-select"
+                >
+                  <option value="">Todos los géneros</option>
+                  {availableGenres.map(genre => (
+                    <option key={genre} value={genre}>
+                      {genre}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="filter-group">
+                <label className="filter-label">ACTOR:</label>
+                <select
+                  value={actorFilter}
+                  onChange={(e) => setActorFilter(e.target.value)}
+                  className="filter-select"
+                >
+                  <option value="">Todos los actores</option>
+                  {availableActors.map(actor => (
+                    <option key={actor} value={actor}>
+                      {actor}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="filter-group">
+                <label className="filter-label">ESTADO:</label>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="filter-select"
+                >
+                  <option value="">Todos los estados</option>
+                  {availableStatuses.map(status => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="filter-actions">
+                <button onClick={clearFilters} className="clear-filters-btn">
+                  Limpiar filtros
+                </button>
+                <span className="results-count">
+                  {filteredMovies.length} resultado(s)
+                </span>
+              </div>
+            </div>
+
+            {/* Separador con instrucción */}
+            <div className="drag-instruction">
+              <div className="separator-line"></div>
+              <p className="instruction-text">🖱️ Arrastra tu película al calendario</p>
+              <div className="separator-line"></div>
             </div>
             
-            <div className="movies-list">
-              {movies.slice(0, 20).map(movie => (
-                <DraggableMovie key={movie.id} movie={movie} />
-              ))}
-              {movies.length > 20 && (
-                <div className="movies-overflow">
-                  + {movies.length - 20} películas más...
-                </div>
-              )}
-              
-              {/* DEBUG: Mostrar películas programadas */}
-              {Object.keys(scheduledMoviesByDate).length > 0 && (
-                <div style={{ 
-                  marginTop: '1rem', 
-                  padding: '0.5rem', 
-                  background: 'rgba(255,255,0,0.1)', 
-                  borderRadius: '4px',
-                  fontSize: '0.8rem'
-                }}>
-                  <strong>🐛 DEBUG - Películas programadas:</strong>
+            {/* Contenedor con scroll para las películas */}
+            <div className="movies-container">
+              <div className="movies-list">
+                {filteredMovies.slice(0, 20).map(movie => (
+                  <DraggableMovie key={movie.id} movie={movie} />
+                ))}
+                {filteredMovies.length > 20 && (
+                  <div className="movies-overflow">
+                    + {filteredMovies.length - 20} películas más...
+                  </div>
+                )}
+                
+                {filteredMovies.length === 0 && !loading && (
+                  <div className="no-results">
+                    📭 No se encontraron películas con los filtros aplicados
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+          </div>
+
+          {/* DEBUG: Fuera del sidebar */}
+          {Object.keys(scheduledMoviesByDate).length > 0 && (
+            <div className="debug-info">
+              <div className="debug-header" onClick={() => setIsDebugExpanded(!isDebugExpanded)}>
+                <span>🐛 DEBUG</span>
+                <span className="debug-toggle">{isDebugExpanded ? '−' : '+'}</span>
+              </div>
+              {isDebugExpanded && (
+                <div className="debug-content">
+                  <strong>Películas programadas:</strong>
                   {Object.entries(scheduledMoviesByDate).map(([date, movies]) => (
                     <div key={date}>
                       📅 {date}: {movies.length} película(s)
@@ -412,7 +626,7 @@ const Calendar = () => {
                 </div>
               )}
             </div>
-          </div>
+          )}
 
           {/* Panel derecho - Calendario */}
           <div className="calendar-main">
